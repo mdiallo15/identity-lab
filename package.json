@@ -1,0 +1,43 @@
+{
+  "name": "identity-lab",
+  "version": "0.1.0",
+  "private": false,
+  "license": "MIT",
+  "description": "Interactive identity & auth lab: JWT inspector with security warnings and a working WebAuthn / passkey demo.",
+  "author": "Marwan Diallo",
+  "homepage": "https://marwandiallo.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mdiallo15/identity-lab.git"
+  },
+  "keywords": [
+    "identity",
+    "oidc",
+    "jwt",
+    "webauthn",
+    "passkey",
+    "auth"
+  ],
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@simplewebauthn/browser": "^11.0.0",
+    "@simplewebauthn/server": "^11.0.0",
+    "next": "15.5.15",
+    "react": "19.0.0",
+    "react-dom": "19.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "typescript": "^5.7.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
