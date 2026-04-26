@@ -315,3 +315,38 @@ dd code {
     grid-template-columns: 1fr;
   }
 }
+
+/* Topbar left cluster: back link + brand */
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.back-link {
+  font-size: 0.85rem;
+  color: var(--ink-dim);
+  padding-right: 1rem;
+  border-right: 1px solid var(--rule);
+}
+.back-link:hover {
+  color: var(--accent);
+  text-decoration: none;
+}
+@media (max-width: 720px) {
+  .topbar {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .topbar-left {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .back-link {
+    border-right: none;
+    padding-right: 0;
+  }
+  .topbar nav {
+    flex-wrap: wrap;
+    font-size: 0.85rem;
+  }
+}

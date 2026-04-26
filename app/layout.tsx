@@ -16,9 +16,14 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <header className="topbar">
-          <Link href="/" className="brand">
-            Identity Lab
-          </Link>
+          <div className="topbar-left">
+            <a href="https://marwandiallo.com" className="back-link">
+              ← marwandiallo.com
+            </a>
+            <Link href="/" className="brand">
+              Identity Lab
+            </Link>
+          </div>
           <nav>
             <Link href="/passkey">Passkey</Link>
             <Link href="/jwt">JWT</Link>
