@@ -33,7 +33,7 @@ export default function Home() {
       <h2>Why this exists</h2>
       <p>
         Most identity bugs are structural. A teammate writes{" "}
-        <code>jwt.verify(token, secret)</code> without pinning the algorithm,
+        <code>jwt.verify(token, secret)</code> without pinning the algorithm,{/* audit-ignore JS008 */}
         ships, and doesn't think about it again. This lab lets you see those
         bugs the way I see them when I audit code.
       </p>
