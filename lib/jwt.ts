@@ -107,7 +107,8 @@ export function analyzeJwt(parts: JwtParts): JwtFinding[] {
     findings.push({
       severity: "low",
       title: "Missing aud claim",
-      detail: "Without audience, tokens issued for service A can be replayed at service B.",
+      detail:
+        "Without audience, tokens issued for service A can be replayed at service B.",
     });
   }
 
@@ -121,7 +122,10 @@ export function analyzeJwt(parts: JwtParts): JwtFinding[] {
         "JWT payloads are base64-encoded, not encrypted. Treat anything inside as public.",
     });
   }
-  if (/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/.test(payloadStr) && !payload.email_verified) {
+  if (
+    /[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/.test(payloadStr) &&
+    !payload.email_verified
+  ) {
     findings.push({
       severity: "low",
       title: "Email present but unverified",
@@ -131,7 +135,12 @@ export function analyzeJwt(parts: JwtParts): JwtFinding[] {
   }
 
   // OIDC ID token heuristics
-  if (payload.nonce && header.typ !== "JWT" && header.typ !== "id+jwt" && header.typ !== undefined) {
+  if (
+    payload.nonce &&
+    header.typ !== "JWT" &&
+    header.typ !== "id+jwt" &&
+    header.typ !== undefined
+  ) {
     findings.push({
       severity: "info",
       title: "Unusual typ for ID token",
@@ -139,7 +148,13 @@ export function analyzeJwt(parts: JwtParts): JwtFinding[] {
     });
   }
 
-  if (alg.startsWith("HS") && payload.iss && /accounts\.google|login\.microsoftonline|auth0|okta/.test(String(payload.iss))) {
+  if (
+    alg.startsWith("HS") &&
+    payload.iss &&
+    /accounts\.google|login\.microsoftonline|auth0|okta/.test(
+      String(payload.iss),
+    )
+  ) {
     findings.push({
       severity: "high",
       title: "HMAC alg with public IdP issuer",

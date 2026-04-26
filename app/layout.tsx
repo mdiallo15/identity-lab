@@ -34,8 +34,7 @@ export default function RootLayout({
         <main>{children}</main>
         <footer>
           <span>
-            Built by{" "}
-            <a href="https://marwandiallo.com">Marwan Diallo</a> · MIT
+            Built by <a href="https://marwandiallo.com">Marwan Diallo</a> · MIT
           </span>
         </footer>
       </body>

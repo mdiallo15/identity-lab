@@ -3,8 +3,8 @@
 // with the public key, sign count, transports, and aaguid.
 
 export interface StoredCredential {
-  credentialID: string;        // base64url
-  publicKey: string;           // base64url
+  credentialID: string; // base64url
+  publicKey: string; // base64url
   counter: number;
   transports?: string[];
 }

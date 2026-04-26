@@ -8,9 +8,10 @@ import {
 
 export default function PasskeyPage() {
   const [username, setUsername] = useState("alice");
-  const [status, setStatus] = useState<{ kind: "ok" | "err"; msg: string } | null>(
-    null,
-  );
+  const [status, setStatus] = useState<{
+    kind: "ok" | "err";
+    msg: string;
+  } | null>(null);
 
   async function register() {
     setStatus(null);
@@ -74,8 +75,8 @@ export default function PasskeyPage() {
     <>
       <h1>Passkey demo</h1>
       <p className="lede">
-        WebAuthn registration + authentication against an in-memory user
-        store. The server is{" "}
+        WebAuthn registration + authentication against an in-memory user store.
+        The server is{" "}
         <a href="https://simplewebauthn.dev">@simplewebauthn/server</a>; the
         store resets on every server restart.
       </p>

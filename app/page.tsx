@@ -6,8 +6,8 @@ export default function Home() {
       <h1>Identity Lab</h1>
       <p className="lede">
         Two interactive tools for the auth-curious. Paste a real token, see
-        what's actually inside; register a passkey, watch the WebAuthn
-        ceremony in your browser.
+        what's actually inside; register a passkey, watch the WebAuthn ceremony
+        in your browser.
       </p>
 
       <div className="cards">
@@ -33,7 +33,8 @@ export default function Home() {
       <h2>Why this exists</h2>
       <p>
         Most identity bugs are structural. A teammate writes{" "}
-        <code>jwt.verify(token, secret)</code> without pinning the algorithm,{/* audit-ignore JS008 */}
+        <code>jwt.verify(token, secret)</code> without pinning the algorithm,
+        {/* audit-ignore JS008 */}
         ships, and doesn't think about it again. This lab lets you see those
         bugs the way I see them when I audit code.
       </p>

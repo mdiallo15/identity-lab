@@ -24,7 +24,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "invalid_body" }, { status: 400 });
   }
   const { step, username } = body as { step: string; username: string };
-  if (typeof username !== "string" || username.length === 0 || username.length > 64) {
+  if (
+    typeof username !== "string" ||
+    username.length === 0 ||
+    username.length > 64
+  ) {
     return NextResponse.json({ error: "invalid_username" }, { status: 400 });
   }
 
@@ -57,9 +61,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "no_challenge" }, { status: 400 });
     }
     const assertion = (body as { assertion: { id: string } }).assertion;
-    const stored = user.credentials.find((c) => c.credentialID === assertion.id);
+    const stored = user.credentials.find(
+      (c) => c.credentialID === assertion.id,
+    );
     if (!stored) {
-      return NextResponse.json({ error: "unknown_credential" }, { status: 400 });
+      return NextResponse.json(
+        { error: "unknown_credential" },
+        { status: 400 },
+      );
     }
     const verification = await verifyAuthenticationResponse({
       response: assertion as never,
@@ -75,7 +84,10 @@ export async function POST(request: Request) {
       requireUserVerification: false,
     });
     if (!verification.verified) {
-      return NextResponse.json({ error: "verification_failed" }, { status: 400 });
+      return NextResponse.json(
+        { error: "verification_failed" },
+        { status: 400 },
+      );
     }
     updateCredentialCounter(
       user.id,

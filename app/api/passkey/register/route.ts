@@ -25,7 +25,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "invalid_body" }, { status: 400 });
   }
   const { step, username } = body as { step: string; username: string };
-  if (typeof username !== "string" || username.length === 0 || username.length > 64) {
+  if (
+    typeof username !== "string" ||
+    username.length === 0 ||
+    username.length > 64
+  ) {
     return NextResponse.json({ error: "invalid_username" }, { status: 400 });
   }
 
@@ -67,7 +71,10 @@ export async function POST(request: Request) {
     });
 
     if (!verification.verified || !verification.registrationInfo) {
-      return NextResponse.json({ error: "verification_failed" }, { status: 400 });
+      return NextResponse.json(
+        { error: "verification_failed" },
+        { status: 400 },
+      );
     }
 
     const reg = verification.registrationInfo;
