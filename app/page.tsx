@@ -27,8 +27,8 @@ export default function Home() {
         <div>
           <strong>~80%</strong>
           <span>
-            of breaches still start with a stolen or phished credential
-            (Verizon DBIR).
+            of breaches still start with a stolen or phished credential (Verizon
+            DBIR).
           </span>
         </div>
         <div>
@@ -55,17 +55,17 @@ export default function Home() {
           <h3>JWT inspector</h3>
           <p>
             Paste a real token, see what's inside, and watch the analyzer flag
-            <code> alg=none</code>, alg-confusion, missing <code>exp</code>,
-            and PII leakage in real time.
+            <code> alg=none</code>, alg-confusion, missing <code>exp</code>, and
+            PII leakage in real time.
           </p>
           <Link href="/jwt">Open inspector →</Link>
         </div>
         <div className="card">
           <h3>Phishing-resistant MFA, explained</h3>
           <p>
-            Why FIDO2 / WebAuthn is the only mainstream MFA factor that
-            survives a real-time AitM phishing kit. With diagrams of what
-            actually happens on the wire.
+            Why FIDO2 / WebAuthn is the only mainstream MFA factor that survives
+            a real-time AitM phishing kit. With diagrams of what actually
+            happens on the wire.
           </p>
           <Link href="/phishing-resistant">Read →</Link>
         </div>
@@ -73,8 +73,8 @@ export default function Home() {
           <h3>Agent identity</h3>
           <p>
             What a passkey is to a human, a workload credential is to an AI
-            agent. Covers OIDC, SPIFFE/SPIRE, attestation, and the new
-            problem: how do you authenticate an agent that{" "}
+            agent. Covers OIDC, SPIFFE/SPIRE, attestation, and the new problem:
+            how do you authenticate an agent that{" "}
             <em>acts on a user's behalf</em>?
           </p>
           <Link href="/agent-identity">Read →</Link>
@@ -86,9 +86,9 @@ export default function Home() {
         I spend my days auditing identity systems at Microsoft. The same bugs
         keep showing up: tokens accepted with{" "}
         <code>jwt.verify(token, secret)</code> {/* audit-ignore JS008 */}
-        without an algorithm pinned, MFA prompts that any reverse-proxy
-        phishing kit can replay, and now — agents handed long-lived API keys
-        because nobody designed an identity model for them.
+        without an algorithm pinned, MFA prompts that any reverse-proxy phishing
+        kit can replay, and now — agents handed long-lived API keys because
+        nobody designed an identity model for them.
       </p>
       <p>
         This lab lets you touch the alternative: phishing-resistant

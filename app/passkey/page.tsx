@@ -6,6 +6,9 @@ import {
   startAuthentication,
 } from "@simplewebauthn/browser";
 
+// Keep in sync with next.config.mjs basePath. fetch() does NOT auto-prefix.
+const BP = "/identity";
+
 export default function PasskeyPage() {
   const [username, setUsername] = useState("alice");
   const [status, setStatus] = useState<{
@@ -16,7 +19,7 @@ export default function PasskeyPage() {
   async function register() {
     setStatus(null);
     try {
-      const optsRes = await fetch("/api/passkey/register", {
+      const optsRes = await fetch(`${BP}/api/passkey/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ step: "options", username }),
@@ -26,7 +29,7 @@ export default function PasskeyPage() {
 
       const attestation = await startRegistration({ optionsJSON: opts });
 
-      const verifyRes = await fetch("/api/passkey/register", {
+      const verifyRes = await fetch(`${BP}/api/passkey/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -45,7 +48,7 @@ export default function PasskeyPage() {
   async function signIn() {
     setStatus(null);
     try {
-      const optsRes = await fetch("/api/passkey/authenticate", {
+      const optsRes = await fetch(`${BP}/api/passkey/authenticate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ step: "options", username }),
@@ -55,7 +58,7 @@ export default function PasskeyPage() {
 
       const assertion = await startAuthentication({ optionsJSON: opts });
 
-      const verifyRes = await fetch("/api/passkey/authenticate", {
+      const verifyRes = await fetch(`${BP}/api/passkey/authenticate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
