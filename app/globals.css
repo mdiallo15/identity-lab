@@ -214,3 +214,104 @@ code {
 .row > button {
   flex: 0 0 auto;
 }
+
+/* Hero stats on home */
+.hero-stat {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin: 2rem 0 1rem;
+}
+.hero-stat > div {
+  border: 1px solid var(--rule);
+  background: var(--bg-elev);
+  padding: 1rem 1.25rem;
+  border-radius: 8px;
+}
+.hero-stat strong {
+  display: block;
+  font-size: 1.6rem;
+  color: var(--accent);
+  margin-bottom: 0.25rem;
+}
+.hero-stat span {
+  color: var(--ink-dim);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+/* Standards / list emphasis */
+.standards li,
+.gotchas li,
+.action li,
+.bad-models li,
+.triple li {
+  margin-bottom: 0.6rem;
+}
+.standards strong,
+.bad-models strong,
+.triple strong {
+  color: var(--ink);
+}
+
+/* MFA ranking table */
+table.rank {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0 2rem;
+  font-size: 0.92rem;
+}
+table.rank th,
+table.rank td {
+  text-align: left;
+  padding: 0.7rem 0.8rem;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+}
+table.rank th {
+  color: var(--ink-dim);
+  font-weight: 600;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+table.rank tr.bad td:nth-child(2) {
+  color: var(--high);
+  font-weight: 600;
+}
+table.rank tr.meh td:nth-child(2) {
+  color: var(--medium);
+  font-weight: 600;
+}
+table.rank tr.good td:nth-child(2) {
+  color: var(--ok);
+  font-weight: 600;
+}
+
+/* Definition lists */
+dl {
+  margin: 1rem 0;
+}
+dt {
+  font-weight: 600;
+  color: var(--ink);
+  margin-top: 1rem;
+}
+dd {
+  margin: 0.3rem 0 0;
+  color: var(--ink-dim);
+  line-height: 1.55;
+}
+dd code {
+  color: var(--accent);
+}
+
+/* Make 4-card grid wrap nicely */
+@media (max-width: 720px) {
+  .cards {
+    grid-template-columns: 1fr;
+  }
+  .hero-stat {
+    grid-template-columns: 1fr;
+  }
+}
