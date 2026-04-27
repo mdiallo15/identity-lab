@@ -10,6 +10,7 @@ import {
   type SampleDoc,
   type Severity,
 } from "../../../lib/prompt-injection";
+import { ExportButtons } from "../../_components/export-buttons";
 
 export default function Simulator() {
   const [selectedId, setSelectedId] = useState<string>(SAMPLES[1].id);
@@ -165,6 +166,13 @@ export default function Simulator() {
       {findings.length > 0 && (
         <>
           <h2>Detector findings</h2>
+          <ExportButtons
+            findings={findings}
+            toolName="lab.marwandiallo.com/prompt-injection"
+            target={doc.id}
+            payload={{ doc, findings, naive, hardened }}
+            filenamePrefix="prompt-injection"
+          />
           <div className="findings">
             {findings
               .sort((a, b) => sevRank[b.severity] - sevRank[a.severity])

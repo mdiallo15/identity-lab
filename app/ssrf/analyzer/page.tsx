@@ -7,6 +7,7 @@ import {
   SSRF_SAMPLES,
   type Severity,
 } from "../../../lib/ssrf";
+import { ExportButtons } from "../../_components/export-buttons";
 
 export default function SsrfAnalyzer() {
   const [url, setUrl] = useState<string>(SSRF_SAMPLES[1].value);
@@ -101,6 +102,14 @@ export default function SsrfAnalyzer() {
           {!findings.length && "no SSRF risk indicators"}
         </span>
       </div>
+
+      <ExportButtons
+        findings={findings}
+        toolName="lab.marwandiallo.com/ssrf"
+        target={url}
+        payload={{ url, parsed, findings }}
+        filenamePrefix="ssrf-scan"
+      />
 
       <div className="findings">
         {findings

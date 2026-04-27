@@ -8,7 +8,27 @@
 // and runs[].results[]. Severity maps from our 4-level model to SARIF's
 // security-severity (CVSS 0-10) so GitHub renders the right pill color.
 
-import type { Finding, Severity } from "./csp";
+// Permissive Finding shape — matches lib/csp.ts, lib/headers.ts,
+// lib/prompt-injection.ts, and lib/ssrf.ts. Each lab's Finding has
+// slightly different optional fields (fix vs excerpt vs directive)
+// and PI/SSRF add 'critical' to the severity union. We accept all of
+// them and map appropriately.
+export type SarifSeverity =
+  | "critical"
+  | "high"
+  | "medium"
+  | "low"
+  | "info";
+
+export interface SarifFinding {
+  id: string;
+  severity: SarifSeverity;
+  title: string;
+  detail: string;
+  fix?: string;
+  excerpt?: string;
+  directive?: string;
+}
 
 const VERSION = "1.0.0";
 const SCHEMA =
@@ -23,6 +43,9 @@ interface SarifRule {
   defaultConfiguration: { level: "error" | "warning" | "note" };
   properties: { "security-severity": string; tags: string[] };
 }
+
+// Re-export legacy alias so existing /csp/analyzer import keeps working.
+export type { SarifFinding as Finding };
 
 interface SarifResult {
   ruleId: string;
@@ -41,7 +64,7 @@ export interface SarifOptions {
 }
 
 export function findingsToSarif(
-  findings: Finding[],
+  findings: SarifFinding[],
   opts: SarifOptions,
 ): unknown {
   // Deduplicate rules — multiple findings can share an id (rare but possible).
@@ -61,22 +84,26 @@ export function findingsToSarif(
     });
   }
 
-  const results: SarifResult[] = findings.map((f) => ({
-    ruleId: f.id,
-    level: severityToLevel(f.severity),
-    message: {
-      text: `${f.title}\n\n${f.detail}\n\nFix: ${f.fix}`,
-    },
-    locations: opts.target
-      ? [
-          {
-            physicalLocation: {
-              artifactLocation: { uri: opts.target },
+  const results: SarifResult[] = findings.map((f) => {
+    const fixLine = f.fix ? `\n\nFix: ${f.fix}` : "";
+    const excerptLine = f.excerpt ? `\n\nExcerpt:\n${f.excerpt}` : "";
+    return {
+      ruleId: f.id,
+      level: severityToLevel(f.severity),
+      message: {
+        text: `${f.title}\n\n${f.detail}${fixLine}${excerptLine}`,
+      },
+        locations: opts.target
+        ? [
+            {
+              physicalLocation: {
+                artifactLocation: { uri: opts.target },
+              },
             },
-          },
-        ]
-      : undefined,
-  }));
+          ]
+        : undefined,
+    };
+  });
 
   return {
     $schema: SCHEMA,
@@ -97,15 +124,16 @@ export function findingsToSarif(
   };
 }
 
-function severityToLevel(s: Severity): "error" | "warning" | "note" {
-  if (s === "high") return "error";
+function severityToLevel(s: SarifSeverity): "error" | "warning" | "note" {
+  if (s === "critical" || s === "high") return "error";
   if (s === "medium") return "warning";
   return "note"; // low, info
 }
 
 // security-severity is GitHub's signal for sort order on the
-// Code Scanning UI. Mapping: high=8.5, medium=5.5, low=3.0, info=0.0.
-function severityToCvss(s: Severity): string {
+// Code Scanning UI. CVSS bands: critical>=9, high>=7, medium>=4, low>=0.1.
+function severityToCvss(s: SarifSeverity): string {
+  if (s === "critical") return "9.5";
   if (s === "high") return "8.5";
   if (s === "medium") return "5.5";
   if (s === "low") return "3.0";
