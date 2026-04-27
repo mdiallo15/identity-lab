@@ -18,26 +18,23 @@ export default function SsrfAnalyzer() {
       acc[f.severity] = (acc[f.severity] ?? 0) + 1;
       return acc;
     },
-    { info: 0, low: 0, medium: 0, high: 0, critical: 0 }
+    { info: 0, low: 0, medium: 0, high: 0, critical: 0 },
   );
 
   return (
     <>
       <h1>SSRF URL analyzer</h1>
       <p className="lede">
-        Paste a URL the agent or backend is about to fetch. The analyzer
-        decodes the host (decimal, hex, octal, alias), checks against
-        cloud metadata IPs, RFC 1918, link-local, loopback, and unusual
-        URL schemes, and surfaces eight SSRF-relevant findings.
+        Paste a URL the agent or backend is about to fetch. The analyzer decodes
+        the host (decimal, hex, octal, alias), checks against cloud metadata
+        IPs, RFC 1918, link-local, loopback, and unusual URL schemes, and
+        surfaces eight SSRF-relevant findings.
       </p>
 
       <div className="row" style={{ marginBottom: "0.75rem" }}>
         <label>
           <strong>Sample:</strong>{" "}
-          <select
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-          >
+          <select value={url} onChange={(e) => setUrl(e.target.value)}>
             {SSRF_SAMPLES.map((s) => (
               <option key={s.value} value={s.value}>
                 {s.label}
@@ -68,9 +65,15 @@ export default function SsrfAnalyzer() {
           </div>
         )}
         <div className="ssrf-flags">
-          {parsed.isMetadata && <span className="ssrf-flag ssrf-flag--bad">cloud metadata</span>}
-          {parsed.isLinkLocal && <span className="ssrf-flag ssrf-flag--bad">link-local</span>}
-          {parsed.isLoopback && <span className="ssrf-flag ssrf-flag--bad">loopback</span>}
+          {parsed.isMetadata && (
+            <span className="ssrf-flag ssrf-flag--bad">cloud metadata</span>
+          )}
+          {parsed.isLinkLocal && (
+            <span className="ssrf-flag ssrf-flag--bad">link-local</span>
+          )}
+          {parsed.isLoopback && (
+            <span className="ssrf-flag ssrf-flag--bad">loopback</span>
+          )}
           {parsed.isPrivate && !parsed.isLoopback && !parsed.isLinkLocal && (
             <span className="ssrf-flag ssrf-flag--bad">RFC1918</span>
           )}
@@ -115,9 +118,7 @@ export default function SsrfAnalyzer() {
                 <h3>{f.title}</h3>
               </header>
               <p>{f.detail}</p>
-              {f.excerpt && (
-                <pre className="finding__excerpt">{f.excerpt}</pre>
-              )}
+              {f.excerpt && <pre className="finding__excerpt">{f.excerpt}</pre>}
             </article>
           ))}
       </div>

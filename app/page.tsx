@@ -77,8 +77,8 @@ export default function LabsIndex() {
           <p>
             Why <code>169.254.169.254</code> is the most-attacked IP on the
             internet. URL analyzer that decodes decimal, hex, octal, and
-            alias-hostname bypasses; a tour of the five canonical SSRF
-            targets; and the four hardening layers ranked by impact.
+            alias-hostname bypasses; a tour of the five canonical SSRF targets;
+            and the four hardening layers ranked by impact.
           </p>
           <ul className="lab-tile__bullets">
             <li>URL bypass analyzer (8 sample payloads)</li>

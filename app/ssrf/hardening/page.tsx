@@ -9,18 +9,15 @@ export default function Hardening() {
     <>
       <h1>Hardening that actually contains it</h1>
       <p className="lede">
-        SSRF is rarely fixable in one place. The application has to pass
-        the request, the network has to route it, and the destination has
-        to honor it. Break any of those and the chain dies. Break all
-        four below and you've contained the blast radius even if the
-        next bug lands.
+        SSRF is rarely fixable in one place. The application has to pass the
+        request, the network has to route it, and the destination has to honor
+        it. Break any of those and the chain dies. Break all four below and
+        you've contained the blast radius even if the next bug lands.
       </p>
 
       <article className="shape">
         <h2>1. Make IMDSv2 required (or platform equivalent)</h2>
-        <p>
-          On AWS:
-        </p>
+        <p>On AWS:</p>
         <pre>{`# Per launch template
 HttpTokens: required
 HttpPutResponseHopLimit: 1
@@ -30,10 +27,10 @@ aws ec2 describe-instances \\
   --query 'Reservations[*].Instances[*].[InstanceId,MetadataOptions.HttpTokens]' \\
   --output table`}</pre>
         <p>
-          On GCP and Azure, the platform requires a header on every read.
-          That's already analogous to IMDSv2's session-token model — but
-          only against header-stripping SSRF primitives. The next layer
-          is what catches the rest.
+          On GCP and Azure, the platform requires a header on every read. That's
+          already analogous to IMDSv2's session-token model — but only against
+          header-stripping SSRF primitives. The next layer is what catches the
+          rest.
         </p>
       </article>
 
@@ -42,8 +39,7 @@ aws ec2 describe-instances \\
         <p>
           Application processes have no business reaching{" "}
           <code>169.254.169.254</code>. The metadata service is for the{" "}
-          <em>host</em>, not for application code. Block at the host
-          firewall:
+          <em>host</em>, not for application code. Block at the host firewall:
         </p>
         <pre>{`# nftables on Linux — drop link-local egress from app uid
 nft add rule ip filter OUTPUT \\
@@ -53,8 +49,7 @@ nft add rule ip filter OUTPUT \\
 iptables -A OUTPUT -m owner --uid-owner app \\
   -d 169.254.0.0/16 -j DROP`}</pre>
         <p>
-          On Kubernetes, do it at the NetworkPolicy / Calico /
-          Cilium layer:
+          On Kubernetes, do it at the NetworkPolicy / Calico / Cilium layer:
         </p>
         <pre>{`apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -72,8 +67,7 @@ spec:
       <article className="shape">
         <h2>3. URL validation: resolve before checking</h2>
         <p>
-          The mistake that ships in 80% of homegrown URL validators is
-          this:
+          The mistake that ships in 80% of homegrown URL validators is this:
         </p>
         <pre>{`// BROKEN
 function isAllowed(rawUrl: string) {
@@ -83,13 +77,12 @@ function isAllowed(rawUrl: string) {
 }`}</pre>
         <p>
           That misses every encoding the{" "}
-          <Link href="/ssrf/analyzer">analyzer</Link> covers: decimal,
-          hex, octal, alias hostnames, DNS rebinding. The fix is to{" "}
-          <em>resolve</em> the hostname to an IP, validate the IP
-          against your blocklist, and then make the actual request to
-          that resolved IP (with the original Host header for SNI).
-          That last part — pinning the IP after validation — is what
-          defeats DNS rebinding.
+          <Link href="/ssrf/analyzer">analyzer</Link> covers: decimal, hex,
+          octal, alias hostnames, DNS rebinding. The fix is to <em>resolve</em>{" "}
+          the hostname to an IP, validate the IP against your blocklist, and
+          then make the actual request to that resolved IP (with the original
+          Host header for SNI). That last part — pinning the IP after validation
+          — is what defeats DNS rebinding.
         </p>
         <pre>{`// Slightly better (still simplified)
 async function safeFetch(rawUrl: string) {
@@ -105,10 +98,10 @@ async function safeFetch(rawUrl: string) {
   });
 }`}</pre>
         <p>
-          In practice: don't roll this. Use a battle-tested library
-          (Python <code>urllib3</code> with the SSRF protection patch,
-          Go <code>net/http.DefaultTransport</code> with a custom dialer,
-          a fronting proxy like Stripe's{" "}
+          In practice: don't roll this. Use a battle-tested library (Python{" "}
+          <code>urllib3</code> with the SSRF protection patch, Go{" "}
+          <code>net/http.DefaultTransport</code> with a custom dialer, a
+          fronting proxy like Stripe's{" "}
           <a
             href="https://github.com/stripe/smokescreen"
             target="_blank"
@@ -123,10 +116,9 @@ async function safeFetch(rawUrl: string) {
       <article className="shape">
         <h2>4. Identity-layer scoping</h2>
         <p>
-          The reason IMDS theft is catastrophic is that the IAM role
-          attached to the instance is usually over-privileged. Even if
-          layers 1–3 fail, a tightly-scoped instance role limits the
-          blast radius:
+          The reason IMDS theft is catastrophic is that the IAM role attached to
+          the instance is usually over-privileged. Even if layers 1–3 fail, a
+          tightly-scoped instance role limits the blast radius:
         </p>
         <ul>
           <li>
@@ -134,17 +126,17 @@ async function safeFetch(rawUrl: string) {
             "general-app" role.
           </li>
           <li>
-            <em>No</em> wildcard <code>Resource: "*"</code> on
-            sensitive actions (S3 GetObject, Secrets Manager, KMS).
+            <em>No</em> wildcard <code>Resource: "*"</code> on sensitive actions
+            (S3 GetObject, Secrets Manager, KMS).
           </li>
           <li>
-            Use IAM <em>session tags</em> + <em>request conditions</em>{" "}
-            to scope role usage by request context where possible.
+            Use IAM <em>session tags</em> + <em>request conditions</em> to scope
+            role usage by request context where possible.
           </li>
           <li>
-            Detective controls: CloudTrail alerts on any IMDS-derived
-            credential used from outside the instance's expected egress
-            range — Capital One would have been caught here.
+            Detective controls: CloudTrail alerts on any IMDS-derived credential
+            used from outside the instance's expected egress range — Capital One
+            would have been caught here.
           </li>
         </ul>
       </article>
@@ -153,30 +145,27 @@ async function safeFetch(rawUrl: string) {
       <p>If you can only ship three things this quarter:</p>
       <ol>
         <li>
-          <strong>Egress-block link-local from app processes.</strong>{" "}
-          One firewall rule. Kills the highest-impact attack class
-          regardless of validator quality.
+          <strong>Egress-block link-local from app processes.</strong> One
+          firewall rule. Kills the highest-impact attack class regardless of
+          validator quality.
         </li>
         <li>
-          <strong>Set IMDSv2 required</strong> on every AWS instance.
-          One config flag. Gigantic upgrade against header-stripping
-          SSRF primitives.
+          <strong>Set IMDSv2 required</strong> on every AWS instance. One config
+          flag. Gigantic upgrade against header-stripping SSRF primitives.
         </li>
         <li>
-          <strong>Stop hand-rolling URL validators.</strong> Use a
-          fronting proxy or a battle-tested library. The bypasses are
-          too many to maintain in-house.
+          <strong>Stop hand-rolling URL validators.</strong> Use a fronting
+          proxy or a battle-tested library. The bypasses are too many to
+          maintain in-house.
         </li>
       </ol>
 
       <h2>The agent angle</h2>
       <p>
-        Every URL-fetching AI agent inherits this entire threat model.
-        If the agent can be{" "}
-        <Link href="/prompt-injection">prompt-injected</Link> into
-        fetching a URL, your validation chain has to be at least as
-        strict as if the user had submitted it. In most agent
-        deployments today, it isn't.
+        Every URL-fetching AI agent inherits this entire threat model. If the
+        agent can be <Link href="/prompt-injection">prompt-injected</Link> into
+        fetching a URL, your validation chain has to be at least as strict as if
+        the user had submitted it. In most agent deployments today, it isn't.
       </p>
     </>
   );
