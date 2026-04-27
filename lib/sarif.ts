@@ -13,12 +13,7 @@
 // slightly different optional fields (fix vs excerpt vs directive)
 // and PI/SSRF add 'critical' to the severity union. We accept all of
 // them and map appropriately.
-export type SarifSeverity =
-  | "critical"
-  | "high"
-  | "medium"
-  | "low"
-  | "info";
+export type SarifSeverity = "critical" | "high" | "medium" | "low" | "info";
 
 export interface SarifFinding {
   id: string;
@@ -93,7 +88,7 @@ export function findingsToSarif(
       message: {
         text: `${f.title}\n\n${f.detail}${fixLine}${excerptLine}`,
       },
-        locations: opts.target
+      locations: opts.target
         ? [
             {
               physicalLocation: {

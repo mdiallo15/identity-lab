@@ -35,7 +35,8 @@ export default function Analyzer() {
   const [scanError, setScanError] = useState<string | null>(null);
 
   const pasteFindings: Finding[] = analyze(input);
-  const findings = mode === "scan" ? (scanResult?.findings ?? []) : pasteFindings;
+  const findings =
+    mode === "scan" ? (scanResult?.findings ?? []) : pasteFindings;
 
   async function runScan() {
     setScanning(true);
@@ -94,9 +95,9 @@ export default function Analyzer() {
     <>
       <h1>CSP & Headers Analyzer</h1>
       <p className="lede">
-        Two modes: paste a CSP string for a 12-rule audit, or scan a live URL
-        to fetch its real response headers and run the full headers + SRI
-        ruleset. Export to SARIF for GitHub Code Scanning.
+        Two modes: paste a CSP string for a 12-rule audit, or scan a live URL to
+        fetch its real response headers and run the full headers + SRI ruleset.
+        Export to SARIF for GitHub Code Scanning.
       </p>
 
       <div className="row" style={{ gap: "0.4rem", marginBottom: "0.8rem" }}>
@@ -333,14 +334,14 @@ export default function Analyzer() {
         Integrity check on cross-origin <code>&lt;script&gt;</code> tags.
       </p>
       <p>
-        Both modes export to SARIF v2.1.0 — paste the file into a GitHub
-        Code Scanning workflow and findings show up in the Security tab.
+        Both modes export to SARIF v2.1.0 — paste the file into a GitHub Code
+        Scanning workflow and findings show up in the Security tab.
       </p>
       <p>
         Out of scope (for now): <code>require-trusted-types-for</code>,{" "}
-        <code>trusted-types</code>, <code>sandbox</code>, per-element
-        directives like <code>script-src-attr</code>, and DNS-rebinding-aware
-        IP re-resolution. Those need a Node runtime; the scanner runs on Edge.
+        <code>trusted-types</code>, <code>sandbox</code>, per-element directives
+        like <code>script-src-attr</code>, and DNS-rebinding-aware IP
+        re-resolution. Those need a Node runtime; the scanner runs on Edge.
       </p>
     </>
   );

@@ -179,7 +179,8 @@ export function analyzeHeaders({ headers }: HeaderInput): Finding[] {
   }
 
   return out.sort(
-    (a, b) => sevRank(a.severity) - sevRank(b.severity) || a.id.localeCompare(b.id),
+    (a, b) =>
+      sevRank(a.severity) - sevRank(b.severity) || a.id.localeCompare(b.id),
   );
 }
 

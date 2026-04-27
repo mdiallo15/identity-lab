@@ -84,7 +84,10 @@ export async function POST(req: NextRequest) {
   // Pre-flight URL validation — schemes + private/loopback/metadata blocks.
   const parsed = parseTarget(target);
   if (!parsed.hostname) {
-    return NextResponse.json({ error: "Could not parse URL." }, { status: 400 });
+    return NextResponse.json(
+      { error: "Could not parse URL." },
+      { status: 400 },
+    );
   }
   if (!parsed.protocol || !["http", "https"].includes(parsed.protocol)) {
     return NextResponse.json(

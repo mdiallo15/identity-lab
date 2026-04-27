@@ -6,13 +6,48 @@ import {
   sevRank,
   SSRF_SAMPLES,
   type Severity,
+  type Finding,
 } from "../../../lib/ssrf";
 import { ExportButtons } from "../../_components/export-buttons";
 
+type Stage = {
+  name: string;
+  status: "pass" | "fail" | "skipped";
+  detail: string;
+  data?: unknown;
+};
+type RuntimeResult = { stages: Stage[]; findings: Finding[] };
+
 export default function SsrfAnalyzer() {
   const [url, setUrl] = useState<string>(SSRF_SAMPLES[1].value);
+  const [running, setRunning] = useState(false);
+  const [runtime, setRuntime] = useState<RuntimeResult | null>(null);
+  const [runtimeError, setRuntimeError] = useState<string | null>(null);
 
   const { parsed, findings } = useMemo(() => analyze(url), [url]);
+
+  async function runRuntimeTest() {
+    setRunning(true);
+    setRuntime(null);
+    setRuntimeError(null);
+    try {
+      const r = await fetch("/api/ssrf-test", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ url }),
+      });
+      const data = await r.json();
+      if (!r.ok) {
+        setRuntimeError(data.error ?? `HTTP ${r.status}`);
+      } else {
+        setRuntime(data);
+      }
+    } catch (err) {
+      setRuntimeError(err instanceof Error ? err.message : "Network error");
+    } finally {
+      setRunning(false);
+    }
+  }
 
   const counts = findings.reduce<Record<Severity, number>>(
     (acc, f) => {
@@ -52,6 +87,101 @@ export default function SsrfAnalyzer() {
         spellCheck={false}
         placeholder="https://example.com/path"
       />
+
+      <div className="row" style={{ gap: "0.5rem", marginTop: "0.6rem" }}>
+        <button
+          onClick={runRuntimeTest}
+          disabled={running || !url.trim()}
+          style={{
+            background: "var(--ink)",
+            color: "var(--bg)",
+            border: "1px solid var(--ink)",
+            padding: "0.45rem 0.9rem",
+            fontWeight: 600,
+            opacity: running ? 0.6 : 1,
+          }}
+        >
+          {running ? "Running\u2026" : "Run server-side validate-then-fetch"}
+        </button>
+      </div>
+      <p style={{ fontSize: "0.78rem", color: "var(--ink-dim)", margin: "0.5rem 0 0" }}>
+        Runs the canonical 4-stage hardening flow on the server:
+        parse → pre-flight rule check → DNS resolve + re-check every IP
+        (DNS-rebinding defence) → bounded fetch. Each stage's pass/fail
+        is shown below.
+      </p>
+
+      {runtimeError && (
+        <div
+          role="alert"
+          style={{
+            marginTop: "0.8rem",
+            padding: "0.7rem 0.9rem",
+            border: "1px solid #ef4444",
+            background: "rgba(239, 68, 68, 0.06)",
+            fontSize: "0.88rem",
+          }}
+        >
+          <strong>Runtime test failed:</strong> {runtimeError}
+        </div>
+      )}
+
+      {runtime && (
+        <div className="ssrf-stages" style={{ marginTop: "1rem" }}>
+          <h2 style={{ marginTop: 0 }}>Runtime trace</h2>
+          <ol style={{ paddingLeft: "1.1rem", margin: 0 }}>
+            {runtime.stages.map((s, i) => (
+              <li
+                key={i}
+                style={{
+                  marginBottom: "0.5rem",
+                  paddingLeft: "0.4rem",
+                  borderLeft: `3px solid ${
+                    s.status === "pass"
+                      ? "#22c55e"
+                      : s.status === "fail"
+                        ? "#ef4444"
+                        : "#94a3b8"
+                  }`,
+                }}
+              >
+                <strong>{s.name}</strong>{" "}
+                <span
+                  style={{
+                    color:
+                      s.status === "pass"
+                        ? "#22c55e"
+                        : s.status === "fail"
+                          ? "#ef4444"
+                          : "#94a3b8",
+                    fontFamily: "var(--mono)",
+                    fontSize: "0.78rem",
+                  }}
+                >
+                  [{s.status.toUpperCase()}]
+                </span>
+                <div style={{ fontSize: "0.85rem", color: "var(--ink-dim)" }}>
+                  {s.detail}
+                </div>
+                {s.data !== undefined && (
+                  <pre
+                    style={{
+                      fontSize: "0.72rem",
+                      marginTop: "0.3rem",
+                      padding: "0.5rem",
+                      background: "rgba(148, 163, 184, 0.08)",
+                      whiteSpace: "pre-wrap",
+                      wordBreak: "break-all",
+                    }}
+                  >
+                    {JSON.stringify(s.data, null, 2)}
+                  </pre>
+                )}
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
 
       <div className="ssrf-parsed">
         <strong>Resolved:</strong>{" "}
