@@ -16,7 +16,7 @@ export default function Simulator() {
   const [customMode, setCustomMode] = useState(false);
   const [customBody, setCustomBody] = useState("");
   const [customContext, setCustomContext] = useState(
-    "Summarize this document for the user."
+    "Summarize this document for the user.",
   );
 
   const doc: SampleDoc = useMemo(() => {
@@ -41,18 +41,17 @@ export default function Simulator() {
       acc[f.severity] = (acc[f.severity] ?? 0) + 1;
       return acc;
     },
-    { info: 0, low: 0, medium: 0, high: 0, critical: 0 }
+    { info: 0, low: 0, medium: 0, high: 0, critical: 0 },
   );
 
   return (
     <>
       <h1>Prompt-injection simulator</h1>
       <p className="lede">
-        Pick an attacker-crafted document below. Two simulated agents read
-        it: a <strong>naive</strong> one that treats the document as
-        instructions, and a <strong>hardened</strong> one that wraps the
-        document in a data boundary. Their outputs diverge sharply once an
-        injection is present.
+        Pick an attacker-crafted document below. Two simulated agents read it: a{" "}
+        <strong>naive</strong> one that treats the document as instructions, and
+        a <strong>hardened</strong> one that wraps the document in a data
+        boundary. Their outputs diverge sharply once an injection is present.
       </p>
 
       <div className="row" style={{ marginBottom: "1rem" }}>
@@ -117,9 +116,7 @@ export default function Simulator() {
         {findings.length === 1 ? "" : "s"} detected
         <span className="csp-counts">
           {" — "}
-          {counts.critical
-            ? `${counts.critical} critical, `
-            : ""}
+          {counts.critical ? `${counts.critical} critical, ` : ""}
           {counts.high ? `${counts.high} high, ` : ""}
           {counts.medium ? `${counts.medium} medium, ` : ""}
           {counts.low ? `${counts.low} low` : ""}

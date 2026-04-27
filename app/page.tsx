@@ -58,9 +58,9 @@ export default function LabsIndex() {
           <h2>Prompt Injection Lab</h2>
           <p>
             Indirect prompt injection, tool-call hijacking, exfiltration via
-            markdown images. A deterministic side-by-side simulator of a
-            naive vs hardened agent on identical attacker-crafted documents.
-            No LLM API key required.
+            markdown images. A deterministic side-by-side simulator of a naive
+            vs hardened agent on identical attacker-crafted documents. No LLM
+            API key required.
           </p>
           <ul className="lab-tile__bullets">
             <li>Naive vs hardened agent simulator (6 samples)</li>
@@ -71,15 +71,23 @@ export default function LabsIndex() {
           <span className="lab-tile__cta">Open lab →</span>
         </Link>
 
-        <div className="lab-tile lab-tile--soon" data-tag="net">
-          <span className="lab-tile__chip lab-tile__chip--soon">Planned</span>
+        <Link href="/ssrf" className="lab-tile" data-tag="net">
+          <span className="lab-tile__chip">Live</span>
           <h2>SSRF / Cloud Metadata</h2>
           <p>
             Why <code>169.254.169.254</code> is the most-attacked IP on the
-            internet, and how IMDSv2, link-local hardening, and egress policy
-            change the math.
+            internet. URL analyzer that decodes decimal, hex, octal, and
+            alias-hostname bypasses; a tour of the five canonical SSRF
+            targets; and the four hardening layers ranked by impact.
           </p>
-        </div>
+          <ul className="lab-tile__bullets">
+            <li>URL bypass analyzer (8 sample payloads)</li>
+            <li>AWS IMDS, GCP, Azure, Redis, Kubernetes targets</li>
+            <li>IMDSv2, egress firewall, SSRF-safe URL validation</li>
+            <li>Identity-layer scoping for blast-radius control</li>
+          </ul>
+          <span className="lab-tile__cta">Open lab →</span>
+        </Link>
       </div>
 
       <h2>Why labs</h2>
