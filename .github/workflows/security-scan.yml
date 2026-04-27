@@ -1,0 +1,65 @@
+name: Security Scan
+
+# Demonstrates how to use lab.marwandiallo.com/api/scan as a security
+# header / CSP / SRI scanner in GitHub Actions, with results uploaded
+# to GitHub Code Scanning. Findings render in the Security tab with
+# proper severity ranking thanks to the SARIF security-severity field.
+#
+# Customize the TARGET_URL env var or matrix to scan multiple URLs.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Weekly drift check — catches regressions when a CDN or upstream
+    # response header changes without your code changing.
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+jobs:
+  headers-scan:
+    name: Headers + CSP + SRI scan
+    runs-on: ubuntu-latest
+    permissions:
+      # Required to upload SARIF to Code Scanning.
+      security-events: write
+      contents: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - https://marwandiallo.com
+          - https://lab.marwandiallo.com
+
+    steps:
+      - name: Run scanner against ${{ matrix.target }}
+        id: scan
+        run: |
+          set -euo pipefail
+          # Slugify the URL for the SARIF filename.
+          slug=$(echo "${{ matrix.target }}" \
+            | sed -E 's#https?://##; s#[^a-zA-Z0-9]+#-#g; s#-$##')
+          curl -sS --fail-with-body \
+            -X POST https://lab.marwandiallo.com/api/scan \
+            -H 'content-type: application/json' \
+            -d "{\"url\":\"${{ matrix.target }}\",\"format\":\"sarif\"}" \
+            -o "scan-${slug}.sarif.json"
+          echo "sarif_path=scan-${slug}.sarif.json" >> "$GITHUB_OUTPUT"
+
+      - name: Upload SARIF to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: ${{ steps.scan.outputs.sarif_path }}
+          # Categorize per-target so multiple matrix runs don't collide.
+          category: ${{ matrix.target }}
+
+      - name: Upload SARIF as artifact (debug)
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sarif-${{ strategy.job-index }}
+          path: ${{ steps.scan.outputs.sarif_path }}
+          if-no-files-found: error
