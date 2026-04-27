@@ -350,3 +350,143 @@ dd code {
     font-size: 0.85rem;
   }
 }
+
+/* ---------- Hub home page ---------- */
+.lab-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin: 1.5rem 0 2rem;
+}
+.lab-tile {
+  display: block;
+  position: relative;
+  border: 1px solid var(--rule);
+  background: var(--bg-elev);
+  padding: 1.5rem 1.5rem 1.25rem;
+  border-radius: 10px;
+  color: inherit;
+  transition:
+    border-color 0.15s,
+    transform 0.15s;
+}
+.lab-tile:hover {
+  text-decoration: none;
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+.lab-tile[data-tag="csp"]:hover {
+  border-color: #fbbf24;
+}
+.lab-tile[data-tag="ai"] {
+  border-style: dashed;
+}
+.lab-tile[data-tag="net"] {
+  border-style: dashed;
+}
+.lab-tile h2 {
+  margin: 0.75rem 0 0.5rem;
+  font-size: 1.25rem;
+}
+.lab-tile p {
+  margin: 0 0 0.75rem;
+  color: var(--ink-dim);
+  font-size: 0.95rem;
+}
+.lab-tile__chip {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  background: rgba(74, 222, 128, 0.15);
+  color: var(--ok);
+}
+.lab-tile__chip--soon {
+  background: rgba(153, 153, 153, 0.15);
+  color: var(--ink-dim);
+}
+.lab-tile__bullets {
+  margin: 0 0 1rem;
+  padding-left: 1.1rem;
+  color: var(--ink-dim);
+  font-size: 0.88rem;
+}
+.lab-tile__bullets li {
+  margin-bottom: 0.2rem;
+}
+.lab-tile__cta {
+  font-size: 0.9rem;
+  color: var(--accent);
+  font-weight: 600;
+}
+.lab-tile--soon {
+  opacity: 0.7;
+}
+.lab-tile--soon:hover {
+  border-color: var(--rule);
+  transform: none;
+  cursor: default;
+}
+
+/* ---------- Per-lab sub-nav ---------- */
+.lab-shell {
+  /* nothing yet — placeholder */
+}
+.sub-nav {
+  display: flex;
+  gap: 1.25rem;
+  padding-bottom: 0.85rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--rule);
+  font-size: 0.92rem;
+  flex-wrap: wrap;
+}
+.sub-nav a {
+  color: var(--ink-dim);
+}
+.sub-nav a:hover {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+/* ---------- CSP-specific ---------- */
+.csp-summary {
+  margin: 1rem 0 0.5rem;
+}
+.csp-counts {
+  font-size: 0.85rem;
+  color: var(--ink-dim);
+}
+.csp-dir code {
+  color: var(--ink-dim);
+}
+.shape {
+  border: 1px solid var(--rule);
+  background: var(--bg-elev);
+  padding: 1.25rem 1.5rem;
+  border-radius: 8px;
+  margin: 1.25rem 0;
+}
+.shape h2 {
+  margin-top: 0;
+}
+.shape pre {
+  margin: 0.5rem 0 1rem;
+  font-size: 0.85rem;
+}
+.shape .when {
+  font-size: 0.88rem;
+  color: var(--ink-dim);
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--rule);
+}
+
+@media (max-width: 720px) {
+  .lab-grid {
+    grid-template-columns: 1fr;
+  }
+}

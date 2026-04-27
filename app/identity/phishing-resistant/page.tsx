@@ -141,11 +141,11 @@ export default function PhishingResistantPage() {
       <h2>What you can do today</h2>
       <ol className="action">
         <li>
-          Walk through the <Link href="/passkey">passkey demo</Link>. It's the
+          Walk through the <Link href="/identity/passkey">passkey demo</Link>. It's the
           same WebAuthn ceremony enterprise IdPs run.
         </li>
         <li>
-          Read about <Link href="/agent-identity">agent identity</Link> — the
+          Read about <Link href="/identity/agent-identity">agent identity</Link> — the
           same primitives, applied to AI agents instead of humans.
         </li>
         <li>

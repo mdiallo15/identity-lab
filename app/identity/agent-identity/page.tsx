@@ -162,13 +162,13 @@ export default function AgentIdentityPage() {
 
       <h2>Read next</h2>
       <p>
-        <Link href="/phishing-resistant">
+        <Link href="/identity/phishing-resistant">
           Phishing-resistant MFA, on the wire →
         </Link>
         <br />
-        <Link href="/passkey">Try a passkey registration →</Link>
+        <Link href="/identity/passkey">Try a passkey registration →</Link>
         <br />
-        <Link href="/jwt">
+        <Link href="/identity/jwt">
           Inspect a token (try one with an <code>act</code> claim) →
         </Link>
       </p>

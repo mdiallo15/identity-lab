@@ -2,9 +2,9 @@ import "./globals.css";
 import Link from "next/link";
 
 export const metadata = {
-  title: "Identity Lab — Phishing-resistant authentication, hands-on",
+  title: "marwandiallo.com / labs",
   description:
-    "Interactive playground for passwordless auth, WebAuthn passkeys, JWT analysis, and agent / workload identity.",
+    "Hands-on security labs by Marwan Diallo. Phishing-resistant identity, content security policy, and other topics that don't survive PowerPoint.",
 };
 
 export default function RootLayout({
@@ -21,14 +21,12 @@ export default function RootLayout({
               ← marwandiallo.com
             </a>
             <Link href="/" className="brand">
-              Identity Lab
+              labs
             </Link>
           </div>
           <nav>
-            <Link href="/passkey">Passkey</Link>
-            <Link href="/jwt">JWT</Link>
-            <Link href="/phishing-resistant">Phishing-resistant</Link>
-            <Link href="/agent-identity">Agent identity</Link>
+            <Link href="/identity">Identity</Link>
+            <Link href="/csp">CSP</Link>
             <a
               href="https://github.com/mdiallo15/identity-lab"
               target="_blank"

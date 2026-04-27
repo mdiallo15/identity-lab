@@ -1,123 +1,105 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "Identity Lab — Phishing-resistant authentication, hands-on",
+  title: "Labs — Marwan Diallo",
   description:
-    "Interactive playground for passwordless auth, WebAuthn passkeys, JWT analysis, and agent / workload identity. Built by Marwan Diallo.",
+    "Hands-on security labs by Marwan Diallo. Phishing-resistant identity, content security policy, and other topics that don't survive PowerPoint.",
 };
 
-export default function Home() {
+export default function LabsIndex() {
   return (
     <>
-      <h1>Identity Lab</h1>
+      <h1>Labs</h1>
       <p className="lede">
-        A hands-on playground for the auth model that's replacing passwords:
-        passkeys, phishing-resistant MFA, and the workload-identity primitives
-        that extend the same guarantees to AI agents.
+        Hands-on, opinionated security playgrounds. Each lab pairs a working
+        demo with the failure modes I've actually seen in production. Built
+        because the topics here don't survive PowerPoint.
       </p>
 
-      <section className="hero-stat">
-        <div>
-          <strong>0</strong>
-          <span>
-            FIDO2 passkey logins have been successfully phished in the wild at
-            scale. The origin binding makes it impossible.
-          </span>
-        </div>
-        <div>
-          <strong>~80%</strong>
-          <span>
-            of breaches still start with a stolen or phished credential (Verizon
-            DBIR).
-          </span>
-        </div>
-        <div>
-          <strong>1 origin</strong>
-          <span>
-            is all a passkey will ever sign for. That's the whole trick.
-          </span>
-        </div>
-      </section>
+      <div className="lab-grid">
+        <Link href="/identity" className="lab-tile" data-tag="identity">
+          <span className="lab-tile__chip">Live</span>
+          <h2>Identity Lab</h2>
+          <p>
+            Phishing-resistant authentication, end to end. Register a passkey
+            in your browser, decode real JWTs and see what makes them
+            forgeable, and learn how the same primitives apply to AI agents
+            acting on a user's behalf.
+          </p>
+          <ul className="lab-tile__bullets">
+            <li>WebAuthn / passkey registration + sign-in</li>
+            <li>JWT inspector with 8 alg-confusion / PII findings</li>
+            <li>Phishing-resistant MFA explainer</li>
+            <li>Agent identity (OIDC, SPIFFE, RFC 8693)</li>
+          </ul>
+          <span className="lab-tile__cta">Open lab →</span>
+        </Link>
 
-      <h2>Try it</h2>
-      <div className="cards">
-        <div className="card">
-          <h3>Passwordless sign-in</h3>
+        <Link href="/csp" className="lab-tile" data-tag="csp">
+          <span className="lab-tile__chip">Live</span>
+          <h2>CSP Playground</h2>
           <p>
-            Register a passkey on your device, then sign back in with no
-            password and no OTP. Walks through every byte of the WebAuthn
-            ceremony — including the origin binding that makes it phishing-
-            resistant.
+            Paste a Content-Security-Policy header, watch the analyzer flag
+            the same patterns I flag in client engagements: unsafe-inline,
+            wildcards, missing object-src, no nonce, no report-uri. Then see
+            the four canonical CSP shapes side by side.
           </p>
-          <Link href="/passkey">Open demo →</Link>
+          <ul className="lab-tile__bullets">
+            <li>Live CSP header analyzer (12 rules)</li>
+            <li>Four canonical policy shapes compared</li>
+            <li>Common bypass patterns (JSONP, base-uri, dangling markup)</li>
+            <li>Migration path from unsafe-inline to nonces</li>
+          </ul>
+          <span className="lab-tile__cta">Open lab →</span>
+        </Link>
+
+        <div className="lab-tile lab-tile--soon" data-tag="ai">
+          <span className="lab-tile__chip lab-tile__chip--soon">Planned</span>
+          <h2>Prompt Injection Lab</h2>
+          <p>
+            Indirect prompt injection, tool-call hijacking, agent-on-behalf-of
+            confusion. Pairs with the agent identity work in the Identity Lab
+            and the rules in <code>ai-codegen-audit</code>.
+          </p>
         </div>
-        <div className="card">
-          <h3>JWT inspector</h3>
+
+        <div className="lab-tile lab-tile--soon" data-tag="net">
+          <span className="lab-tile__chip lab-tile__chip--soon">Planned</span>
+          <h2>SSRF / Cloud Metadata</h2>
           <p>
-            Paste a real token, see what's inside, and watch the analyzer flag
-            <code> alg=none</code>, alg-confusion, missing <code>exp</code>, and
-            PII leakage in real time.
+            Why <code>169.254.169.254</code> is the most-attacked IP on the
+            internet, and how IMDSv2, link-local hardening, and egress policy
+            change the math.
           </p>
-          <Link href="/jwt">Open inspector →</Link>
-        </div>
-        <div className="card">
-          <h3>Phishing-resistant MFA, explained</h3>
-          <p>
-            Why FIDO2 / WebAuthn is the only mainstream MFA factor that survives
-            a real-time AitM phishing kit. With diagrams of what actually
-            happens on the wire.
-          </p>
-          <Link href="/phishing-resistant">Read →</Link>
-        </div>
-        <div className="card">
-          <h3>Agent identity</h3>
-          <p>
-            What a passkey is to a human, a workload credential is to an AI
-            agent. Covers OIDC, SPIFFE/SPIRE, attestation, and the new problem:
-            how do you authenticate an agent that{" "}
-            <em>acts on a user's behalf</em>?
-          </p>
-          <Link href="/agent-identity">Read →</Link>
         </div>
       </div>
 
-      <h2>Why this exists</h2>
+      <h2>Why labs</h2>
       <p>
-        I spend my days auditing identity systems at Microsoft. The same bugs
-        keep showing up: tokens accepted with{" "}
-        <code>jwt.verify(token, secret)</code> {/* audit-ignore JS008 */}
-        without an algorithm pinned, MFA prompts that any reverse-proxy phishing
-        kit can replay, and now — agents handed long-lived API keys because
-        nobody designed an identity model for them.
+        Every security finding I've ever written has been more convincing
+        when the reader could touch the bug. Slide decks let people nod
+        along; a working demo, with the actual headers on the actual wire,
+        is what changes architecture decisions.
       </p>
       <p>
-        This lab lets you touch the alternative: phishing-resistant
-        authentication for humans, the same primitives extended to workloads,
-        and the failure modes that cause both to be deployed insecurely.
+        These labs cost nothing to run, are linkable in a code review, and
+        each one is a complete teaching artifact in under five minutes. If
+        you're an engineer trying to convince a leader, or a leader trying
+        to understand an engineer, that's what they're for.
       </p>
 
-      <h2>Modeled on real guidance</h2>
-      <ul className="standards">
-        <li>
-          <strong>NIST SP 800-63B-4 (draft)</strong> — phishing-resistant AAL3
-        </li>
-        <li>
-          <strong>CISA Zero Trust Maturity Model</strong> — "phishing-resistant
-          MFA" as the identity pillar baseline
-        </li>
-        <li>
-          <strong>FIDO2 / WebAuthn Level 3</strong> — the protocol the demo
-          implements
-        </li>
-        <li>
-          <strong>OMB M-22-09</strong> — federal civilian agencies required to
-          deploy phishing-resistant MFA
-        </li>
-        <li>
-          <strong>SPIFFE / SPIRE</strong> — the de-facto workload-identity
-          standard for agents and services
-        </li>
-      </ul>
+      <h2>Source</h2>
+      <p>
+        Everything is open source under MIT.{" "}
+        <a
+          href="https://github.com/mdiallo15/identity-lab"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          github.com/mdiallo15/identity-lab
+        </a>
+        . Issues and PRs welcome.
+      </p>
     </>
   );
 }

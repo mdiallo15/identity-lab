@@ -1,9 +1,9 @@
 {
-  "name": "identity-lab",
-  "version": "0.1.0",
+  "name": "marwandiallo-labs",
+  "version": "0.2.0",
   "private": false,
   "license": "MIT",
-  "description": "Interactive identity & auth lab: JWT inspector with security warnings and a working WebAuthn / passkey demo.",
+  "description": "Hands-on security labs by Marwan Diallo. Identity (passkeys, JWT, agent identity) and Content Security Policy.",
   "author": "Marwan Diallo",
   "homepage": "https://marwandiallo.com",
   "repository": {
