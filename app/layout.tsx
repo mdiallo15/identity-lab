@@ -29,6 +29,7 @@ export default function RootLayout({
             <Link href="/csp">CSP</Link>
             <Link href="/prompt-injection">Prompt Injection</Link>
             <Link href="/ssrf">SSRF</Link>
+            <Link href="/authz">AuthZ</Link>
             <a
               href="https://github.com/mdiallo15/identity-lab"
               target="_blank"

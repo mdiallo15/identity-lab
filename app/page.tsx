@@ -88,6 +88,25 @@ export default function LabsIndex() {
           </ul>
           <span className="lab-tile__cta">Open lab →</span>
         </Link>
+
+        <Link href="/authz" className="lab-tile" data-tag="api">
+          <span className="lab-tile__chip">Live</span>
+          <h2>AuthZ Lab — IDOR / BOLA</h2>
+          <p>
+            Broken Object Level Authorization is OWASP API Top 10 #1. Pick a
+            user, ask for someone else's order ID, and watch the naive
+            endpoint hand it over while the hardened endpoint returns 404.
+            Eight detection rules covering missing owner scope, 403-vs-404
+            leakage, sequential IDs, and mass-assignment.
+          </p>
+          <ul className="lab-tile__bullets">
+            <li>Naive vs hardened endpoint simulator</li>
+            <li>8-rule pattern catalog (BOLA01–BOLA08)</li>
+            <li>SARIF/JSON export of the ruleset</li>
+            <li>Pairs with the AuthN work in Identity Lab</li>
+          </ul>
+          <span className="lab-tile__cta">Open lab →</span>
+        </Link>
       </div>
 
       <h2>Why labs</h2>
