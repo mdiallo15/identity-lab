@@ -23,8 +23,8 @@ export default function Analyzer() {
       <h1>CSP Analyzer</h1>
       <p className="lede">
         Paste a Content-Security-Policy header value. The analyzer checks 12
-        rules, ranked by severity, with fixes. Pure client-side; nothing
-        leaves your browser.
+        rules, ranked by severity, with fixes. Pure client-side; nothing leaves
+        your browser.
       </p>
 
       <div className="row" style={{ flexWrap: "wrap", gap: "0.4rem" }}>
@@ -63,8 +63,8 @@ export default function Analyzer() {
           <span className="csp-counts">
             {countAt(findings, "high")} high &middot;{" "}
             {countAt(findings, "medium")} medium &middot;{" "}
-            {countAt(findings, "low")} low &middot;{" "}
-            {countAt(findings, "info")} info
+            {countAt(findings, "low")} low &middot; {countAt(findings, "info")}{" "}
+            info
           </span>
         )}
       </div>
@@ -96,9 +96,9 @@ export default function Analyzer() {
       <p>
         The rule list intentionally mirrors what I look for in client
         engagements. It is opinionated — for example, <code>object-src</code>{" "}
-        not locked to <code>'none'</code> is flagged even when modern apps
-        don't use plugins, because the cost of locking it is zero and the
-        upside is removing a historical XSS surface entirely.
+        not locked to <code>'none'</code> is flagged even when modern apps don't
+        use plugins, because the cost of locking it is zero and the upside is
+        removing a historical XSS surface entirely.
       </p>
       <p>
         Out of scope (for now): <code>require-trusted-types-for</code>,{" "}

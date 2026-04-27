@@ -127,7 +127,13 @@ export function analyze(csp: string): Finding[] {
 
   // CSP04: wildcard host in script-src
   if (
-    scriptSrc?.some((v) => v === "*" || /^https?:\/\/\*$/.test(v) || v === "https:" || v === "http:")
+    scriptSrc?.some(
+      (v) =>
+        v === "*" ||
+        /^https?:\/\/\*$/.test(v) ||
+        v === "https:" ||
+        v === "http:",
+    )
   ) {
     findings.push({
       id: "CSP04",

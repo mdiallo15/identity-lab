@@ -21,10 +21,10 @@ export default function LabsIndex() {
           <span className="lab-tile__chip">Live</span>
           <h2>Identity Lab</h2>
           <p>
-            Phishing-resistant authentication, end to end. Register a passkey
-            in your browser, decode real JWTs and see what makes them
-            forgeable, and learn how the same primitives apply to AI agents
-            acting on a user's behalf.
+            Phishing-resistant authentication, end to end. Register a passkey in
+            your browser, decode real JWTs and see what makes them forgeable,
+            and learn how the same primitives apply to AI agents acting on a
+            user's behalf.
           </p>
           <ul className="lab-tile__bullets">
             <li>WebAuthn / passkey registration + sign-in</li>
@@ -39,10 +39,10 @@ export default function LabsIndex() {
           <span className="lab-tile__chip">Live</span>
           <h2>CSP Playground</h2>
           <p>
-            Paste a Content-Security-Policy header, watch the analyzer flag
-            the same patterns I flag in client engagements: unsafe-inline,
-            wildcards, missing object-src, no nonce, no report-uri. Then see
-            the four canonical CSP shapes side by side.
+            Paste a Content-Security-Policy header, watch the analyzer flag the
+            same patterns I flag in client engagements: unsafe-inline,
+            wildcards, missing object-src, no nonce, no report-uri. Then see the
+            four canonical CSP shapes side by side.
           </p>
           <ul className="lab-tile__bullets">
             <li>Live CSP header analyzer (12 rules)</li>
@@ -53,15 +53,23 @@ export default function LabsIndex() {
           <span className="lab-tile__cta">Open lab →</span>
         </Link>
 
-        <div className="lab-tile lab-tile--soon" data-tag="ai">
-          <span className="lab-tile__chip lab-tile__chip--soon">Planned</span>
+        <Link href="/prompt-injection" className="lab-tile" data-tag="ai">
+          <span className="lab-tile__chip">Live</span>
           <h2>Prompt Injection Lab</h2>
           <p>
-            Indirect prompt injection, tool-call hijacking, agent-on-behalf-of
-            confusion. Pairs with the agent identity work in the Identity Lab
-            and the rules in <code>ai-codegen-audit</code>.
+            Indirect prompt injection, tool-call hijacking, exfiltration via
+            markdown images. A deterministic side-by-side simulator of a
+            naive vs hardened agent on identical attacker-crafted documents.
+            No LLM API key required.
           </p>
-        </div>
+          <ul className="lab-tile__bullets">
+            <li>Naive vs hardened agent simulator (6 samples)</li>
+            <li>10-rule injection detector (PI01–PI10)</li>
+            <li>Defense playbook ranked by impact</li>
+            <li>Pairs with the agent identity work in Identity Lab</li>
+          </ul>
+          <span className="lab-tile__cta">Open lab →</span>
+        </Link>
 
         <div className="lab-tile lab-tile--soon" data-tag="net">
           <span className="lab-tile__chip lab-tile__chip--soon">Planned</span>
@@ -76,16 +84,16 @@ export default function LabsIndex() {
 
       <h2>Why labs</h2>
       <p>
-        Every security finding I've ever written has been more convincing
-        when the reader could touch the bug. Slide decks let people nod
-        along; a working demo, with the actual headers on the actual wire,
-        is what changes architecture decisions.
+        Every security finding I've ever written has been more convincing when
+        the reader could touch the bug. Slide decks let people nod along; a
+        working demo, with the actual headers on the actual wire, is what
+        changes architecture decisions.
       </p>
       <p>
-        These labs cost nothing to run, are linkable in a code review, and
-        each one is a complete teaching artifact in under five minutes. If
-        you're an engineer trying to convince a leader, or a leader trying
-        to understand an engineer, that's what they're for.
+        These labs cost nothing to run, are linkable in a code review, and each
+        one is a complete teaching artifact in under five minutes. If you're an
+        engineer trying to convince a leader, or a leader trying to understand
+        an engineer, that's what they're for.
       </p>
 
       <h2>Source</h2>

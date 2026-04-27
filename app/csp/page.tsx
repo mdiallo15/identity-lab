@@ -6,9 +6,9 @@ export default function CspOverview() {
       <h1>CSP Playground</h1>
       <p className="lede">
         Content-Security-Policy is the single most effective XSS mitigation
-        we've ever shipped, and it's the one most teams either skip, deploy
-        with <code>'unsafe-inline'</code>, or copy-paste from the internet
-        without understanding. This lab fixes that.
+        we've ever shipped, and it's the one most teams either skip, deploy with{" "}
+        <code>'unsafe-inline'</code>, or copy-paste from the internet without
+        understanding. This lab fixes that.
       </p>
 
       <section className="hero-stat">
@@ -22,8 +22,7 @@ export default function CspOverview() {
         <div>
           <strong>2 lines</strong>
           <span>
-            is all a strict, nonce-based CSP needs. The rest is migration
-            work.
+            is all a strict, nonce-based CSP needs. The rest is migration work.
           </span>
         </div>
         <div>
@@ -43,8 +42,8 @@ export default function CspOverview() {
             Paste any CSP string. The analyzer flags the patterns I flag in
             client engagements: <code>'unsafe-inline'</code>,{" "}
             <code>'unsafe-eval'</code>, wildcards, missing{" "}
-            <code>object-src</code>, missing <code>base-uri</code>, no nonce,
-            no report endpoint. Twelve rules, severity-ranked, with fixes.
+            <code>object-src</code>, missing <code>base-uri</code>, no nonce, no
+            report endpoint. Twelve rules, severity-ranked, with fixes.
           </p>
           <Link href="/csp/analyzer">Open analyzer →</Link>
         </div>
@@ -52,19 +51,18 @@ export default function CspOverview() {
           <h3>Four shapes</h3>
           <p>
             The four canonical CSP shapes I see in practice — fully open,
-            allowlist, nonce, strict-dynamic — with the actual headers and
-            what each one actually blocks. Use it to pick the right starting
-            point.
+            allowlist, nonce, strict-dynamic — with the actual headers and what
+            each one actually blocks. Use it to pick the right starting point.
           </p>
           <Link href="/csp/shapes">Compare →</Link>
         </div>
         <div className="card">
           <h3>Bypasses</h3>
           <p>
-            Why CDN allowlists fail (JSONP endpoints), why{" "}
-            <code>base-uri</code> matters more than people think, the
-            dangling-markup attack, and what you give up when you ship{" "}
-            <code>'unsafe-inline'</code> "just for now."
+            Why CDN allowlists fail (JSONP endpoints), why <code>base-uri</code>{" "}
+            matters more than people think, the dangling-markup attack, and what
+            you give up when you ship <code>'unsafe-inline'</code> "just for
+            now."
           </p>
           <Link href="/csp/bypasses">Read →</Link>
         </div>
@@ -78,8 +76,7 @@ export default function CspOverview() {
         </li>
         <li>
           Drop your real prod CSP into the{" "}
-          <Link href="/csp/analyzer">analyzer</Link>. Most people are
-          surprised.
+          <Link href="/csp/analyzer">analyzer</Link>. Most people are surprised.
         </li>
         <li>
           Skim <Link href="/csp/bypasses">Bypasses</Link> to know what your

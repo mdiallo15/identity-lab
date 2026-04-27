@@ -6,11 +6,7 @@ export const metadata = {
     "Paste a Content-Security-Policy, see what's actually being blocked. Side-by-side comparison of the four canonical policy shapes and the bypasses that defeat the loose ones.",
 };
 
-export default function CspLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function CspLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="lab-shell">
       <nav className="sub-nav" aria-label="CSP Playground sections">
