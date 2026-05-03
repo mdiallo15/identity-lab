@@ -107,6 +107,26 @@ export default function LabsIndex() {
           </ul>
           <span className="lab-tile__cta">Open lab →</span>
         </Link>
+
+        <Link href="/agent-identity" className="lab-tile" data-tag="ai">
+          <span className="lab-tile__chip">Live</span>
+          <h2>Agent Identity Lab</h2>
+          <p>
+            RFC 8693 token exchange in motion: pick a user, an agent, scopes,
+            a TTL, and watch the delegated token's <code>act</code> claim
+            populate. Run the eight-rule drift detector against a fixture
+            inventory of seven agents. Compare the six attestation surfaces
+            (GitHub OIDC, AWS Nitro, Azure MI, GCP WIF, TPM, App Attest)
+            side by side.
+          </p>
+          <ul className="lab-tile__bullets">
+            <li>RFC 8693 token-exchange playground</li>
+            <li>8-rule drift detector (AGT01–AGT08)</li>
+            <li>Six attestation surfaces compared</li>
+            <li>Companion to the Agent Identity Front essay</li>
+          </ul>
+          <span className="lab-tile__cta">Open lab →</span>
+        </Link>
       </div>
 
       <h2>Why labs</h2>

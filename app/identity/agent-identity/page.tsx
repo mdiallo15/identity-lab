@@ -162,6 +162,11 @@ export default function AgentIdentityPage() {
 
       <h2>Read next</h2>
       <p>
+        <Link href="/agent-identity">
+          Open the Agent Identity Lab (RFC 8693 playground + drift detector +
+          attestation primer) →
+        </Link>
+        <br />
         <Link href="/identity/phishing-resistant">
           Phishing-resistant MFA, on the wire →
         </Link>

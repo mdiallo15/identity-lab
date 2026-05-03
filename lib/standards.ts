@@ -59,6 +59,39 @@ export const STANDARDS_BY_ID: Record<string, string[]> = {
   BOLA06: ["OWASP API Top 10 API5", "CWE-285"],
   BOLA07: ["OWASP API Top 10 API1", "CWE-639"],
   BOLA08: ["OWASP Top 10 A04", "CWE-209"],
+
+  // ---- Agent identity drift (lib/agent-identity.ts) ----
+  AGT01: [
+    "NIST SP 800-63-4 (NPE)",
+    "CIS Controls v8 5.5",
+    "OWASP NHI Top 10 NHI04",
+  ],
+  AGT02: [
+    "NIST AI 600-1 §2.5",
+    "CSA AI Controls Matrix",
+    "NIST CSF 2.0 PR.AA",
+  ],
+  AGT03: [
+    "CIS Controls v8 6.8",
+    "NIST SP 800-53 AC-2 / AC-6",
+  ],
+  AGT04: ["OWASP API Top 10 API5", "CIS Controls v8 6.8"],
+  AGT05: ["CIS Controls v8 5.3", "NIST SP 800-53 AC-2(3)"],
+  AGT06: [
+    "NIST SP 800-63-4 (NPE)",
+    "NIST CSF 2.0 GV.RR",
+    "CIS Controls v8 5",
+  ],
+  AGT07: [
+    "OAuth RFC 8693 (act claim)",
+    "NIST SP 800-92 audit guidance",
+    "NIST CSF 2.0 DE.AE",
+  ],
+  AGT08: [
+    "NIST SP 800-53 AC-2(9)",
+    "CIS Controls v8 5.4",
+    "SPIFFE workload identity",
+  ],
 };
 
 export function standardsFor(id: string): string[] | undefined {

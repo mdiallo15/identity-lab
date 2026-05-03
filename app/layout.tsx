@@ -26,6 +26,7 @@ export default function RootLayout({
           </div>
           <nav>
             <Link href="/identity">Identity</Link>
+            <Link href="/agent-identity">Agent Identity</Link>
             <Link href="/csp">CSP</Link>
             <Link href="/prompt-injection">Prompt Injection</Link>
             <Link href="/ssrf">SSRF</Link>
