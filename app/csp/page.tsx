@@ -50,11 +50,11 @@ export default function CspOverview() {
         <div className="card">
           <h3>Sandbox</h3>
           <p>
-            Live iframe enforcing whatever CSP you paste, with every
-            violation piped into a console mirror. Ten preset bypass scenarios
+            Live iframe enforcing whatever CSP you paste, with every violation
+            piped into a console mirror. Ten preset bypass scenarios
             (JSONP-on-allowlist, dangling-markup, <code>'strict-dynamic'</code>{" "}
-            without a nonce, eval, etc.) you can load with one click and
-            watch fail or pass in real time.
+            without a nonce, eval, etc.) you can load with one click and watch
+            fail or pass in real time.
           </p>
           <Link href="/csp/sandbox">Open sandbox →</Link>
         </div>
@@ -90,9 +90,9 @@ export default function CspOverview() {
           <Link href="/csp/analyzer">analyzer</Link>. Most people are surprised.
         </li>
         <li>
-          Open the <Link href="/csp/sandbox">sandbox</Link> and step through
-          the ten scenarios. The bypasses become obvious once you see them
-          fire (or silently not fire) in a real iframe.
+          Open the <Link href="/csp/sandbox">sandbox</Link> and step through the
+          ten scenarios. The bypasses become obvious once you see them fire (or
+          silently not fire) in a real iframe.
         </li>
         <li>
           Skim <Link href="/csp/bypasses">Bypasses</Link> for the consulting
