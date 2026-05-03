@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   SCENARIOS,
   HARDENED_STARTER,
@@ -14,8 +14,14 @@ import { analyze, type Finding } from "@/lib/csp";
 
 /**
  * Build a complete HTML document for the sandbox iframe. Embeds the user's
- * CSP via <meta http-equiv> and wires a SecurityPolicyViolationEvent listener
- * that postMessages every violation back to the parent window.
+ * CSP via <meta http-equiv>. Note: we deliberately do NOT inject the
+ * violation reporter or theme styles inside this document, because a strict
+ * CSP (nonce-only, no 'unsafe-inline') would block them and the user would
+ * see a blank iframe with no events — the very thing this sandbox is
+ * supposed to demonstrate. Instead, the parent attaches a
+ * securitypolicyviolation listener directly on the iframe's contentDocument
+ * (requires sandbox="... allow-same-origin") and applies a dark theme via
+ * adoptedStyleSheets, which is exempt from style-src per CSP3 spec.
  *
  * Caveats: <meta http-equiv> CSP cannot enforce frame-ancestors, sandbox, or
  * report-uri/report-to (per spec). The console mirror is our substitute for
@@ -23,47 +29,11 @@ import { analyze, type Finding } from "@/lib/csp";
  */
 function buildSrcDoc(csp: string, payload: string): string {
   const safeCsp = csp.replace(/[\r\n]+/g, " ");
-  // The reporter script must run before any other script so it can catch
-  // violations from later scripts in the same document. It uses the nonce
-  // 'SANDBOX' which the user's CSP must allow if they want their own scripts
-  // to coexist with the reporter.
   return `<!doctype html>
 <html>
 <head>
   <meta charset="utf-8">
   <meta http-equiv="Content-Security-Policy" content="${escapeHtml(safeCsp)}">
-  <style>
-    body { font: 14px/1.55 ui-sans-serif, system-ui, sans-serif; color: #ededed; background: #0a0a0a; padding: 1rem; margin: 0; }
-    h2 { font-size: 0.95rem; font-weight: 600; margin: 0 0 0.7rem; color: #ededed; }
-    p { margin: 0.45rem 0; color: #c8c8c8; }
-    code, pre { font-family: ui-monospace, monospace; font-size: 0.82rem; color: #ededed; background: #161616; padding: 0.1rem 0.3rem; border-radius: 2px; }
-    pre { padding: 0.6rem 0.8rem; overflow-x: auto; }
-    img { max-width: 100%; }
-    a { color: #66d9ef; }
-  </style>
-  <script>
-    (function () {
-      function send(type, detail) {
-        try {
-          parent.postMessage({ __cspsandbox: true, type: type, detail: detail, t: Date.now() }, '*');
-        } catch (e) { /* swallow */ }
-      }
-      document.addEventListener('securitypolicyviolation', function (e) {
-        send('violation', {
-          violatedDirective: e.violatedDirective,
-          effectiveDirective: e.effectiveDirective,
-          blockedURI: e.blockedURI,
-          sourceFile: e.sourceFile,
-          lineNumber: e.lineNumber,
-          sample: (e.sample || '').slice(0, 200)
-        });
-      });
-      window.addEventListener('error', function (e) {
-        send('error', { message: e.message, source: e.filename, line: e.lineno });
-      });
-      send('boot', { ua: navigator.userAgent.slice(0, 80) });
-    })();
-  </script>
 </head>
 <body>
 ${payload}
@@ -82,14 +52,6 @@ function escapeHtml(s: string): string {
 /* ---------------------------------------------------------------------- */
 /*  Console mirror message types                                          */
 /* ---------------------------------------------------------------------- */
-
-interface SandboxMessage {
-  __cspsandbox: true;
-  type: "boot" | "violation" | "error";
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  detail: any;
-  t: number;
-}
 
 interface ConsoleEntry {
   id: number;
@@ -113,30 +75,93 @@ export default function Sandbox() {
   const [consoleLog, setConsoleLog] = useState<ConsoleEntry[]>([]);
   const counterRef = useRef(0);
   const sandboxRef = useRef<HTMLDivElement | null>(null);
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
 
   const findings: Finding[] = useMemo(() => analyze(csp), [csp]);
 
-  // Listen for violation messages from the sandbox iframe
-  useEffect(() => {
-    function onMessage(ev: MessageEvent) {
-      const data = ev.data as SandboxMessage | undefined;
-      if (!data || data.__cspsandbox !== true) return;
-      counterRef.current += 1;
-      setConsoleLog((prev) =>
-        [
-          ...prev,
-          {
-            id: counterRef.current,
-            type: data.type,
-            detail: data.detail,
-            t: data.t,
-          },
-        ].slice(-100),
-      );
+  function pushEntry(type: ConsoleEntry["type"], detail: unknown) {
+    counterRef.current += 1;
+    setConsoleLog((prev) =>
+      [
+        ...prev,
+        {
+          id: counterRef.current,
+          type,
+          detail,
+          t: Date.now(),
+        },
+      ].slice(-100),
+    );
+  }
+
+  // Attach SecurityPolicyViolationEvent + error listeners directly on the
+  // iframe's contentDocument from the parent. This bypasses the iframe's own
+  // CSP for the observer code, so even a 'default-src none' policy won't
+  // silence the violation feed. Requires the iframe sandbox to include
+  // allow-same-origin.
+  function onIframeLoad() {
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+    const doc = iframe.contentDocument;
+    const win = iframe.contentWindow;
+    if (!doc || !win) return;
+
+    pushEntry("boot", { ua: win.navigator.userAgent.slice(0, 80) });
+
+    doc.addEventListener(
+      "securitypolicyviolation",
+      (e: SecurityPolicyViolationEvent) => {
+        pushEntry("violation", {
+          violatedDirective: e.violatedDirective,
+          effectiveDirective: e.effectiveDirective,
+          blockedURI: e.blockedURI,
+          sourceFile: e.sourceFile,
+          lineNumber: e.lineNumber,
+          sample: (e.sample || "").slice(0, 200),
+        });
+      },
+    );
+
+    win.addEventListener("error", (e: ErrorEvent) => {
+      pushEntry("error", {
+        message: e.message,
+        source: e.filename,
+        line: e.lineno,
+      });
+    });
+
+    // Apply a dark theme via adoptedStyleSheets — exempt from style-src per
+    // CSP3 spec, so it works even under a nonce-only policy. Falls back to a
+    // <link> attempt would defeat the purpose; if adoptedStyleSheets isn't
+    // supported (very old browsers) the iframe will just render with default
+    // browser colors, which is acceptable.
+    try {
+      type DocWithSheets = Document & {
+        adoptedStyleSheets: CSSStyleSheet[];
+      };
+      const SheetCtor = (
+        win as Window & {
+          CSSStyleSheet?: typeof CSSStyleSheet;
+        }
+      ).CSSStyleSheet;
+      if (SheetCtor && "replaceSync" in SheetCtor.prototype) {
+        const sheet = new SheetCtor();
+        sheet.replaceSync(`
+          body { font: 14px/1.55 ui-sans-serif, system-ui, sans-serif; color: #ededed; background: #0a0a0a; padding: 1rem; margin: 0; }
+          h1, h2, h3 { font-weight: 600; margin: 0 0 0.7rem; color: #ededed; }
+          h2 { font-size: 0.95rem; }
+          p { margin: 0.45rem 0; color: #c8c8c8; }
+          code, pre { font-family: ui-monospace, monospace; font-size: 0.82rem; color: #ededed; background: #161616; padding: 0.1rem 0.3rem; border-radius: 2px; }
+          pre { padding: 0.6rem 0.8rem; overflow-x: auto; }
+          img { max-width: 100%; }
+          a { color: #66d9ef; }
+        `);
+        (doc as DocWithSheets).adoptedStyleSheets = [sheet];
+      }
+    } catch {
+      /* fall back to default styling */
     }
-    window.addEventListener("message", onMessage);
-    return () => window.removeEventListener("message", onMessage);
-  }, []);
+  }
 
   function loadScenario(s: Scenario) {
     setActiveScenarioId(s.id);
@@ -238,7 +263,10 @@ export default function Sandbox() {
       )}
 
       {/* ------------------ Live sandbox + console (moved up) ------ */}
-      <h2 ref={sandboxRef} style={{ marginTop: "1.6rem", scrollMarginTop: "0.8rem" }}>
+      <h2
+        ref={sandboxRef}
+        style={{ marginTop: "1.6rem", scrollMarginTop: "0.8rem" }}
+      >
         Live sandbox
       </h2>
       <div className="csp-sandbox-grid">
@@ -262,12 +290,18 @@ export default function Sandbox() {
             </button>
           </div>
           <iframe
+            ref={iframeRef}
             key={iframeKey}
             title="CSP sandbox"
             srcDoc={srcDoc}
-            // sandbox attribute deliberately permissive: we want scripts to
-            // run so the CSP itself can be observed enforcing or not.
-            sandbox="allow-scripts allow-forms"
+            // allow-same-origin lets the parent attach the violation listener
+            // directly on contentDocument, bypassing the user's CSP for the
+            // reporter (we don't want a strict CSP to silence the very tool
+            // observing it). The iframe still cannot reach the parent because
+            // it's sandboxed and meta-CSP keeps payload-loaded resources
+            // confined.
+            sandbox="allow-scripts allow-forms allow-same-origin"
+            onLoad={onIframeLoad}
             style={{
               width: "100%",
               height: 360,
