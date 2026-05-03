@@ -8,6 +8,7 @@ import {
   type Severity,
   type Finding,
 } from "../../../lib/ssrf";
+import { standardsFor } from "../../../lib/standards";
 import { ExportButtons } from "../../_components/export-buttons";
 
 type Stage = {
@@ -104,11 +105,16 @@ export default function SsrfAnalyzer() {
           {running ? "Running\u2026" : "Run server-side validate-then-fetch"}
         </button>
       </div>
-      <p style={{ fontSize: "0.78rem", color: "var(--ink-dim)", margin: "0.5rem 0 0" }}>
-        Runs the canonical 4-stage hardening flow on the server:
-        parse → pre-flight rule check → DNS resolve + re-check every IP
-        (DNS-rebinding defence) → bounded fetch. Each stage's pass/fail
-        is shown below.
+      <p
+        style={{
+          fontSize: "0.78rem",
+          color: "var(--ink-dim)",
+          margin: "0.5rem 0 0",
+        }}
+      >
+        Runs the canonical 4-stage hardening flow on the server: parse →
+        pre-flight rule check → DNS resolve + re-check every IP (DNS-rebinding
+        defence) → bounded fetch. Each stage's pass/fail is shown below.
       </p>
 
       {runtimeError && (
@@ -258,6 +264,17 @@ export default function SsrfAnalyzer() {
               </header>
               <p>{f.detail}</p>
               {f.excerpt && <pre className="finding__excerpt">{f.excerpt}</pre>}
+              {standardsFor(f.id) && (
+                <p
+                  style={{
+                    marginTop: "0.4rem",
+                    fontSize: "0.8rem",
+                    color: "var(--ink-dim, #888)",
+                  }}
+                >
+                  <strong>standards:</strong> {standardsFor(f.id)!.join(" · ")}
+                </p>
+              )}
             </article>
           ))}
       </div>

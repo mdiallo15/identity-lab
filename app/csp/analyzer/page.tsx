@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { analyze, type Finding } from "@/lib/csp";
 import { findingsToSarif } from "@/lib/sarif";
+import { standardsFor } from "@/lib/standards";
 
 const SAMPLES: Record<string, string> = {
   "Strict (nonce + strict-dynamic)":
@@ -320,6 +321,17 @@ export default function Analyzer() {
             <p style={{ margin: 0, fontSize: "0.88rem" }}>
               <strong style={{ color: "var(--ok)" }}>fix:</strong> {f.fix}
             </p>
+            {standardsFor(f.id) && (
+              <p
+                style={{
+                  margin: "0.35rem 0 0",
+                  fontSize: "0.78rem",
+                  color: "var(--ink-dim)",
+                }}
+              >
+                <strong>standards:</strong> {standardsFor(f.id)!.join(" · ")}
+              </p>
+            )}
           </div>
         ))}
       </div>

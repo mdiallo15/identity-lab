@@ -227,7 +227,8 @@ export async function POST(req: NextRequest) {
         }
         chunks.push(value);
       }
-      for (const c of chunks) bodySnippet += decoder.decode(c, { stream: true });
+      for (const c of chunks)
+        bodySnippet += decoder.decode(c, { stream: true });
       bodySnippet += decoder.decode();
     }
   } catch (err) {

@@ -34,7 +34,12 @@ export interface Order {
 export const USERS: User[] = [
   { id: "u_alice", name: "Alice", email: "alice@example.com", role: "user" },
   { id: "u_bob", name: "Bob", email: "bob@example.com", role: "user" },
-  { id: "u_carol", name: "Carol (admin)", email: "carol@example.com", role: "admin" },
+  {
+    id: "u_carol",
+    name: "Carol (admin)",
+    email: "carol@example.com",
+    role: "admin",
+  },
 ];
 
 export const ORDERS: Order[] = [

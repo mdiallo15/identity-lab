@@ -94,10 +94,10 @@ export default function LabsIndex() {
           <h2>AuthZ Lab — IDOR / BOLA</h2>
           <p>
             Broken Object Level Authorization is OWASP API Top 10 #1. Pick a
-            user, ask for someone else's order ID, and watch the naive
-            endpoint hand it over while the hardened endpoint returns 404.
-            Eight detection rules covering missing owner scope, 403-vs-404
-            leakage, sequential IDs, and mass-assignment.
+            user, ask for someone else's order ID, and watch the naive endpoint
+            hand it over while the hardened endpoint returns 404. Eight
+            detection rules covering missing owner scope, 403-vs-404 leakage,
+            sequential IDs, and mass-assignment.
           </p>
           <ul className="lab-tile__bullets">
             <li>Naive vs hardened endpoint simulator</li>

@@ -150,6 +150,31 @@ export default function Patterns() {
         or a public document — which is the threat model that matters for almost
         every enterprise agent shipping today.
       </p>
+
+      <h2>Standards anchors</h2>
+      <p>
+        The patterns on this page map cleanly into two published references —
+        keep both open when you are translating findings into program language:
+      </p>
+      <ul>
+        <li>
+          <strong>OWASP Top 10 for LLM Applications</strong> — LLM01 (prompt
+          injection, direct and indirect) covers PI01–PI04 and PI09–PI10. LLM02
+          (sensitive information disclosure) covers PI05–PI06. LLM07 (insecure
+          plugin design) covers PI07–PI08.
+        </li>
+        <li>
+          <strong>NIST AI 600-1 Generative AI Profile</strong> — §2.4
+          (information integrity) and §2.5 (information security) are the
+          control objectives the same patterns trip. Pair with NIST AI 100-1
+          for the broader RMF context.
+        </li>
+        <li>
+          <strong>OAuth 2.0 Token Exchange (RFC 8693)</strong> — the standards
+          mechanism behind the user-to-agent delegation that closes most of the
+          PI07 surface in production.
+        </li>
+      </ul>
     </>
   );
 }

@@ -80,8 +80,8 @@ export default function AuthzSimulator() {
             fontSize: "0.88rem",
           }}
         >
-          <strong>Cross-owner request.</strong> {authedUser?.name} is asking
-          for an order owned by{" "}
+          <strong>Cross-owner request.</strong> {authedUser?.name} is asking for
+          an order owned by{" "}
           {USERS.find((u) => u.id === targetOrder?.ownerId)?.name}. Watch the
           two endpoints diverge.
         </div>
@@ -115,15 +115,15 @@ export default function AuthzSimulator() {
       <p>
         The naive endpoint authenticates the request, then does{" "}
         <code>SELECT * FROM orders WHERE id = ?</code> — that's BOLA01. The
-        hardened endpoint adds <code>AND owner_id = ?</code> in the same
-        query (not a separate post-fetch check), and returns 404 — not 403 —
-        for cross-owner access so existence isn't leaked (BOLA02).
+        hardened endpoint adds <code>AND owner_id = ?</code> in the same query
+        (not a separate post-fetch check), and returns 404 — not 403 — for
+        cross-owner access so existence isn't leaked (BOLA02).
       </p>
       <p>
-        Try every combination of (user, order) and watch the table fill in.
-        The naive column shows other people's shipping addresses,
-        payment last-4, and notes. The hardened column shows the same 404 it
-        returns for an order that doesn't exist at all.
+        Try every combination of (user, order) and watch the table fill in. The
+        naive column shows other people's shipping addresses, payment last-4,
+        and notes. The hardened column shows the same 404 it returns for an
+        order that doesn't exist at all.
       </p>
     </>
   );
@@ -142,12 +142,9 @@ function EndpointPanel({
   response: EndpointResponse;
   isLeak: boolean;
 }) {
-  const borderColor =
-    tone === "bad" ? "#ef4444" : "#22c55e";
+  const borderColor = tone === "bad" ? "#ef4444" : "#22c55e";
   const tintBg =
-    tone === "bad"
-      ? "rgba(239, 68, 68, 0.04)"
-      : "rgba(34, 197, 94, 0.04)";
+    tone === "bad" ? "rgba(239, 68, 68, 0.04)" : "rgba(34, 197, 94, 0.04)";
   return (
     <section
       style={{

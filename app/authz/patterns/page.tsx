@@ -1,6 +1,7 @@
 "use client";
 
 import { RULES, type Severity } from "../../../lib/authz";
+import { standardsFor } from "../../../lib/standards";
 import { ExportButtons } from "../../_components/export-buttons";
 
 const sevRank: Record<Severity, number> = {
@@ -20,9 +21,9 @@ export default function AuthzPatterns() {
     <>
       <h1>BOLA / IDOR patterns</h1>
       <p className="lede">
-        Eight patterns I look for in API code reviews and Burp traces. Each
-        is paired with the actual fix — not "add authz", but the specific
-        line of code or query change that closes the gap.
+        Eight patterns I look for in API code reviews and Burp traces. Each is
+        paired with the actual fix — not "add authz", but the specific line of
+        code or query change that closes the gap.
       </p>
 
       <ExportButtons
@@ -35,10 +36,7 @@ export default function AuthzPatterns() {
 
       <div className="findings">
         {findings.map((f) => (
-          <article
-            key={f.id}
-            className={`finding finding--${f.severity}`}
-          >
+          <article key={f.id} className={`finding finding--${f.severity}`}>
             <header>
               <span className={`sev sev--${f.severity}`}>
                 {f.severity.toUpperCase()}
@@ -53,6 +51,17 @@ export default function AuthzPatterns() {
                 {f.fix}
               </p>
             )}
+            {standardsFor(f.id) && (
+              <p
+                style={{
+                  marginTop: "0.4rem",
+                  fontSize: "0.8rem",
+                  color: "var(--ink-dim, #888)",
+                }}
+              >
+                <strong>standards:</strong> {standardsFor(f.id)!.join(" · ")}
+              </p>
+            )}
           </article>
         ))}
       </div>
@@ -64,9 +73,9 @@ export default function AuthzPatterns() {
           isn't "the authenticated principal's", the next question matters.
         </li>
         <li>
-          <strong>Where is ownership enforced?</strong> "In the route
-          handler" is a yellow flag. "In the data layer, in the same query
-          that does the fetch" is what you want.
+          <strong>Where is ownership enforced?</strong> "In the route handler"
+          is a yellow flag. "In the data layer, in the same query that does the
+          fetch" is what you want.
         </li>
       </ol>
     </>
