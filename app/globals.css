@@ -665,3 +665,118 @@ dd code {
   background: rgba(74, 222, 128, 0.15);
   color: var(--ok);
 }
+
+/* ===========================================================
+   CSP sandbox (lab.marwandiallo.com/csp/sandbox)
+   =========================================================== */
+.csp-scenarios {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+}
+.csp-scenario-card {
+  background: var(--bg-elev);
+  border: 1px solid var(--rule);
+  color: var(--ink);
+  text-align: left;
+  padding: 0.6rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  cursor: pointer;
+  transition: border-color 120ms;
+}
+.csp-scenario-card:hover {
+  border-color: var(--accent);
+}
+.csp-scenario-card[data-active="true"] {
+  border-color: var(--accent);
+  background: rgba(102, 217, 239, 0.06);
+}
+.csp-scenario-cat {
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-dim);
+  font-weight: 600;
+}
+.csp-scenario-title {
+  font-size: 0.85rem;
+  line-height: 1.35;
+  color: var(--ink);
+}
+.csp-scenario-detail {
+  margin-top: 0.8rem;
+  padding: 0.7rem 0.9rem;
+  border-left: 3px solid var(--accent);
+  background: var(--bg-elev);
+  font-size: 0.88rem;
+}
+.csp-scenario-detail p {
+  margin: 0.25rem 0;
+}
+
+.csp-sandbox-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: 0.8rem;
+  margin-top: 0.5rem;
+}
+@media (max-width: 720px) {
+  .csp-sandbox-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.csp-sandbox-frame,
+.csp-sandbox-console {
+  border: 1px solid var(--rule);
+  background: var(--bg-elev);
+  display: flex;
+  flex-direction: column;
+}
+.csp-sandbox-frame-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.4rem 0.6rem;
+  border-bottom: 1px solid var(--rule);
+  background: var(--bg);
+}
+.csp-sandbox-console-body {
+  max-height: 320px;
+  min-height: 320px;
+  overflow-y: auto;
+  font-family: ui-monospace, monospace;
+  font-size: 0.78rem;
+}
+.csp-console-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.45rem 0.6rem;
+  border-bottom: 1px solid var(--rule);
+  color: var(--ink);
+}
+.csp-console-line:last-child {
+  border-bottom: 0;
+}
+.csp-console-tag {
+  flex-shrink: 0;
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+  padding: 0.1rem 0.4rem;
+  border-radius: 2px;
+  background: var(--rule);
+  color: var(--ink-dim);
+}
+.csp-console-tag.violation {
+  background: rgba(248, 113, 113, 0.18);
+  color: #f87171;
+}
+.csp-console-tag.error {
+  background: rgba(251, 191, 36, 0.18);
+  color: #fbbf24;
+}

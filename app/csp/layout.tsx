@@ -12,6 +12,7 @@ export default function CspLayout({ children }: { children: React.ReactNode }) {
       <nav className="sub-nav" aria-label="CSP Playground sections">
         <Link href="/csp">Overview</Link>
         <Link href="/csp/analyzer">Analyzer</Link>
+        <Link href="/csp/sandbox">Sandbox</Link>
         <Link href="/csp/shapes">Four shapes</Link>
         <Link href="/csp/bypasses">Bypasses</Link>
       </nav>

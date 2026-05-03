@@ -34,7 +34,7 @@ export default function CspOverview() {
         </div>
       </section>
 
-      <h2>Three things in this lab</h2>
+      <h2>Four things in this lab</h2>
       <div className="cards">
         <div className="card">
           <h3>Analyzer</h3>
@@ -46,6 +46,17 @@ export default function CspOverview() {
             report endpoint. Twelve rules, severity-ranked, with fixes.
           </p>
           <Link href="/csp/analyzer">Open analyzer →</Link>
+        </div>
+        <div className="card">
+          <h3>Sandbox</h3>
+          <p>
+            Live iframe enforcing whatever CSP you paste, with every
+            violation piped into a console mirror. Ten preset bypass scenarios
+            (JSONP-on-allowlist, dangling-markup, <code>'strict-dynamic'</code>{" "}
+            without a nonce, eval, etc.) you can load with one click and
+            watch fail or pass in real time.
+          </p>
+          <Link href="/csp/sandbox">Open sandbox →</Link>
         </div>
         <div className="card">
           <h3>Four shapes</h3>
@@ -79,8 +90,13 @@ export default function CspOverview() {
           <Link href="/csp/analyzer">analyzer</Link>. Most people are surprised.
         </li>
         <li>
-          Skim <Link href="/csp/bypasses">Bypasses</Link> to know what your
-          policy is and isn't actually defending against.
+          Open the <Link href="/csp/sandbox">sandbox</Link> and step through
+          the ten scenarios. The bypasses become obvious once you see them
+          fire (or silently not fire) in a real iframe.
+        </li>
+        <li>
+          Skim <Link href="/csp/bypasses">Bypasses</Link> for the consulting
+          framing of the same patterns.
         </li>
       </ol>
     </>
