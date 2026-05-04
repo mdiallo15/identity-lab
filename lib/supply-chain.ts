@@ -189,7 +189,8 @@ export const INCIDENTS: SupplyChainIncident[] = [
     ],
     payload:
       "JS injected into any page using lottie-player that probed window.ethereum / window.solana and prompted users to sign drain transactions.",
-    blastRadius: "lottie-player at ~80k weekly downloads, used on many marketing sites.",
+    blastRadius:
+      "lottie-player at ~80k weekly downloads, used on many marketing sites.",
     references: [
       "https://blog.lottiefiles.com/2024/11/security-update-october-2024/",
       "https://www.bleepingcomputer.com/news/security/supply-chain-attack-hits-lottiefiles-cryptocurrency-wallets-stolen/",
@@ -237,7 +238,8 @@ export const TYPOSQUATS: TyposquatPattern[] = [
     legitimate: "lodash",
     squat: "loadash",
     technique: "single-letter insertion",
-    realIncident: "loadash (npm) repeatedly republished by malware authors 2017–2024",
+    realIncident:
+      "loadash (npm) repeatedly republished by malware authors 2017–2024",
   },
   {
     legitimate: "lodash",
@@ -285,7 +287,8 @@ export const TYPOSQUATS: TyposquatPattern[] = [
     legitimate: "cross-env",
     squat: "crossenv",
     technique: "dash removal",
-    realIncident: "crossenv (npm 2017) — exfiltrated env vars to npm.hacktask.net",
+    realIncident:
+      "crossenv (npm 2017) — exfiltrated env vars to npm.hacktask.net",
   },
 ];
 
@@ -365,8 +368,7 @@ export function analyzePackage(input: PackageInput): ProvFinding[] {
         detail: networkInScripts
           ? "A pre/install/postinstall script invokes curl/wget/powershell to download remote code at install time. This is the ua-parser-js / lottie-player playbook: install hook downloads payload, runs it on every developer + CI machine."
           : `npm runs ${hooks.join(", ")} automatically on install. Most legitimate packages don't need them; treat as a strong signal.`,
-        fix:
-          "If you control the package: replace install hooks with explicit lifecycle docs. If you're a consumer: install with --ignore-scripts and pin via SHA, or use a private mirror that strips install scripts.",
+        fix: "If you control the package: replace install hooks with explicit lifecycle docs. If you're a consumer: install with --ignore-scripts and pin via SHA, or use a private mirror that strips install scripts.",
       });
     }
   }
@@ -516,7 +518,11 @@ export const SCENARIOS: ProvScenario[] = [
       registry: {
         name: "ua-parser-js",
         maintainers: [
-          { email: "faisalman@…", addedAt: "2012-01-01T00:00:00Z", twoFactor: false },
+          {
+            email: "faisalman@…",
+            addedAt: "2012-01-01T00:00:00Z",
+            twoFactor: false,
+          },
         ],
         versions: [
           {
@@ -559,8 +565,16 @@ export const SCENARIOS: ProvScenario[] = [
       registry: {
         name: "event-stream",
         maintainers: [
-          { email: "dominictarr@…", addedAt: "2011-01-01T00:00:00Z", twoFactor: true },
-          { email: "right9ctrl@…", addedAt: "2018-09-01T00:00:00Z", twoFactor: false },
+          {
+            email: "dominictarr@…",
+            addedAt: "2011-01-01T00:00:00Z",
+            twoFactor: true,
+          },
+          {
+            email: "right9ctrl@…",
+            addedAt: "2018-09-01T00:00:00Z",
+            twoFactor: false,
+          },
         ],
         versions: [
           {
@@ -587,7 +601,8 @@ export const SCENARIOS: ProvScenario[] = [
     blurb:
       "Three patch versions in two hours from a new IP. No provenance attestation. Wallet-drainer.",
     incidentId: "lottiefiles-2024",
-    expected: "PROV02 (rapid republish) + PROV03 (new IP) + PROV04 (no provenance).",
+    expected:
+      "PROV02 (rapid republish) + PROV03 (new IP) + PROV04 (no provenance).",
     input: {
       pkgJson: `{
   "name": "@lottiefiles/lottie-player",
@@ -597,7 +612,11 @@ export const SCENARIOS: ProvScenario[] = [
       registry: {
         name: "@lottiefiles/lottie-player",
         maintainers: [
-          { email: "lottiefiles@…", addedAt: "2020-04-01T00:00:00Z", twoFactor: true },
+          {
+            email: "lottiefiles@…",
+            addedAt: "2020-04-01T00:00:00Z",
+            twoFactor: true,
+          },
         ],
         versions: [
           {
@@ -651,7 +670,11 @@ export const SCENARIOS: ProvScenario[] = [
       registry: {
         name: "ultralytics",
         maintainers: [
-          { email: "ultralytics@…", addedAt: "2020-01-01T00:00:00Z", twoFactor: true },
+          {
+            email: "ultralytics@…",
+            addedAt: "2020-01-01T00:00:00Z",
+            twoFactor: true,
+          },
         ],
         versions: [
           {
@@ -697,7 +720,11 @@ export const SCENARIOS: ProvScenario[] = [
       registry: {
         name: "loadash",
         maintainers: [
-          { email: "fresh-account@…", addedAt: "2024-12-15T00:00:00Z", twoFactor: false },
+          {
+            email: "fresh-account@…",
+            addedAt: "2024-12-15T00:00:00Z",
+            twoFactor: false,
+          },
         ],
         versions: [
           {

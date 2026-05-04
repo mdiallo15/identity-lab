@@ -55,8 +55,8 @@ export default function RagLab() {
         with a deterministic in-browser bag-of-words vector store. Every
         scenario reproduces a published attack (Greshake 2023, Zou
         &lsquo;PoisonedRAG&rsquo; 2024, Carlini 2023/2024) and runs identical
-        retrievals through a naive agent and a four-defense hardened agent
-        side by side.
+        retrievals through a naive agent and a four-defense hardened agent side
+        by side.
       </p>
 
       <div
@@ -70,10 +70,10 @@ export default function RagLab() {
         }}
       >
         <strong>How this works.</strong> The corpus contains three legitimate
-        company documents. Each scenario adds attacker-controlled documents.
-        The retriever uses TF-cosine similarity (no embedding model — math is
-        observable). The naive agent splices retrieved text into the prompt
-        and obeys imperative-shaped sentences. The hardened agent applies (1)
+        company documents. Each scenario adds attacker-controlled documents. The
+        retriever uses TF-cosine similarity (no embedding model — math is
+        observable). The naive agent splices retrieved text into the prompt and
+        obeys imperative-shaped sentences. The hardened agent applies (1)
         spotlighting / boundary-tag refusal of retrieved imperatives, (2) URL
         allowlisting on extracted tool calls, (3) repetition detection for
         ranking attacks, (4) citation grounding before generation.
@@ -213,16 +213,12 @@ export default function RagLab() {
           OWASP Top 10 for LLM Apps 2025 — LLM01 Prompt Injection, LLM03
           Training Data Poisoning, LLM06 Sensitive Information Disclosure
         </li>
-        <li>
-          NIST AI 100-2 (2024): Adversarial Machine Learning Taxonomy
-        </li>
+        <li>NIST AI 100-2 (2024): Adversarial Machine Learning Taxonomy</li>
         <li>
           Greshake et al., &ldquo;Not what you&apos;ve signed up for&rdquo; —
           USENIX Security 2023
         </li>
-        <li>
-          Zou et al., &ldquo;PoisonedRAG&rdquo; — USENIX Security 2024
-        </li>
+        <li>Zou et al., &ldquo;PoisonedRAG&rdquo; — USENIX Security 2024</li>
         <li>
           Carlini et al., &ldquo;Scalable Extraction of Training Data from
           Production LMs&rdquo; — 2023

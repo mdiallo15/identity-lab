@@ -112,12 +112,12 @@ export default function LabsIndex() {
           <span className="lab-tile__chip">Live</span>
           <h2>Agent Identity Lab</h2>
           <p>
-            RFC 8693 token exchange in motion: pick a user, an agent, scopes,
-            a TTL, and watch the delegated token's <code>act</code> claim
+            RFC 8693 token exchange in motion: pick a user, an agent, scopes, a
+            TTL, and watch the delegated token's <code>act</code> claim
             populate. Run the eight-rule drift detector against a fixture
             inventory of seven agents. Compare the six attestation surfaces
-            (GitHub OIDC, AWS Nitro, Azure MI, GCP WIF, TPM, App Attest)
-            side by side.
+            (GitHub OIDC, AWS Nitro, Azure MI, GCP WIF, TPM, App Attest) side by
+            side.
           </p>
           <ul className="lab-tile__bullets">
             <li>RFC 8693 token-exchange playground</li>
@@ -136,8 +136,8 @@ export default function LabsIndex() {
             analyzer. Replicas of event-stream (2018), ua-parser-js (2021),
             node-ipc (2022), 3CX (2023), XZ Utils (2024), Ultralytics (2024),
             LottieFiles (2024), and tj-actions (2025). Seven detection rules
-            covering install hooks, rapid republish, publisher-IP drift,
-            missing build provenance, and known typosquat patterns.
+            covering install hooks, rapid republish, publisher-IP drift, missing
+            build provenance, and known typosquat patterns.
           </p>
           <ul className="lab-tile__bullets">
             <li>Eight real-incident replicas with citations</li>
@@ -152,8 +152,8 @@ export default function LabsIndex() {
           <span className="lab-tile__chip">Live</span>
           <h2>RAG Security Lab</h2>
           <p>
-            Real attacks against retrieval-augmented generation, replayed with
-            a deterministic in-browser vector store. Indirect prompt injection
+            Real attacks against retrieval-augmented generation, replayed with a
+            deterministic in-browser vector store. Indirect prompt injection
             (Greshake 2023), PoisonedRAG ranking attacks (Zou 2024), markdown
             image canary exfil, citation forgery, training-data extraction
             (Carlini 2023). Naive vs four-defense hardened agent side by side.
