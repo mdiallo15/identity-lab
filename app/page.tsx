@@ -166,6 +166,45 @@ export default function LabsIndex() {
           </ul>
           <span className="lab-tile__cta">Open lab →</span>
         </Link>
+
+        <Link href="/iam-privesc" className="lab-tile" data-tag="cloud">
+          <span className="lab-tile__chip">Live</span>
+          <h2>IAM Privilege Escalation</h2>
+          <p>
+            A live attack-path enumerator across AWS, Azure, and GCP. Edit a
+            principal directory and watch the engine derive every transition
+            from the {`{12}`}-technique catalog (PassRole+RunInstances,
+            UpdateAssumeRolePolicy, Application.ReadWrite.All,
+            iam.serviceAccounts.actAs) and BFS to admin. Modeled on Pacu,
+            CloudGoat, and AzureHound.
+          </p>
+          <ul className="lab-tile__bullets">
+            <li>12 published privesc techniques across three clouds</li>
+            <li>Editable principal graph with live path enumeration</li>
+            <li>Multi-hop chains through groups and roles</li>
+            <li>Citations to Rhino, SpecterOps, hackingthe.cloud</li>
+          </ul>
+          <span className="lab-tile__cta">Open lab →</span>
+        </Link>
+
+        <Link href="/detection-engineering" className="lab-tile" data-tag="defense">
+          <span className="lab-tile__chip">Live</span>
+          <h2>Detection Engineering</h2>
+          <p>
+            Real Sysmon, CloudTrail, and Entra sign-in telemetry from real
+            incidents (Midnight Blizzard 2024, Volt Typhoon, Storm-0558),
+            ground-truth labeled, with a naive and a tuned Sigma-style rule
+            for each. Edit either rule&apos;s match tree as JSON and watch
+            precision, recall, and F1 update live.
+          </p>
+          <ul className="lab-tile__bullets">
+            <li>Five attack scenarios, ground-truth labeled</li>
+            <li>Sigma-equivalent match engine (eq/regex/and/or/not)</li>
+            <li>Live precision / recall / F1 metrics</li>
+            <li>ATT&amp;CK technique mapping per rule</li>
+          </ul>
+          <span className="lab-tile__cta">Open lab →</span>
+        </Link>
       </div>
 
       <h2>Why labs</h2>

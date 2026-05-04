@@ -33,6 +33,8 @@ export default function RootLayout({
             <Link href="/ssrf">SSRF</Link>
             <Link href="/authz">AuthZ</Link>
             <Link href="/supply-chain">Supply Chain</Link>
+            <Link href="/iam-privesc">IAM PrivEsc</Link>
+            <Link href="/detection-engineering">Detection</Link>
             <a
               href="https://github.com/mdiallo15/identity-lab"
               target="_blank"
