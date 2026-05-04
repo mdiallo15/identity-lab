@@ -127,6 +127,45 @@ export default function LabsIndex() {
           </ul>
           <span className="lab-tile__cta">Open lab →</span>
         </Link>
+
+        <Link href="/supply-chain" className="lab-tile" data-tag="supply-chain">
+          <span className="lab-tile__chip">Live</span>
+          <h2>Supply Chain Lab</h2>
+          <p>
+            Real registry compromises, replayed against a live provenance
+            analyzer. Replicas of event-stream (2018), ua-parser-js (2021),
+            node-ipc (2022), 3CX (2023), XZ Utils (2024), Ultralytics (2024),
+            LottieFiles (2024), and tj-actions (2025). Seven detection rules
+            covering install hooks, rapid republish, publisher-IP drift,
+            missing build provenance, and known typosquat patterns.
+          </p>
+          <ul className="lab-tile__bullets">
+            <li>Eight real-incident replicas with citations</li>
+            <li>7-rule provenance analyzer (PROV01–PROV07)</li>
+            <li>Ten typosquat patterns drawn from real campaigns</li>
+            <li>Sigstore / npm-provenance verification flow</li>
+          </ul>
+          <span className="lab-tile__cta">Open lab →</span>
+        </Link>
+
+        <Link href="/rag" className="lab-tile" data-tag="ai">
+          <span className="lab-tile__chip">Live</span>
+          <h2>RAG Security Lab</h2>
+          <p>
+            Real attacks against retrieval-augmented generation, replayed with
+            a deterministic in-browser vector store. Indirect prompt injection
+            (Greshake 2023), PoisonedRAG ranking attacks (Zou 2024), markdown
+            image canary exfil, citation forgery, training-data extraction
+            (Carlini 2023). Naive vs four-defense hardened agent side by side.
+          </p>
+          <ul className="lab-tile__bullets">
+            <li>Six published attacks reproduced with full traces</li>
+            <li>Spotlighting + URL allowlist + grounding + dedup</li>
+            <li>Live retrievals with cosine-similarity scores</li>
+            <li>Four-rule corpus analyzer (RAG01–RAG04)</li>
+          </ul>
+          <span className="lab-tile__cta">Open lab →</span>
+        </Link>
       </div>
 
       <h2>Why labs</h2>

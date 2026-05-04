@@ -29,8 +29,10 @@ export default function RootLayout({
             <Link href="/agent-identity">Agent Identity</Link>
             <Link href="/csp">CSP</Link>
             <Link href="/prompt-injection">Prompt Injection</Link>
+            <Link href="/rag">RAG</Link>
             <Link href="/ssrf">SSRF</Link>
             <Link href="/authz">AuthZ</Link>
+            <Link href="/supply-chain">Supply Chain</Link>
             <a
               href="https://github.com/mdiallo15/identity-lab"
               target="_blank"
