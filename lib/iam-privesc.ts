@@ -159,34 +159,53 @@ export const TECHNIQUES: Technique[] = [
   },
   /* ---------------- Azure ---------------- */
   {
-    id: "az-add-credentials-to-sp",
+    id: "az-app-admin-role",
     provider: "azure",
-    title: "Microsoft.Graph applicationCredential.update → seize Service Principal",
+    title: "Application Administrator role → add credential to any non-protected SP",
     summary:
-      "Add a new client secret or certificate to a higher-privileged Service Principal.",
-    requires: ["Application.ReadWrite.OwnedBy OR Application.ReadWrite.All"],
+      "The Application Administrator and Cloud Application Administrator AAD directory roles implicitly grant the ability to manage credentials on any application/SP not in the 'protected' category. Add a client secret to a privileged SP and sign in as it.",
+    requires: [
+      "AAD role: Application Administrator OR Cloud Application Administrator",
+    ],
     outcome:
-      "Authenticate as the target SP, inheriting all its app roles and permissions (often Global Admin equivalent).",
+      "Authenticate as the target SP, inheriting all its app role assignments — often Graph permissions equivalent to Global Admin.",
     mitigation:
-      "Lock down Application.ReadWrite.All. Audit appCredential changes via Azure AD audit log. Rotate credentials and require Conditional Access on app-only auth.",
+      "Treat Application Administrator as a Tier-0 role. Enable AAD 'protected actions' / Conditional Access on credential management. Audit appCredential changes via the Entra audit log; alert on additions to apps with high-privilege Graph grants.",
     reference:
       "https://posts.specterops.io/azure-privilege-escalation-via-service-principal-abuse-210ae2be2a5",
     severity: "critical",
   },
   {
-    id: "az-add-owner-to-app",
+    id: "az-app-owner",
     provider: "azure",
-    title: "Add owner to a privileged Application",
+    title: "Application Owner → add credential to that app",
     summary:
-      "Make yourself an owner of an Enterprise Application, then mint credentials on its SP.",
-    requires: ["Application.ReadWrite.All OR being an owner of the app object"],
+      "Owners of an application object can manage credentials on that specific app. If the app holds privileged Graph permissions, owning it is a privesc.",
+    requires: ["Owner of the target Application object"],
     outcome:
-      "Full control over the application's SP — same effect as the credentials path.",
+      "Mint a client secret for the owned app's SP and sign in as it.",
     mitigation:
-      "Treat application ownership as a privileged role. Audit owner additions.",
+      "Treat application ownership as a privileged grant. Periodically review owners on apps with privileged Graph consent. Avoid making low-privilege users owners of any app that has consented Application permissions.",
     reference:
       "https://posts.specterops.io/azure-privilege-escalation-via-service-principal-abuse-210ae2be2a5",
     severity: "high",
+  },
+  {
+    id: "az-sp-graph-app-readwrite",
+    provider: "azure",
+    title: "Compromised SP with Application.ReadWrite.All (app permission) → seize any SP",
+    summary:
+      "Application.ReadWrite.All as an *application* permission on a Service Principal lets that SP add credentials to any other app/SP. If the attacker has compromised this SP (leaked client secret, stolen managed-identity token), they can chain to any higher-privileged SP.",
+    requires: [
+      "Holding credentials for an SP granted Application.ReadWrite.All (app permission)",
+    ],
+    outcome:
+      "Mint credentials for any app/SP and sign in as it.",
+    mitigation:
+      "Application.ReadWrite.All is the most-abused Graph permission. Avoid granting it; prefer Application.ReadWrite.OwnedBy. Audit consents quarterly. Rotate SP credentials and detect abnormal IPs on app-only auth.",
+    reference:
+      "https://posts.specterops.io/azure-privilege-escalation-via-service-principal-abuse-210ae2be2a5",
+    severity: "critical",
   },
   {
     id: "az-managed-identity-vm",
@@ -412,18 +431,57 @@ function deriveEdges(scenario: IamScenario): AttackEdge[] {
       }
     }
 
-    /* Azure: Application.ReadWrite.All → seize an SP */
+    /* Azure: Application Administrator / Cloud Application Administrator
+       directory roles \u2192 add credentials to any non-protected SP. Modeled
+       as either of the two role strings appearing in the principal's
+       permissions list. */
+    const hasAppAdminRole =
+      perms.has("ApplicationAdministrator") ||
+      perms.has("CloudApplicationAdministrator");
+    if (hasAppAdminRole) {
+      for (const target of scenario.principals) {
+        if (target.kind !== "service-principal" || target.id === src.id) continue;
+        edges.push({
+          from: src.id,
+          to: target.id,
+          techniqueId: "az-app-admin-role",
+          detail: `As Application Administrator, add a client-secret to ${target.id}, then sign in as it.`,
+        });
+      }
+    }
+
+    /* Azure: Owner of an Application object can manage that app's credentials.
+       Modeled as the synthetic permission "owns:<app-id>". */
+    for (const perm of perms) {
+      if (perm.startsWith("owns:")) {
+        const appId = perm.slice("owns:".length);
+        const target = scenario.principals.find((p) => p.id === appId);
+        if (target && target.kind === "service-principal" && target.id !== src.id) {
+          edges.push({
+            from: src.id,
+            to: target.id,
+            techniqueId: "az-app-owner",
+            detail: `As Owner of ${target.id}, add a client-secret and sign in as it.`,
+          });
+        }
+      }
+    }
+
+    /* Azure: a Service Principal that itself holds Application.ReadWrite.All
+       as an application permission can seize any other SP. Only fires when
+       the source IS an SP (i.e. attacker already controls the SP's creds). */
     if (
-      perms.has("Application.ReadWrite.All") ||
-      perms.has("Application.ReadWrite.OwnedBy")
+      src.kind === "service-principal" &&
+      (perms.has("Application.ReadWrite.All") ||
+        perms.has("Application.ReadWrite.OwnedBy"))
     ) {
       for (const target of scenario.principals) {
         if (target.kind !== "service-principal" || target.id === src.id) continue;
         edges.push({
           from: src.id,
           to: target.id,
-          techniqueId: "az-add-credentials-to-sp",
-          detail: `Add a client-secret to ${target.id}'s app registration, sign in as it.`,
+          techniqueId: "az-sp-graph-app-readwrite",
+          detail: `${src.id} holds Application.ReadWrite.All; mint creds on ${target.id} and sign in as it.`,
         });
       }
     }
@@ -679,23 +737,52 @@ export const SCENARIOS: IamScenario[] = [
     ],
   },
   {
-    id: "azure-app-readwrite",
+    id: "azure-app-admin-role",
     provider: "azure",
-    title: "Azure: Application.ReadWrite.All → Global Admin SP",
+    title: "Azure: Application Administrator role → seize privileged SP",
     blurb:
-      "A user has Application.ReadWrite.All on Microsoft Graph. There's a Service Principal with Directory.ReadWrite.All / Global Admin role. Add a client secret to that SP and sign in as it.",
+      "A user is assigned the Application Administrator AAD directory role (often handed out for 'managing app registrations'). That role implicitly grants credential management on any application/SP not in the protected category. There's a Service Principal with Directory.ReadWrite.All consented. The user adds a client secret to that SP and signs in as it. Note: Application.ReadWrite.All is a Graph *application* permission held by SPs, not a permission a user holds directly — this is the user-facing equivalent.",
     startingPrincipal: "user/devops-david",
     adminPolicies: ["*", "Directory.ReadWrite.All"],
     reference:
-      "Andy Robbins (SpecterOps), 'Azure Privilege Escalation via Service Principal Abuse' (2021)",
+      "Andy Robbins (SpecterOps), 'Azure Privilege Escalation via Service Principal Abuse' (2021). See also Microsoft docs: 'Application Administrator' role description.",
     principals: [
       {
         id: "user/devops-david",
         kind: "user",
-        permissions: ["Application.ReadWrite.All"],
+        permissions: ["ApplicationAdministrator"],
+        notes:
+          "Holds the Application Administrator directory role. Can manage credentials on any non-protected app/SP.",
       },
       {
-        id: "sp/CI-Pipeline",
+        id: "sp/CorporateBackend",
+        kind: "service-principal",
+        permissions: ["Directory.ReadWrite.All", "*"],
+        notes:
+          "Has been consented Directory.ReadWrite.All — effectively Global Admin equivalent on the directory.",
+      },
+    ],
+  },
+  {
+    id: "azure-sp-chained",
+    provider: "azure",
+    title: "Azure: compromised SP with Application.ReadWrite.All chains to admin SP",
+    blurb:
+      "An attacker has stolen the client secret of a low-value SP. That SP was unfortunately granted Application.ReadWrite.All as an application permission (very common over-grant). The attacker uses the stolen creds to mint a secret on a higher-privileged SP that holds Directory.ReadWrite.All.",
+    startingPrincipal: "sp/PipelineHelper",
+    adminPolicies: ["*", "Directory.ReadWrite.All"],
+    reference:
+      "Andy Robbins (SpecterOps), 'Azure Privilege Escalation via Service Principal Abuse' (2021).",
+    principals: [
+      {
+        id: "sp/PipelineHelper",
+        kind: "service-principal",
+        permissions: ["Application.ReadWrite.All"],
+        notes:
+          "Over-granted at consent time. Attacker has its client secret from a leaked CI log.",
+      },
+      {
+        id: "sp/CorporateBackend",
         kind: "service-principal",
         permissions: ["Directory.ReadWrite.All", "*"],
       },
