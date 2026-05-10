@@ -1,0 +1,17 @@
+{
+  // Autopilot for Copilot Chat agent mode in this workspace.
+  // Hard rules from PROMPT.md still apply (the agent follows them).
+  "chat.tools.autoApprove": true,
+  "chat.agent.maxRequests": 100,
+  "chat.tools.terminal.autoApprove": {
+    "/^(npm|pnpm|yarn|node|next|tsc|eslint|prettier|git status|git diff|git log|git show|git add|git commit|git branch|git checkout|git pull|git push|ls|cat|head|tail|grep|sed|awk|find|mkdir|cp|mv|echo|pwd|which)\\b/": true,
+    "rm": false,
+    "rm -rf": false,
+    "git reset --hard": false,
+    "git push --force": false,
+    "git push -f": false,
+    "sudo": false,
+    "curl": false,
+    "wget": false
+  }
+}

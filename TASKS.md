@@ -20,12 +20,6 @@ session. Pick the top unblocked task, do it, commit, move it to "Done".
 
 ## Ready (ordered, top = next)
 
-### T-01b — Prompt Injection v2: live tool-call agent loop
-
-- **Files:** `app/prompt-injection/simulator/page.tsx`, `lib/prompt-injection.ts`.
-- **Do:** Promote the deterministic simulator into a live tool-call agent loop with at least 5 tools (`read_file`, `send_email`, `web_fetch`, `kb_search`, `update_calendar`), 12 scenarios covering indirect injection, exfil-via-image, kb-poisoning, prompt leakage. Telemetry export.
-- **Done when:** user can run any of 12 scenarios end-to-end; naive vs hardened agent traces side-by-side.
-
 ### T-01c — SSRF v2: live fetcher sandbox
 
 - **Files:** `app/ssrf/analyzer/page.tsx`, new `app/api/ssrf-fetch/route.ts`, `lib/ssrf.ts`.
@@ -87,7 +81,8 @@ session. Pick the top unblocked task, do it, commit, move it to "Done".
 
 ## Done
 
-- **2026-05-10 (commit a40ab6c)** — Cross-linked `/identity/jwt` and `/identity/forge`: callout on the inspector pointing at the forging workbench, and a "What this proves" panel on the workbench summarising the four CVE-class attacks (alg=none CVE-2015-9235, RS→HS confusion CVE-2016-10555, kid traversal, tamper-no-resign) with the matching defense for each.
+- **2026-05-10 (commit 56f7841)** — Prompt Injection v2: live tool-call agent loop. Five-tool surface (`read_file`, `kb_search`, `web_fetch`, `send_email`, `update_calendar`), 12 deterministic scenarios spanning direct override, indirect injection, KB poisoning, exfil-via-markdown-image, tool-call hijack, prompt leakage, confused-deputy README, BEC-via-injected-invoice, two-step indirect chain, CSV imperative + formula injection. Naive vs hardened traces rendered side-by-side with provenance tags, refusal rules, and explicit leak markers; editable hardened policy (email/web allowlist + spotlighting toggle); JSON telemetry export. References: Greshake et al. 2023, Bargury BlackHat 2024, embracethered Copilot disclosures, OWASP LLM Top 10 2025, FBI IC3 BEC PSA, PortSwigger LLM attacks, NCSC AI guidelines.
+- **2026-05-10 (commit 8cb1938)** — Cross-linked `/identity/jwt` and `/identity/forge`: callout on the inspector pointing at the forging workbench, and a "What this proves" panel on the workbench summarising the four CVE-class attacks (alg=none CVE-2015-9235, RS→HS confusion CVE-2016-10555, kid traversal, tamper-no-resign) with the matching defense for each.
 - **2026-05-03 (commit f649794)** — Supply Chain v2: editable `package.json` + registry textareas, live re-analysis, Levenshtein typosquat checker against 40+ popular npm/PyPI names.
 - **2026-05-03 (commit 7bdb9cd)** — IAM Privilege Escalation lab: 12 published techniques across AWS/Azure/GCP, BFS attack-path enumerator, editable principal graph. Modeled on Rhino Security, SpecterOps, CloudGoat.
 - **2026-05-03 (commit 7bdb9cd)** — Detection Engineering lab: Sigma-style match engine, 5 ground-truth-labeled scenarios (Midnight Blizzard, Storm-0558, Volt Typhoon, Hafnium), live precision/recall/F1.
