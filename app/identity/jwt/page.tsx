@@ -39,6 +39,24 @@ export default function JwtPage() {
         in your browser.
       </p>
 
+      <div
+        style={{
+          margin: "0.4rem 0 0.8rem",
+          padding: "0.55rem 0.8rem",
+          border: "1px dashed var(--rule)",
+          fontSize: "0.78rem",
+          color: "var(--ink-dim)",
+          background: "var(--bg-elev)",
+        }}
+      >
+        <strong>Want to attack a verifier?</strong> The{" "}
+        <a href="/identity/forge">JWT forging workbench</a> mints a real RS256
+        token with an in-browser keypair, then runs four CVE-class forgeries
+        (alg=none, RS→HS confusion, kid traversal, tamper-no-resign) against
+        a configurable verifier so you can see exactly which defense stops
+        which attack.
+      </div>
+
       <textarea
         placeholder="eyJhbGciOi…"
         value={token}

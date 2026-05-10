@@ -25,7 +25,10 @@ const DEFAULT_PAYLOAD = {
 const DEFAULT_TAMPER = { role: "admin" };
 
 export default function ForgePage() {
-  const [keys, setKeys] = useState<{ publicPem: string; privatePem: string } | null>(null);
+  const [keys, setKeys] = useState<{
+    publicPem: string;
+    privatePem: string;
+  } | null>(null);
   const [legitToken, setLegitToken] = useState<string>("");
   const [attack, setAttack] = useState<ForgeAttack>("alg-confusion");
   const [tamperJson, setTamperJson] = useState<string>(
@@ -61,7 +64,10 @@ export default function ForgePage() {
   useEffect(() => {
     (async () => {
       if (!keys || !legitToken) return;
-      const fullConfig: VerifierConfig = { ...config, publicPem: keys.publicPem };
+      const fullConfig: VerifierConfig = {
+        ...config,
+        publicPem: keys.publicPem,
+      };
       const r1 = await verifyToken(legitToken, fullConfig);
       setLegitResult(r1);
       if (forgedToken) {
@@ -96,9 +102,9 @@ export default function ForgePage() {
       <h1>JWT forging workbench</h1>
       <p className="lede">
         A live attacker workbench paired with a real (intentionally
-        misconfigurable) JWT verifier. Generate a legitimate RS256 token, run
-        an attack to produce a forged one, then watch the verifier accept or
-        reject each as you toggle defenses.
+        misconfigurable) JWT verifier. Generate a legitimate RS256 token, run an
+        attack to produce a forged one, then watch the verifier accept or reject
+        each as you toggle defenses.
       </p>
 
       <div
@@ -112,12 +118,55 @@ export default function ForgePage() {
         }}
       >
         <strong>How this works.</strong> A 2048-bit RSA keypair is generated in
-        your browser via WebCrypto on page load. The verifier below is the
-        same code you&apos;d ship in production, with two configuration
-        knobs that mirror the real footguns: <code>trustHeaderAlg</code>{" "}
-        (turning it on enables RS-vs-HS confusion), and{" "}
-        <code>acceptAlgNone</code> (turning it on enables CVE-2015-9235).
-        Tokens are minted and verified with no server round-trip.
+        your browser via WebCrypto on page load. The verifier below is the same
+        code you&apos;d ship in production, with two configuration knobs that
+        mirror the real footguns: <code>trustHeaderAlg</code> (turning it on
+        enables RS-vs-HS confusion), and <code>acceptAlgNone</code> (turning it
+        on enables CVE-2015-9235). Tokens are minted and verified with no server
+        round-trip.
+      </div>
+
+      <div
+        style={{
+          marginTop: "0.6rem",
+          padding: "0.6rem 0.8rem",
+          border: "1px solid var(--rule)",
+          fontSize: "0.8rem",
+          background: "var(--bg-elev)",
+        }}
+      >
+        <strong>What this proves.</strong> Four CVE-class verifier bugs that
+        have shipped in real libraries and SaaS SDKs:
+        <ul style={{ margin: "0.4rem 0 0", paddingLeft: "1.1rem" }}>
+          <li>
+            <code>alg=none</code> bypass (CVE-2015-9235) — verifier accepts
+            unsigned tokens. Defense: pin <code>allowedAlgorithms</code>,
+            never honour <code>none</code>.
+          </li>
+          <li>
+            RS256 → HS256 alg confusion (CVE-2016-10555) — attacker HMACs
+            the signing input with the verifier&apos;s public key as the
+            secret. Defense: ignore the token header&apos;s <code>alg</code>;
+            select the algorithm from your key material.
+          </li>
+          <li>
+            <code>kid</code> header path traversal — attacker points
+            <code>kid</code> at a known-bytes file and HMACs with those bytes.
+            Defense: sanitize <code>kid</code>, resolve it through an allowlist
+            of named keys, never as a filesystem path.
+          </li>
+          <li>
+            Tamper claims, keep the signature — “decode-then-trust” code
+            paths that read the payload before verifying. Defense: verify
+            first, read claims from the verified output, never from the raw
+            token.
+          </li>
+        </ul>
+        <p style={{ margin: "0.5rem 0 0", color: "var(--ink-dim)" }}>
+          Cross-reference: paste any token you generate here into the{" "}
+          <a href="/identity/jwt">JWT inspector</a> for a static decode + Bearer
+          health-check.
+        </p>
       </div>
 
       {!keys && <p>Generating RSA keypair…</p>}
@@ -163,9 +212,13 @@ export default function ForgePage() {
           <div className="csp-scenario-detail">
             <p>{activeAttack.blurb}</p>
             <p style={{ fontSize: "0.78rem", color: "var(--ink-dim)" }}>
-              <strong>defended by:</strong> <code>{activeAttack.defenseLabel}</code>{" "}
-              ·{" "}
-              <a href={activeAttack.reference} target="_blank" rel="noopener noreferrer">
+              <strong>defended by:</strong>{" "}
+              <code>{activeAttack.defenseLabel}</code> ·{" "}
+              <a
+                href={activeAttack.reference}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 reference
               </a>
             </p>
@@ -215,7 +268,13 @@ export default function ForgePage() {
           {forgedToken && (
             <>
               <h2 style={{ marginTop: "1.6rem" }}>3. Forged token</h2>
-              <p style={{ color: "var(--ink-dim)", fontSize: "0.88rem", margin: "0 0 0.4rem" }}>
+              <p
+                style={{
+                  color: "var(--ink-dim)",
+                  fontSize: "0.88rem",
+                  margin: "0 0 0.4rem",
+                }}
+              >
                 <strong>{forgedTechnique}</strong>
               </p>
               <textarea
@@ -231,14 +290,24 @@ export default function ForgePage() {
                   border: "1px solid var(--high)",
                 }}
               />
-              <ol style={{ fontSize: "0.82rem", color: "var(--ink-dim)", marginTop: "0.4rem" }}>
+              <ol
+                style={{
+                  fontSize: "0.82rem",
+                  color: "var(--ink-dim)",
+                  marginTop: "0.4rem",
+                }}
+              >
                 {forgedSteps.map((s, i) => (
                   <li key={i}>{s}</li>
                 ))}
               </ol>
               {forgedReference && (
                 <p style={{ fontSize: "0.78rem", marginTop: "0.3rem" }}>
-                  <a href={forgedReference} target="_blank" rel="noopener noreferrer">
+                  <a
+                    href={forgedReference}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     {forgedReference}
                   </a>
                 </p>
@@ -250,8 +319,8 @@ export default function ForgePage() {
           <h2 style={{ marginTop: "1.6rem" }}>4. Verifier configuration</h2>
           <p style={{ color: "var(--ink-dim)", fontSize: "0.88rem" }}>
             Toggle the defenses to see when each forgery wins. Default is
-            production-correct (algorithms pinned, alg=none rejected, header
-            alg ignored).
+            production-correct (algorithms pinned, alg=none rejected, header alg
+            ignored).
           </p>
           <div
             style={{
@@ -347,8 +416,8 @@ export default function ForgePage() {
           {/* ------------------ Public key ------------------ */}
           <h2 style={{ marginTop: "1.6rem" }}>Demo public key</h2>
           <p style={{ color: "var(--ink-dim)", fontSize: "0.88rem" }}>
-            The verifier holds this. The alg-confusion attack uses the bytes
-            of this PEM as an HMAC secret.
+            The verifier holds this. The alg-confusion attack uses the bytes of
+            this PEM as an HMAC secret.
           </p>
           <pre
             style={{
@@ -387,7 +456,13 @@ function ConfigToggle({
         display: "block",
       }}
     >
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
         <code>{label}</code>
         <input
           type="checkbox"
@@ -395,7 +470,13 @@ function ConfigToggle({
           onChange={(e) => onChange(e.target.checked)}
         />
       </div>
-      <p style={{ fontSize: "0.72rem", color: "var(--ink-dim)", margin: "0.2rem 0 0" }}>
+      <p
+        style={{
+          fontSize: "0.72rem",
+          color: "var(--ink-dim)",
+          margin: "0.2rem 0 0",
+        }}
+      >
         {hint}
       </p>
     </label>
@@ -474,8 +555,17 @@ function VerifyColumn({
       >
         {label} — {result.valid ? "ACCEPTED" : "REJECTED"}
       </div>
-      <p style={{ margin: "0 0 0.4rem", fontSize: "0.85rem" }}>{result.reason}</p>
-      <ol style={{ fontSize: "0.78rem", color: "var(--ink-dim)", margin: 0, paddingLeft: "1.1rem" }}>
+      <p style={{ margin: "0 0 0.4rem", fontSize: "0.85rem" }}>
+        {result.reason}
+      </p>
+      <ol
+        style={{
+          fontSize: "0.78rem",
+          color: "var(--ink-dim)",
+          margin: 0,
+          paddingLeft: "1.1rem",
+        }}
+      >
         {result.steps.map((s, i) => (
           <li key={i}>{s}</li>
         ))}

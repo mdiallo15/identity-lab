@@ -4,6 +4,7 @@ Atomic, agent-runnable tasks. Each is small enough to finish + commit in one
 session. Pick the top unblocked task, do it, commit, move it to "Done".
 
 **Agent rules**
+
 - Read `PLAN.md` and this file before starting.
 - Pick the topmost unchecked task in "Ready". Move it to "In progress".
 - Make the change, run `npm run build` (or `next build`) and lint. Fix issues
@@ -19,22 +20,20 @@ session. Pick the top unblocked task, do it, commit, move it to "Done".
 
 ## Ready (ordered, top = next)
 
-### T-00 — Cross-link `/identity/jwt` ↔ `/identity/forge`
-- **Files:** `app/identity/jwt/page.tsx`, `app/identity/forge/page.tsx`.
-- **Do:** Add a callout on the JWT inspector pointing to the forging workbench, and vice versa. "What this proves" panel on the workbench summarising the four CVE-class attacks defended against.
-- **Done when:** both pages cross-reference each other with one-line callouts.
-
 ### T-01b — Prompt Injection v2: live tool-call agent loop
+
 - **Files:** `app/prompt-injection/simulator/page.tsx`, `lib/prompt-injection.ts`.
 - **Do:** Promote the deterministic simulator into a live tool-call agent loop with at least 5 tools (`read_file`, `send_email`, `web_fetch`, `kb_search`, `update_calendar`), 12 scenarios covering indirect injection, exfil-via-image, kb-poisoning, prompt leakage. Telemetry export.
 - **Done when:** user can run any of 12 scenarios end-to-end; naive vs hardened agent traces side-by-side.
 
 ### T-01c — SSRF v2: live fetcher sandbox
+
 - **Files:** `app/ssrf/analyzer/page.tsx`, new `app/api/ssrf-fetch/route.ts`, `lib/ssrf.ts`.
 - **Do:** Add a sandboxed `/api/ssrf-fetch` endpoint with 10-scenario catalog (decimal/hex/octal IPs, IPv6, DNS rebinding mock, AWS IMDSv1 path, GCP metadata Host header, Redis CRLF, K8s SA token, gopher://). Naive fetcher vs hardened fetcher side-by-side with allowlist + URL parsing.
 - **Done when:** user can submit any catalog URL and see naive + hardened response with rationale.
 
 ### T-01 — JWT forging workbench: polish + cross-link
+
 - **Files:** `app/identity/forge/page.tsx`, `app/identity/jwt/page.tsx`,
   `lib/jwt-forge.ts`.
 - **Do:** Add inline links from `/identity/jwt` to `/identity/forge`. Ensure
@@ -44,6 +43,7 @@ session. Pick the top unblocked task, do it, commit, move it to "Done".
   copy-curl works for at least one scenario.
 
 ### T-02 — Agent Identity: token-exchange end-to-end demo
+
 - **Files:** `app/agent-identity/token-exchange/page.tsx`,
   `lib/agent-identity.ts`, possibly a new mock issuer route under
   `app/api/`.
@@ -54,6 +54,7 @@ session. Pick the top unblocked task, do it, commit, move it to "Done".
   token with claims diff highlighted.
 
 ### T-03 — SARIF export verification across labs
+
 - **Files:** `lib/sarif.ts`, `app/_components/export-buttons.tsx`, all lab
   pages that surface findings.
 - **Do:** For every lab that currently exports SARIF, verify the file
@@ -63,6 +64,7 @@ session. Pick the top unblocked task, do it, commit, move it to "Done".
   were audited.
 
 ### T-04 — Detection Engineering: one canned ruleset per lab
+
 - **Files:** `lib/detection.ts`, `app/detection-engineering/page.tsx`.
 - **Do:** For each lab domain (CSP, JWT, SSRF, IAM, Supply Chain, RAG,
   Prompt Injection, Agent Identity), provide at least one detection rule
@@ -71,6 +73,7 @@ session. Pick the top unblocked task, do it, commit, move it to "Done".
   rationale + suggested data source.
 
 ### T-05 — Home page: surface new labs above the fold
+
 - **Files:** `app/page.tsx`, `app/_components/`.
 - **Do:** Reorder the lab grid so the most recent labs (JWT forge, Agent
   Identity, IAM PrivEsc, Detection Engineering, Supply Chain v2, RAG)
@@ -84,10 +87,11 @@ session. Pick the top unblocked task, do it, commit, move it to "Done".
 
 ## Done
 
+- **2026-05-10 (commit a40ab6c)** — Cross-linked `/identity/jwt` and `/identity/forge`: callout on the inspector pointing at the forging workbench, and a "What this proves" panel on the workbench summarising the four CVE-class attacks (alg=none CVE-2015-9235, RS→HS confusion CVE-2016-10555, kid traversal, tamper-no-resign) with the matching defense for each.
 - **2026-05-03 (commit f649794)** — Supply Chain v2: editable `package.json` + registry textareas, live re-analysis, Levenshtein typosquat checker against 40+ popular npm/PyPI names.
 - **2026-05-03 (commit 7bdb9cd)** — IAM Privilege Escalation lab: 12 published techniques across AWS/Azure/GCP, BFS attack-path enumerator, editable principal graph. Modeled on Rhino Security, SpecterOps, CloudGoat.
 - **2026-05-03 (commit 7bdb9cd)** — Detection Engineering lab: Sigma-style match engine, 5 ground-truth-labeled scenarios (Midnight Blizzard, Storm-0558, Volt Typhoon, Hafnium), live precision/recall/F1.
-- **2026-05-03 (commit 9067e49)** — Fixed Azure IAM accuracy bug: `Application.ReadWrite.All` is a Graph *application* permission held by SPs, not user-held. Split into three accurate techniques (`az-app-admin-role`, `az-app-owner`, `az-sp-graph-app-readwrite`).
+- **2026-05-03 (commit 9067e49)** — Fixed Azure IAM accuracy bug: `Application.ReadWrite.All` is a Graph _application_ permission held by SPs, not user-held. Split into three accurate techniques (`az-app-admin-role`, `az-app-owner`, `az-sp-graph-app-readwrite`).
 - **2026-05-03 (commit 691980b)** — Identity Lab v2 / JWT forging workbench at `/identity/forge`: real WebCrypto RSA-2048 keypair, four canonical forgeries (alg=none CVE-2015-9235, RS→HS confusion CVE-2016-10555, kid traversal, claim-tamper-no-resign) against an intentionally-misconfigurable verifier. T-01 partially done (workbench shipped) — still need cross-link from `/identity/jwt`.
 
 ## Notes

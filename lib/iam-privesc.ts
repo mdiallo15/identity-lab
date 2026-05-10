@@ -46,7 +46,11 @@ export const TECHNIQUES: Technique[] = [
     title: "iam:PassRole + ec2:RunInstances → instance with admin role",
     summary:
       "Launch an EC2 instance, pass an admin-equivalent role to it, then SSH/SSM in (or read instance metadata) to use that role.",
-    requires: ["iam:PassRole", "ec2:RunInstances", "ssm:StartSession OR ec2:GetPasswordData"],
+    requires: [
+      "iam:PassRole",
+      "ec2:RunInstances",
+      "ssm:StartSession OR ec2:GetPasswordData",
+    ],
     outcome: "Full access to whatever IAM role you passed to the instance.",
     mitigation:
       "Restrict iam:PassRole with a Condition on iam:PassedToService and a tight resource ARN allowlist. Disable IMDSv1, require IMDSv2 with hop-limit 1.",
@@ -77,10 +81,10 @@ export const TECHNIQUES: Technique[] = [
     id: "aws-create-access-key",
     provider: "aws",
     title: "iam:CreateAccessKey on another user",
-    summary:
-      "Mint a long-lived access key for a higher-privileged IAM user.",
+    summary: "Mint a long-lived access key for a higher-privileged IAM user.",
     requires: ["iam:CreateAccessKey"],
-    outcome: "Persistent credentials for the target user, even if the original credentials are rotated.",
+    outcome:
+      "Persistent credentials for the target user, even if the original credentials are rotated.",
     mitigation:
       "iam:CreateAccessKey should be scoped to ${aws:username} via condition. Better: kill long-lived keys entirely and use IAM Identity Center / OIDC short-lived sessions.",
     reference:
@@ -135,7 +139,11 @@ export const TECHNIQUES: Technique[] = [
     title: "iam:PassRole + codebuild:UpdateProject",
     summary:
       "Modify a CodeBuild project's buildspec / service role to dump credentials in CloudWatch logs.",
-    requires: ["iam:PassRole", "codebuild:UpdateProject", "codebuild:StartBuild"],
+    requires: [
+      "iam:PassRole",
+      "codebuild:UpdateProject",
+      "codebuild:StartBuild",
+    ],
     outcome: "Steal the CodeBuild project's role credentials at next build.",
     mitigation:
       "Block changes to build infrastructure outside of approved change-management. Pin build roles to least privilege.",
@@ -161,7 +169,8 @@ export const TECHNIQUES: Technique[] = [
   {
     id: "az-app-admin-role",
     provider: "azure",
-    title: "Application Administrator role → add credential to any non-protected SP",
+    title:
+      "Application Administrator role → add credential to any non-protected SP",
     summary:
       "The Application Administrator and Cloud Application Administrator AAD directory roles implicitly grant the ability to manage credentials on any application/SP not in the 'protected' category. Add a client secret to a privileged SP and sign in as it.",
     requires: [
@@ -182,8 +191,7 @@ export const TECHNIQUES: Technique[] = [
     summary:
       "Owners of an application object can manage credentials on that specific app. If the app holds privileged Graph permissions, owning it is a privesc.",
     requires: ["Owner of the target Application object"],
-    outcome:
-      "Mint a client secret for the owned app's SP and sign in as it.",
+    outcome: "Mint a client secret for the owned app's SP and sign in as it.",
     mitigation:
       "Treat application ownership as a privileged grant. Periodically review owners on apps with privileged Graph consent. Avoid making low-privilege users owners of any app that has consented Application permissions.",
     reference:
@@ -193,14 +201,14 @@ export const TECHNIQUES: Technique[] = [
   {
     id: "az-sp-graph-app-readwrite",
     provider: "azure",
-    title: "Compromised SP with Application.ReadWrite.All (app permission) → seize any SP",
+    title:
+      "Compromised SP with Application.ReadWrite.All (app permission) → seize any SP",
     summary:
       "Application.ReadWrite.All as an *application* permission on a Service Principal lets that SP add credentials to any other app/SP. If the attacker has compromised this SP (leaked client secret, stolen managed-identity token), they can chain to any higher-privileged SP.",
     requires: [
       "Holding credentials for an SP granted Application.ReadWrite.All (app permission)",
     ],
-    outcome:
-      "Mint credentials for any app/SP and sign in as it.",
+    outcome: "Mint credentials for any app/SP and sign in as it.",
     mitigation:
       "Application.ReadWrite.All is the most-abused Graph permission. Avoid granting it; prefer Application.ReadWrite.OwnedBy. Audit consents quarterly. Rotate SP credentials and detect abnormal IPs on app-only auth.",
     reference:
@@ -229,10 +237,7 @@ export const TECHNIQUES: Technique[] = [
     title: "iam.serviceAccounts.actAs + compute.instances.create",
     summary:
       "Launch a GCE instance running as a privileged service account, then read its metadata token.",
-    requires: [
-      "iam.serviceAccounts.actAs",
-      "compute.instances.create",
-    ],
+    requires: ["iam.serviceAccounts.actAs", "compute.instances.create"],
     outcome:
       "Bearer token for the service account's roles (often editor or owner on a project).",
     mitigation:
@@ -344,7 +349,10 @@ function deriveEdges(scenario: IamScenario): AttackEdge[] {
             detail: `Run an EC2 instance with role ${target.id} attached, then read IMDS.`,
           });
         }
-        if (perms.has("lambda:CreateFunction") && perms.has("lambda:InvokeFunction")) {
+        if (
+          perms.has("lambda:CreateFunction") &&
+          perms.has("lambda:InvokeFunction")
+        ) {
           edges.push({
             from: src.id,
             to: target.id,
@@ -352,7 +360,10 @@ function deriveEdges(scenario: IamScenario): AttackEdge[] {
             detail: `Create a Lambda fn with role ${target.id}, invoke it.`,
           });
         }
-        if (perms.has("codebuild:UpdateProject") && perms.has("codebuild:StartBuild")) {
+        if (
+          perms.has("codebuild:UpdateProject") &&
+          perms.has("codebuild:StartBuild")
+        ) {
           edges.push({
             from: src.id,
             to: target.id,
@@ -386,7 +397,10 @@ function deriveEdges(scenario: IamScenario): AttackEdge[] {
     }
 
     /* iam:UpdateAssumeRolePolicy + sts:AssumeRole */
-    if (perms.has("iam:UpdateAssumeRolePolicy") && perms.has("sts:AssumeRole")) {
+    if (
+      perms.has("iam:UpdateAssumeRolePolicy") &&
+      perms.has("sts:AssumeRole")
+    ) {
       for (const target of scenario.principals) {
         if (target.kind !== "role" || target.id === src.id) continue;
         edges.push({
@@ -440,7 +454,8 @@ function deriveEdges(scenario: IamScenario): AttackEdge[] {
       perms.has("CloudApplicationAdministrator");
     if (hasAppAdminRole) {
       for (const target of scenario.principals) {
-        if (target.kind !== "service-principal" || target.id === src.id) continue;
+        if (target.kind !== "service-principal" || target.id === src.id)
+          continue;
         edges.push({
           from: src.id,
           to: target.id,
@@ -456,7 +471,11 @@ function deriveEdges(scenario: IamScenario): AttackEdge[] {
       if (perm.startsWith("owns:")) {
         const appId = perm.slice("owns:".length);
         const target = scenario.principals.find((p) => p.id === appId);
-        if (target && target.kind === "service-principal" && target.id !== src.id) {
+        if (
+          target &&
+          target.kind === "service-principal" &&
+          target.id !== src.id
+        ) {
           edges.push({
             from: src.id,
             to: target.id,
@@ -476,7 +495,8 @@ function deriveEdges(scenario: IamScenario): AttackEdge[] {
         perms.has("Application.ReadWrite.OwnedBy"))
     ) {
       for (const target of scenario.principals) {
-        if (target.kind !== "service-principal" || target.id === src.id) continue;
+        if (target.kind !== "service-principal" || target.id === src.id)
+          continue;
         edges.push({
           from: src.id,
           to: target.id,
@@ -489,7 +509,8 @@ function deriveEdges(scenario: IamScenario): AttackEdge[] {
     /* Azure: VM Run Command → MSI token */
     if (perms.has("Microsoft.Compute/virtualMachines/runCommand/action")) {
       for (const target of scenario.principals) {
-        if (target.kind !== "service-principal" || target.id === src.id) continue;
+        if (target.kind !== "service-principal" || target.id === src.id)
+          continue;
         edges.push({
           from: src.id,
           to: target.id,
@@ -500,7 +521,10 @@ function deriveEdges(scenario: IamScenario): AttackEdge[] {
     }
 
     /* GCP actAs + compute.instances.create */
-    if (perms.has("iam.serviceAccounts.actAs") && perms.has("compute.instances.create")) {
+    if (
+      perms.has("iam.serviceAccounts.actAs") &&
+      perms.has("compute.instances.create")
+    ) {
       for (const target of scenario.principals) {
         if (target.kind !== "service-account" || target.id === src.id) continue;
         edges.push({
@@ -715,7 +739,8 @@ export const SCENARIOS: IamScenario[] = [
       "Demonstrates path enumeration. Starting user has iam:AddUserToGroup. The group has iam:PassRole + ec2:RunInstances. The reachable admin role is two hops away.",
     startingPrincipal: "user/intern-irene",
     adminPolicies: ["*"],
-    reference: "Synthetic — illustrates path-finding through indirect permissions.",
+    reference:
+      "Synthetic — illustrates path-finding through indirect permissions.",
     principals: [
       {
         id: "user/intern-irene",
@@ -766,7 +791,8 @@ export const SCENARIOS: IamScenario[] = [
   {
     id: "azure-sp-chained",
     provider: "azure",
-    title: "Azure: compromised SP with Application.ReadWrite.All chains to admin SP",
+    title:
+      "Azure: compromised SP with Application.ReadWrite.All chains to admin SP",
     blurb:
       "An attacker has stolen the client secret of a low-value SP. That SP was unfortunately granted Application.ReadWrite.All as an application permission (very common over-grant). The attacker uses the stolen creds to mint a secret on a higher-privileged SP that holds Directory.ReadWrite.All.",
     startingPrincipal: "sp/PipelineHelper",
@@ -796,16 +822,12 @@ export const SCENARIOS: IamScenario[] = [
       "A user holds iam.serviceAccounts.actAs on a default-named SA + compute.instances.create. The SA has roles/owner. Boot a VM as that SA and read its metadata token.",
     startingPrincipal: "user/data-scientist",
     adminPolicies: ["*", "roles/owner"],
-    reference:
-      "Rhino Security Labs, GCP Privilege Escalation Part 1 (2020)",
+    reference: "Rhino Security Labs, GCP Privilege Escalation Part 1 (2020)",
     principals: [
       {
         id: "user/data-scientist",
         kind: "user",
-        permissions: [
-          "iam.serviceAccounts.actAs",
-          "compute.instances.create",
-        ],
+        permissions: ["iam.serviceAccounts.actAs", "compute.instances.create"],
       },
       {
         id: "sa/owner-sa",

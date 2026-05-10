@@ -64,10 +64,10 @@ export default function Home() {
           <h3>JWT forging workbench</h3>
           <p>
             A live attacker workbench against a real WebCrypto verifier.
-            Generate an RS256 token, forge a copy via alg=none
-            (CVE-2015-9235), RS→HS confusion (CVE-2016-10555), kid path
-            traversal, or claim tampering, then toggle verifier defenses
-            and watch each forgery accepted or rejected.
+            Generate an RS256 token, forge a copy via alg=none (CVE-2015-9235),
+            RS→HS confusion (CVE-2016-10555), kid path traversal, or claim
+            tampering, then toggle verifier defenses and watch each forgery
+            accepted or rejected.
           </p>
           <Link href="/identity/forge">Open workbench →</Link>
         </div>
