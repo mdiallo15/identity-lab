@@ -312,6 +312,7 @@ export default function ForgePage() {
                   </a>
                 </p>
               )}
+              <CopyAsCurl token={forgedToken} attack={attack} />
             </>
           )}
 
@@ -573,3 +574,128 @@ function VerifyColumn({
     </div>
   );
 }
+
+// Render a copy-as-curl block for the forged token, modelled on hitting a
+// protected API route with the token in Authorization: Bearer. Real-world
+// reproduction step from any of the four attacks — the attacker holds a
+// forged JWT and now wants to use it against a backend.
+function CopyAsCurl({ token, attack }: { token: string; attack: ForgeAttack }) {
+  const [copied, setCopied] = useState<string | null>(null);
+  const target = "https://api.example.com/admin/users";
+  const cmd = `curl -i ${target} \\\n  -H 'Authorization: Bearer ${token}'`;
+  const note = ATTACK_CURL_NOTES[attack];
+
+  function copy(text: string, label: string) {
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard
+        .writeText(text)
+        .then(() => {
+          setCopied(label);
+          setTimeout(() => setCopied(null), 1500);
+        })
+        .catch(() => window.prompt("Copy:", text));
+    } else {
+      window.prompt("Copy:", text);
+    }
+  }
+
+  return (
+    <div
+      style={{
+        marginTop: "0.8rem",
+        padding: "0.65rem 0.8rem",
+        border: "1px solid var(--rule)",
+        background: "var(--bg-elev)",
+      }}
+    >
+      <div
+        style={{
+          fontSize: "0.7rem",
+          textTransform: "uppercase",
+          letterSpacing: "0.05em",
+          color: "var(--ink-dim)",
+          marginBottom: "0.3rem",
+        }}
+      >
+        Reproduce against a backend
+      </div>
+      <pre
+        style={{
+          margin: 0,
+          padding: "0.5rem 0.6rem",
+          fontSize: "0.74rem",
+          whiteSpace: "pre-wrap",
+          wordBreak: "break-all",
+          background: "var(--bg)",
+          border: "1px solid var(--rule)",
+        }}
+      >
+        {cmd}
+      </pre>
+      <p
+        style={{
+          margin: "0.4rem 0 0",
+          fontSize: "0.78rem",
+          color: "var(--ink-dim)",
+        }}
+      >
+        {note}
+      </p>
+      <div style={{ display: "flex", gap: "0.4rem", marginTop: "0.5rem" }}>
+        <button
+          type="button"
+          onClick={() => copy(cmd, "curl")}
+          style={{
+            background: "transparent",
+            color: "var(--ink-dim)",
+            border: "1px solid var(--rule)",
+            padding: "0.3rem 0.7rem",
+            fontSize: "0.75rem",
+            fontWeight: 500,
+          }}
+        >
+          {copied === "curl" ? "copied" : "Copy curl"}
+        </button>
+        <button
+          type="button"
+          onClick={() => copy(token, "token")}
+          style={{
+            background: "transparent",
+            color: "var(--ink-dim)",
+            border: "1px solid var(--rule)",
+            padding: "0.3rem 0.7rem",
+            fontSize: "0.75rem",
+            fontWeight: 500,
+          }}
+        >
+          {copied === "token" ? "copied" : "Copy token"}
+        </button>
+        <button
+          type="button"
+          onClick={() => copy(`Authorization: Bearer ${token}`, "header")}
+          style={{
+            background: "transparent",
+            color: "var(--ink-dim)",
+            border: "1px solid var(--rule)",
+            padding: "0.3rem 0.7rem",
+            fontSize: "0.75rem",
+            fontWeight: 500,
+          }}
+        >
+          {copied === "header" ? "copied" : "Copy Authorization header"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+const ATTACK_CURL_NOTES: Record<ForgeAttack, string> = {
+  "alg-none":
+    "Against any backend whose JWT verifier accepts alg=none (CVE-2015-9235), this curl returns 200 with admin claims. Verifier fix: pin allowedAlgorithms and reject 'none' at the parser.",
+  "alg-confusion":
+    "Against a backend that picks the verification algorithm from the token header (CVE-2016-10555), this curl HMACs with the public key bytes and is accepted as RS256-equivalent. Verifier fix: ignore header.alg; select algorithm from key material.",
+  "kid-injection":
+    "Against a backend that resolves the kid header as a filesystem path, this curl tricks the verifier into HMAC-ing with /dev/null bytes (empty key). Verifier fix: resolve kid via an allowlist of named keys, never as a path.",
+  "claim-tamper-no-resign":
+    "Against any 'decode-then-trust' backend that reads claims before verifying the signature, this curl will be honoured. Verifier fix: verify first; read claims from the verified output, never from the raw token.",
+};

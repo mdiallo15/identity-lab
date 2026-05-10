@@ -20,16 +20,6 @@ session. Pick the top unblocked task, do it, commit, move it to "Done".
 
 ## Ready (ordered, top = next)
 
-### T-01 — JWT forging workbench: polish + cross-link
-
-- **Files:** `app/identity/forge/page.tsx`, `app/identity/jwt/page.tsx`,
-  `lib/jwt-forge.ts`.
-- **Do:** Add inline links from `/identity/jwt` to `/identity/forge`. Ensure
-  the workbench has a clear "what this proves" panel and a copy-as-curl
-  affordance for any HTTP scenarios.
-- **Done when:** Both pages cross-link; workbench has explanatory panel and
-  copy-curl works for at least one scenario.
-
 ### T-02 — Agent Identity: token-exchange end-to-end demo
 
 - **Files:** `app/agent-identity/token-exchange/page.tsx`,
@@ -75,6 +65,7 @@ session. Pick the top unblocked task, do it, commit, move it to "Done".
 
 ## Done
 
+- **2026-05-10 (commit T-01)** — JWT forging workbench polish: copy-as-curl affordance under each forged token (curl line targeting `https://api.example.com/admin/users` with `Authorization: Bearer <forged>`, plus separate copy buttons for the raw token and the bare Authorization header). Per-attack reproduction note explains the verifier-side bug each forgery exploits (CVE-2015-9235 alg=none, CVE-2016-10555 RS→HS, kid path traversal, decode-then-trust). Cross-link from `/identity/jwt` to `/identity/forge` and 'What this proves' panel were shipped in T-00.
 - **2026-05-10 (commit 044bdde)** — SSRF v2: live fetcher sandbox at `/ssrf/analyzer` with a 10-payload catalog (decimal/hex/octal-encoded IPv4 → AWS IMDS, IPv6 loopback, DNS-rebinding mock, AWS IMDSv1 path, GCP metadata via Host-header smuggling, Redis CRLF injection, K8s API ServiceAccount token, gopher:// → Redis RCE) and a sandboxed `/api/ssrf-fetch` endpoint that mirrors the same deterministic transcripts for curl/SIEM replay. Naive vs hardened fetchers run side-by-side; the hardened rule chain (H-SCHEME / H-CRLF / H-HEADERS / H-CANON / H-IPRANGE / H-IPV6 / H-PINIP) labels every block. References: Capital One IMDS breach (KrebsOnSecurity), Orange Tsai BlackHat 2017 URL-parser SSRF, OWASP SSRF cheat sheet, NCC Group Singularity rebinder, MITRE ATT&CK T1552.007, Tarunkant Gopherus, AWS IMDSv2 docs.
 - **2026-05-10 (commit a80e156)** — Prompt Injection v2: live tool-call agent loop. Five-tool surface (`read_file`, `kb_search`, `web_fetch`, `send_email`, `update_calendar`), 12 deterministic scenarios spanning direct override, indirect injection, KB poisoning, exfil-via-markdown-image, tool-call hijack, prompt leakage, confused-deputy README, BEC-via-injected-invoice, two-step indirect chain, CSV imperative + formula injection. Naive vs hardened traces rendered side-by-side with provenance tags, refusal rules, and explicit leak markers; editable hardened policy (email/web allowlist + spotlighting toggle); JSON telemetry export. References: Greshake et al. 2023, Bargury BlackHat 2024, embracethered Copilot disclosures, OWASP LLM Top 10 2025, FBI IC3 BEC PSA, PortSwigger LLM attacks, NCSC AI guidelines.
 - **2026-05-10 (commit 8cb1938)** — Cross-linked `/identity/jwt` and `/identity/forge`: callout on the inspector pointing at the forging workbench, and a "What this proves" panel on the workbench summarising the four CVE-class attacks (alg=none CVE-2015-9235, RS→HS confusion CVE-2016-10555, kid traversal, tamper-no-resign) with the matching defense for each.
