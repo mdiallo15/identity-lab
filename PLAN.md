@@ -19,7 +19,7 @@ Living doc. Update as work lands. Keep entries short. Newest at top.
 
 ## Recently completed
 
-- `8e4829c` — SSRF v2: live fetcher sandbox, 10 scenarios, naive vs hardened, `/api/ssrf-fetch`.
+- `044bdde` — SSRF v2: live fetcher sandbox, 10 scenarios, naive vs hardened, `/api/ssrf-fetch`.
 - `a80e156` — Prompt Injection v2: live tool-call agent loop, 5 tools, 12 scenarios, telemetry export.
 - `8cb1938` — Cross-linked /identity/jwt and /identity/forge; 'What this proves' panel on the workbench.
 - `691980b` — Identity Lab v2: JWT forging workbench.
