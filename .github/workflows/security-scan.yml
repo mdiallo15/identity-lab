@@ -1,9 +1,15 @@
 name: Security Scan
 
 # Demonstrates how to use lab.marwandiallo.com/api/scan as a security
-# header / CSP / SRI scanner in GitHub Actions, with results uploaded
-# to GitHub Code Scanning. Findings render in the Security tab with
-# proper severity ranking thanks to the SARIF security-severity field.
+# header / CSP / SRI scanner in GitHub Actions. The SARIF output is
+# uploaded as a workflow artifact so it can be downloaded and reviewed.
+#
+# Note: this scanner targets external URLs, so its SARIF artifact URIs
+# use the `https` scheme. GitHub Code Scanning's upload-sarif action
+# rejects non-`file://` URIs (it's designed for repo source scans), so
+# we intentionally do not upload to Code Scanning here. To wire SARIF
+# into Code Scanning, run a scanner whose findings map to files in the
+# repository instead (e.g. a static analyzer over `app/` and `lib/`).
 #
 # Customize the TARGET_URL env var or matrix to scan multiple URLs.
 
@@ -23,8 +29,6 @@ jobs:
     name: Headers + CSP + SRI scan
     runs-on: ubuntu-latest
     permissions:
-      # Required to upload SARIF to Code Scanning.
-      security-events: write
       contents: read
 
     strategy:
@@ -48,18 +52,12 @@ jobs:
             -d "{\"url\":\"${{ matrix.target }}\",\"format\":\"sarif\"}" \
             -o "scan-${slug}.sarif.json"
           echo "sarif_path=scan-${slug}.sarif.json" >> "$GITHUB_OUTPUT"
+          echo "slug=${slug}" >> "$GITHUB_OUTPUT"
 
-      - name: Upload SARIF to GitHub Code Scanning
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: ${{ steps.scan.outputs.sarif_path }}
-          # Categorize per-target so multiple matrix runs don't collide.
-          category: ${{ matrix.target }}
-
-      - name: Upload SARIF as artifact (debug)
+      - name: Upload SARIF as artifact
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: sarif-${{ strategy.job-index }}
+          name: sarif-${{ steps.scan.outputs.slug }}
           path: ${{ steps.scan.outputs.sarif_path }}
           if-no-files-found: error
