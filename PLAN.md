@@ -19,6 +19,7 @@ Living doc. Update as work lands. Keep entries short. Newest at top.
 
 ## Recently completed
 
+- `983bc6b` — JWT forging workbench: copy-as-curl affordance with per-attack reproduction notes (T-01).
 - `044bdde` — SSRF v2: live fetcher sandbox, 10 scenarios, naive vs hardened, `/api/ssrf-fetch`.
 - `a80e156` — Prompt Injection v2: live tool-call agent loop, 5 tools, 12 scenarios, telemetry export.
 - `8cb1938` — Cross-linked /identity/jwt and /identity/forge; 'What this proves' panel on the workbench.
@@ -32,7 +33,6 @@ Living doc. Update as work lands. Keep entries short. Newest at top.
 
 _Pick one and start. Move to "In progress" when picked up._
 
-- [ ] Polish + cross-link the JWT forging workbench (T-01).
 - [ ] Agent Identity: end-to-end token-exchange demo wiring (T-02).
 - [ ] SARIF export verification across labs (T-03).
 - [ ] Detection Engineering: at least one canned ruleset per lab (T-04).
