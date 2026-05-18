@@ -250,6 +250,196 @@ export function exchangeToken(req: ExchangeRequest): ExchangeResult {
   };
 }
 
+// ---- JWT encode/decode side-by-side helpers (RFC 8693 demo) ---------------
+
+// Minimal base64url for JSON. Browser btoa + URL-safe transforms; for SSR
+// fallback we route through Buffer when available.
+function b64url(input: string): string {
+  let raw: string;
+  if (typeof btoa === "function") {
+    // btoa wants Latin-1; encode UTF-8 first.
+    const bytes = new TextEncoder().encode(input);
+    let bin = "";
+    for (const b of bytes) bin += String.fromCharCode(b);
+    raw = btoa(bin);
+  } else {
+    // Node fallback.
+    raw = Buffer.from(input, "utf-8").toString("base64");
+  }
+  return raw.replace(/=+$/, "").replace(/\+/g, "-").replace(/\//g, "_");
+}
+
+// Deterministic demo signature — FNV-1a 32-bit over the signing input,
+// rendered as 8 hex chars then base64url. Pedagogical only; the JWT lab
+// at /identity/forge and /identity/jwt covers real signature mechanics.
+function demoSig(signingInput: string): string {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < signingInput.length; i++) {
+    h ^= signingInput.charCodeAt(i);
+    h = Math.imul(h, 0x01000193) >>> 0;
+  }
+  const hex = h.toString(16).padStart(8, "0");
+  // Prefix with "demo-" so it's obvious in the UI this is not a real HMAC.
+  return b64url("demo-" + hex);
+}
+
+export interface DecodedJwt {
+  header: Record<string, unknown>;
+  payload: Record<string, unknown>;
+  compact: string; // header.payload.signature
+}
+
+function encodeJwt(
+  header: Record<string, unknown>,
+  payload: Record<string, unknown>,
+): DecodedJwt {
+  const h = b64url(JSON.stringify(header));
+  const p = b64url(JSON.stringify(payload));
+  const s = demoSig(`${h}.${p}`);
+  return { header, payload, compact: `${h}.${p}.${s}` };
+}
+
+// The user's authenticator-bound JWT presented as subject_token in the
+// token-exchange request. Claims mirror what an OIDC IdP would emit after
+// a passkey login: standard OpenID claims plus amr/acr for AAL signalling.
+export function buildSubjectJwt(user: UserSubject, now?: number): DecodedJwt {
+  const iat = now ?? Math.floor(Date.now() / 1000);
+  return encodeJwt(
+    { alg: "RS256", typ: "JWT", kid: "idp-2026-05" },
+    {
+      iss: ISS,
+      sub: user.id,
+      email: user.email,
+      aud: "agents.idp.lab.marwandiallo.com",
+      iat,
+      exp: iat + 3600,
+      amr: user.amr,
+      acr: user.aal,
+      jti: `usr-${user.id}-${iat}`,
+    },
+  );
+}
+
+// The agent's workload-attested JWT presented as actor_token. Claims model
+// what an attested workload-identity surface emits (GitHub OIDC, AWS Nitro
+// attestation doc relayed through STS, Azure managed identity, GCP WIF).
+export function buildActorJwt(agent: AgentActor, now?: number): DecodedJwt {
+  const iat = now ?? Math.floor(Date.now() / 1000);
+  return encodeJwt(
+    { alg: "RS256", typ: "JWT", kid: `wl-${agent.attestation}` },
+    {
+      iss: ISS,
+      sub: agent.workload,
+      azp: agent.id,
+      aud: ISS,
+      iat,
+      exp: iat + 600,
+      attestation: agent.attestation,
+      scope: agent.defaultScopes.join(" "),
+      jti: `wl-${agent.id}-${iat}`,
+    },
+  );
+}
+
+export function buildExchangedJwt(claims: ExchangedTokenClaims): DecodedJwt {
+  return encodeJwt(
+    { alg: "RS256", typ: "JWT", kid: "idp-2026-05" },
+    claims as unknown as Record<string, unknown>,
+  );
+}
+
+export type ClaimOrigin =
+  | "subject" // inherited unchanged from the user's subject_token
+  | "actor" // derived from the agent's actor_token (act.* family)
+  | "sts" // newly minted by the STS for this exchange
+  | "narrowed"; // bounded down from the actor_token's claim
+
+// Diff one exchanged-token claim against the two input tokens so the UI can
+// colour every line and explain *why* it's there. The mapping is deliberate:
+//   sub  — must be the user (RFC 8693 §1.2). Inherited from subject_token.
+//   act  — synthesised by the STS from the actor_token's identity claims.
+//   aud  — narrowed: the request asked for one audience; the STS minted a
+//          token only valid against it. The actor_token's own aud was the STS.
+//   scope — narrowed: should be a subset of what the actor *could* request.
+//   azp / cnf / jti / iat / exp / iss — fresh from the STS.
+export function diffExchangedClaim(
+  key: keyof ExchangedTokenClaims,
+  exchanged: ExchangedTokenClaims,
+  subject: DecodedJwt,
+  actor: DecodedJwt,
+): { origin: ClaimOrigin; note: string } {
+  const subPayload = subject.payload;
+  const actPayload = actor.payload;
+  if (key === "sub") {
+    return {
+      origin: "subject",
+      note: "Inherited from subject_token. RFC 8693 §1.2 requires the principal to remain the user.",
+    };
+  }
+  if (key === "act") {
+    return {
+      origin: "actor",
+      note: "Synthesised by the STS from actor_token. The act claim makes user→agent delegation visible in audit.",
+    };
+  }
+  if (key === "aud") {
+    return {
+      origin: "sts",
+      note: "Minted for this exchange. The actor_token's own aud was the STS itself; the resulting token is bound to the requested resource.",
+    };
+  }
+  if (key === "scope") {
+    const requested = String(exchanged.scope).split(" ").filter(Boolean);
+    const allowed = String(actPayload.scope ?? "")
+      .split(" ")
+      .filter(Boolean);
+    const isSubset =
+      !allowed.includes("*") &&
+      requested.every((s) => allowed.includes(s) || allowed.includes("*"));
+    if (allowed.includes("*")) {
+      return {
+        origin: "narrowed",
+        note: "actor_token holds a wildcard scope — the STS narrowed it to the explicit set you requested. Replace the wildcard at the agent boundary.",
+      };
+    }
+    return isSubset
+      ? {
+          origin: "narrowed",
+          note: "Subset of actor_token.scope. Token exchange exists to downscope, not preserve full authority.",
+        }
+      : {
+          origin: "sts",
+          note: "Requested scope is NOT a subset of actor_token.scope — a real STS would refuse this exchange.",
+        };
+  }
+  if (key === "iss") {
+    return {
+      origin: "sts",
+      note: "Re-issued by the STS. Receiving services trust the STS, not the workload directly.",
+    };
+  }
+  if (key === "azp") {
+    return {
+      origin: "sts",
+      note: "Authorized party — the agent's IdP client_id. Resources can pin azp to a specific agent.",
+    };
+  }
+  if (key === "cnf") {
+    return {
+      origin: "sts",
+      note: "Sender-constraint (RFC 9449 DPoP / mTLS). Receiving services reject the token if presented by a key the cnf doesn't bind.",
+    };
+  }
+  if (key === "exp" || key === "iat" || key === "jti") {
+    void subPayload;
+    return {
+      origin: "sts",
+      note: "Fresh per-exchange. exp drives the agent token's TTL; jti enables replay defence.",
+    };
+  }
+  return { origin: "sts", note: "Issued by the STS." };
+}
+
 // -------------------------- Inventory + drift detector ----------------------
 
 export interface InventoryAgent {
