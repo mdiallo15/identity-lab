@@ -19,6 +19,8 @@ Living doc. Update as work lands. Keep entries short. Newest at top.
 
 ## Recently completed
 
+- `192fa5c` — SARIF 2.1.0 export verification: zero-dep validator + CI script covering all 5 lab surfaces (T-03).
+- `c6a7e73` — Agent Identity token-exchange: 3 decoded JWTs side-by-side + claims diff (T-02).
 - `983bc6b` — JWT forging workbench: copy-as-curl affordance with per-attack reproduction notes (T-01).
 - `044bdde` — SSRF v2: live fetcher sandbox, 10 scenarios, naive vs hardened, `/api/ssrf-fetch`.
 - `a80e156` — Prompt Injection v2: live tool-call agent loop, 5 tools, 12 scenarios, telemetry export.
@@ -33,8 +35,6 @@ Living doc. Update as work lands. Keep entries short. Newest at top.
 
 _Pick one and start. Move to "In progress" when picked up._
 
-- [ ] Agent Identity: end-to-end token-exchange demo wiring (T-02).
-- [ ] SARIF export verification across labs (T-03).
 - [ ] Detection Engineering: at least one canned ruleset per lab (T-04).
 - [ ] Landing page: surface the new labs above the fold (T-05).
 
