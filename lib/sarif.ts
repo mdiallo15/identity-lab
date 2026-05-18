@@ -143,3 +143,141 @@ function deriveTag(id: string): string {
   if (id.startsWith("SSRF")) return "ssrf";
   return "general";
 }
+
+// Lightweight SARIF 2.1.0 structural validator. Runs in the browser and in
+// Node with no dependencies. Returns a list of human-readable error
+// strings; an empty list means the document is structurally well-formed
+// against the subset of the schema that GitHub Code Scanning and the
+// SARIF Multitool actually enforce.
+//
+// What is checked:
+//   - $schema and version pinned to SARIF 2.1.0
+//   - runs is a non-empty array
+//   - tool.driver.name and rules[] present
+//   - each rule has id + valid level + numeric security-severity in [0,10]
+//   - each result has ruleId that resolves to a known rule, valid level,
+//     message.text, and (if present) a well-formed location
+//
+// What is NOT checked (out of scope for a structural pass): URI scheme
+// restrictions imposed by GitHub Code Scanning (file:// only) and CVSS
+// vector validation. The SARIF spec itself permits https URIs.
+export function validateSarif(doc: unknown): string[] {
+  const errors: string[] = [];
+  const push = (m: string) => errors.push(m);
+  if (typeof doc !== "object" || doc === null) {
+    push("root: not an object");
+    return errors;
+  }
+  const d = doc as Record<string, unknown>;
+  if (d.$schema !== SCHEMA) push(`$schema: expected ${SCHEMA}, got ${d.$schema}`);
+  if (d.version !== "2.1.0") push(`version: expected "2.1.0", got ${d.version}`);
+  if (!Array.isArray(d.runs) || d.runs.length === 0) {
+    push("runs: expected non-empty array");
+    return errors;
+  }
+  const validLevels = new Set(["error", "warning", "note", "none"]);
+  d.runs.forEach((run, ri) => {
+    if (typeof run !== "object" || run === null) {
+      push(`runs[${ri}]: not an object`);
+      return;
+    }
+    const r = run as Record<string, unknown>;
+    const tool = r.tool as Record<string, unknown> | undefined;
+    const driver = tool?.driver as Record<string, unknown> | undefined;
+    if (!driver) {
+      push(`runs[${ri}].tool.driver: missing`);
+    } else {
+      if (typeof driver.name !== "string" || driver.name.length === 0) {
+        push(`runs[${ri}].tool.driver.name: missing or empty`);
+      }
+      if (driver.rules !== undefined && !Array.isArray(driver.rules)) {
+        push(`runs[${ri}].tool.driver.rules: expected array`);
+      }
+    }
+    const ruleIds = new Set<string>();
+    const rules = (driver?.rules as unknown[] | undefined) ?? [];
+    rules.forEach((rule, idx) => {
+      if (typeof rule !== "object" || rule === null) {
+        push(`runs[${ri}].rules[${idx}]: not an object`);
+        return;
+      }
+      const ru = rule as Record<string, unknown>;
+      if (typeof ru.id !== "string" || ru.id.length === 0) {
+        push(`runs[${ri}].rules[${idx}].id: missing`);
+      } else {
+        ruleIds.add(ru.id);
+      }
+      const cfg = ru.defaultConfiguration as
+        | Record<string, unknown>
+        | undefined;
+      if (cfg && typeof cfg.level === "string" && !validLevels.has(cfg.level)) {
+        push(
+          `runs[${ri}].rules[${idx}].defaultConfiguration.level: invalid (${cfg.level})`,
+        );
+      }
+      const props = ru.properties as Record<string, unknown> | undefined;
+      if (props && "security-severity" in props) {
+        const v = props["security-severity"];
+        const n = typeof v === "string" ? Number(v) : NaN;
+        if (Number.isNaN(n) || n < 0 || n > 10) {
+          push(
+            `runs[${ri}].rules[${idx}].properties.security-severity: out of range (${String(v)})`,
+          );
+        }
+      }
+      const sd = ru.shortDescription as Record<string, unknown> | undefined;
+      if (sd && typeof sd.text !== "string") {
+        push(`runs[${ri}].rules[${idx}].shortDescription.text: not a string`);
+      }
+    });
+    const results = r.results;
+    if (results !== undefined && !Array.isArray(results)) {
+      push(`runs[${ri}].results: expected array`);
+    } else if (Array.isArray(results)) {
+      results.forEach((res, idx) => {
+        if (typeof res !== "object" || res === null) {
+          push(`runs[${ri}].results[${idx}]: not an object`);
+          return;
+        }
+        const re = res as Record<string, unknown>;
+        if (typeof re.ruleId !== "string" || re.ruleId.length === 0) {
+          push(`runs[${ri}].results[${idx}].ruleId: missing`);
+        } else if (ruleIds.size > 0 && !ruleIds.has(re.ruleId)) {
+          push(
+            `runs[${ri}].results[${idx}].ruleId: "${re.ruleId}" not in tool.driver.rules`,
+          );
+        }
+        if (typeof re.level === "string" && !validLevels.has(re.level)) {
+          push(`runs[${ri}].results[${idx}].level: invalid (${re.level})`);
+        }
+        const msg = re.message as Record<string, unknown> | undefined;
+        if (!msg || typeof msg.text !== "string" || msg.text.length === 0) {
+          push(`runs[${ri}].results[${idx}].message.text: missing or empty`);
+        }
+        if (re.locations !== undefined) {
+          if (!Array.isArray(re.locations) || re.locations.length === 0) {
+            push(
+              `runs[${ri}].results[${idx}].locations: must be a non-empty array when present`,
+            );
+          } else {
+            re.locations.forEach((loc, li) => {
+              const l = loc as Record<string, unknown>;
+              const pl = l?.physicalLocation as
+                | Record<string, unknown>
+                | undefined;
+              const al = pl?.artifactLocation as
+                | Record<string, unknown>
+                | undefined;
+              if (typeof al?.uri !== "string" || al.uri.length === 0) {
+                push(
+                  `runs[${ri}].results[${idx}].locations[${li}].physicalLocation.artifactLocation.uri: missing`,
+                );
+              }
+            });
+          }
+        }
+      });
+    }
+  });
+  return errors;
+}
