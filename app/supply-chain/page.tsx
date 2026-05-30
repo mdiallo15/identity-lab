@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { LearnCallout } from "@/app/_components/learn-callout";
 import {
   INCIDENTS,
   SCENARIOS,
@@ -137,6 +138,7 @@ export default function SupplyChainLab() {
   return (
     <>
       <h1>Supply Chain</h1>
+      <LearnCallout href="/supply-chain" />
       <p className="lede">
         Real package-registry compromises, replayed against a live provenance
         analyzer. Every scenario reproduces a public incident — event-stream,

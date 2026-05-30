@@ -1,9 +1,11 @@
 import Link from "next/link";
+import { LearnCallout } from "@/app/_components/learn-callout";
 
 export default function AuthzOverview() {
   return (
     <>
       <h1>AuthZ Lab — IDOR / BOLA</h1>
+      <LearnCallout href="/authz" />
       <p className="lede">
         Broken Object Level Authorization sits at the top of the OWASP API
         Security Top 10. The bug pattern, in almost every case I have reviewed,

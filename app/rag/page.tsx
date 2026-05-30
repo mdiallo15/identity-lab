@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { LearnCallout } from "@/app/_components/learn-callout";
 import {
   ATTACKS,
   SECRET_CANARY,
@@ -50,6 +51,7 @@ export default function RagLab() {
   return (
     <>
       <h1>RAG Security</h1>
+      <LearnCallout href="/rag" />
       <p className="lede">
         Real attacks against retrieval-augmented generation pipelines, replayed
         with a deterministic in-browser bag-of-words vector store. Every

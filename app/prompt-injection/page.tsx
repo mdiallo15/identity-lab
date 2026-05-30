@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { LearnCallout } from "@/app/_components/learn-callout";
 
 export const metadata = {
   title: "Prompt Injection Lab — Labs",
@@ -10,6 +11,7 @@ export default function PromptInjectionOverview() {
   return (
     <>
       <h1>Prompt Injection Lab</h1>
+      <LearnCallout href="/prompt-injection" />
       <p className="lede">
         The XSS of the LLM era. An attacker plants instructions inside data an
         agent ingests — a webpage, a ticket, a resume, a README — and the agent

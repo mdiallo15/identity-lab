@@ -20,16 +20,6 @@ session. Pick the top unblocked task, do it, commit, move it to "Done".
 
 ## Ready (ordered, top = next)
 
-### T-06 — Per-lab "what you'll learn" callout
-
-- **Files:** `app/_components/learn-callout.tsx` (new), every lab index
-  page (`app/csp/page.tsx`, `app/identity/page.tsx`,
-  `app/ssrf/page.tsx`, etc.).
-- **Do:** Add a consistent `<LearnCallout>` block at the top of each lab
-  index listing the 3–5 concrete takeaways for that lab.
-- **Done when:** Every lab index has the callout; component is the same
-  visual across labs.
-
 ### T-07 — Threat-model card component per lab
 
 - **Files:** `app/_components/threat-model.tsx` (new), each lab index.
@@ -159,6 +149,7 @@ session. Pick the top unblocked task, do it, commit, move it to "Done".
 
 ## Done
 
+- **2026-05-30 (commit T-06)** — Per-lab "what you'll learn" callout shipped on all ten labs (CSP, Identity, SSRF, Prompt Injection, AuthZ, Agent Identity, IAM PrivEsc, Detection Engineering, Supply Chain, RAG). New `app/_components/learn-callout.tsx` reads from a `LAB_LEARN` map in `lib/labs.ts` so the bullets live with the lab metadata, not in JSX. Four concrete takeaways per lab (no marketing copy). Styled as a left-bordered cyan callout pinned above the lede.
 - **2026-05-30 (commit T-05)** — Home page lab grid reordered: newest first (Detection Engineering, Agent Identity, IAM PrivEsc, Supply Chain, RAG, Prompt Injection v2, SSRF v2), with the long-running tiles (Identity, CSP, AuthZ) below. New `lib/labs.ts` exposes `LAB_SINCE` (per-route launch dates) + `isNewLab(href)` with a configurable `NEW_WINDOW_DAYS` threshold (default 60). The `<NewPill>` chip on each tile auto-clears when the launch date drops out of the window, so the page never carries stale flags. Updated tile copy where lab v2 work shipped (forging workbench, agent loop simulator, fetcher sandbox, claims diff).
 - **2026-05-30 (commit T-04)** — Detection Engineering per-lab ruleset. New `LAB_RULES` catalog in `lib/detection.ts` with one Sigma-equivalent rule per lab domain (CSP / JWT / SSRF / IAM / Supply Chain / RAG / Prompt Injection / Agent Identity), each with rationale, data source, ATT&CK or OWASP / CVE handle, pseudo-Sigma body, published reference, and known-FP shape. Detection page renders them grouped by lab under existing scenarios. References include Capital One IMDS, Rhino Security AWS PassRole, Greshake et al. 2023 indirect prompt injection, Bargury BlackHat 2024 Copilot, RFC 8693 §4.1.
 - **2026-05-17 (commit 192fa5c)** — SARIF 2.1.0 export verification. Added `validateSarif()` to `lib/sarif.ts` — zero-dep structural validator covering $schema/version pins, run shape, tool.driver.name, rule.id uniqueness and reference resolution, level vocabulary (`error|warning|note|none`), security-severity numeric range [0,10], and locations shape. Added `scripts/validate-sarif.mjs` that transpiles `lib/sarif.ts` in-memory via the `typescript` devDep (no new runtime deps) and exercises every SARIF surface against fixture findings. All six surfaces validate: `csp/analyzer`, `api/scan`, `authz/patterns`, `ssrf/analyzer`, `agent-identity/inventory`, plus the empty-findings edge case. CI now runs `npm run validate-sarif` before `npm run build`.
@@ -181,6 +172,7 @@ session. Pick the top unblocked task, do it, commit, move it to "Done".
 
 ## Session log
 
+- **2026-05-30 (cont.)** — T-06 shipped: `<LearnCallout>` on all 10 labs with bullets sourced from `LAB_LEARN` in `lib/labs.ts`.
 - **2026-05-30 (cont.)** — T-05 shipped: home grid reordered newest-first, `<NewPill>` chip + `lib/labs.ts` (`LAB_SINCE` + `isNewLab` with 60-day auto-clear).
 - **2026-05-30** — Continuous-mode session start. Phase 0 sync clean. Phase 1: regenerated backlog — added 15 atomic tasks T-06..T-20 from PLAN.md backlog/ideas + README cleanup. T-04 shipped: per-lab Sigma ruleset (8 rules, one per lab domain) on the Detection Engineering page.
 - **2026-05-17 (cont.)** — T-03 shipped: zero-dep SARIF 2.1.0 validator + Node script exercising all 5 lab surfaces (`csp/analyzer`, `api/scan`, `authz/patterns`, `ssrf/analyzer`, `agent-identity/inventory`) + empty-findings edge case. All validate clean. Wired `npm run validate-sarif` into CI.

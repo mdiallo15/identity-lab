@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { LearnCallout } from "@/app/_components/learn-callout";
 
 export const metadata = {
   title: "Agent Identity Lab — labs.marwandiallo.com",
@@ -10,6 +11,7 @@ export default function AgentIdentityLab() {
   return (
     <>
       <h1>Agent Identity Lab</h1>
+      <LearnCallout href="/agent-identity" />
       <p className="lede">
         Most agents in production today authenticate with a long-lived API key
         in a config file. The fix is the same family of primitives that put

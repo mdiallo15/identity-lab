@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { LearnCallout } from "@/app/_components/learn-callout";
 
 export const metadata = {
   title: "SSRF / Cloud Metadata Lab — Labs",
@@ -10,6 +11,7 @@ export default function SsrfOverview() {
   return (
     <>
       <h1>SSRF / Cloud Metadata Lab</h1>
+      <LearnCallout href="/ssrf" />
       <p className="lede">
         Server-Side Request Forgery has been a top-10 web vulnerability since
         OWASP added it in 2021. The reason it stays there: every cloud platform

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { LearnCallout } from "@/app/_components/learn-callout";
 
 export const metadata = {
   title: "Identity Lab — Phishing-resistant authentication, hands-on",
@@ -10,6 +11,7 @@ export default function Home() {
   return (
     <>
       <h1>Identity Lab</h1>
+      <LearnCallout href="/identity" />
       <p className="lede">
         A hands-on playground for the auth model that's replacing passwords:
         passkeys, phishing-resistant MFA, and the workload-identity primitives

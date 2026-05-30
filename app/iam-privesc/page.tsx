@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { LearnCallout } from "@/app/_components/learn-callout";
 import {
   SCENARIOS,
   TECHNIQUES,
@@ -56,6 +57,7 @@ export default function IamPrivescLab() {
   return (
     <>
       <h1>IAM Privilege Escalation</h1>
+      <LearnCallout href="/iam-privesc" />
       <p className="lede">
         A live cloud-IAM attack-path enumerator. Each scenario seeds a small
         directory of users, roles, groups, and service principals; the engine

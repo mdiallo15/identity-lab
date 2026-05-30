@@ -413,6 +413,37 @@ dd code {
   background: rgba(102, 217, 239, 0.15);
   color: var(--accent);
 }
+
+/* "What you'll learn" callout, rendered at the top of every lab page. */
+.learn-callout {
+  margin: 0 0 1.6rem;
+  padding: 1rem 1.1rem 1rem 1.2rem;
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  background: rgba(102, 217, 239, 0.04);
+}
+.learn-callout__title {
+  margin: 0 0 0.55rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.learn-callout__list {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: var(--ink);
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+.learn-callout__list li {
+  margin-bottom: 0.25rem;
+}
+.learn-callout__list li:last-child {
+  margin-bottom: 0;
+}
 .lab-tile__bullets {
   margin: 0 0 1rem;
   padding-left: 1.1rem;

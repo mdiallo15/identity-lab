@@ -1,9 +1,11 @@
 import Link from "next/link";
+import { LearnCallout } from "@/app/_components/learn-callout";
 
 export default function CspOverview() {
   return (
     <>
       <h1>CSP Playground</h1>
+      <LearnCallout href="/csp" />
       <p className="lede">
         Content-Security-Policy is the single most effective XSS mitigation
         we've ever shipped, and it's the one most teams either skip, deploy with{" "}

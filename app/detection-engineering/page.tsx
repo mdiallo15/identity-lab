@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { LearnCallout } from "@/app/_components/learn-callout";
 import {
   SCENARIOS,
   runRule,
@@ -58,6 +59,7 @@ export default function DetectionLab() {
   return (
     <>
       <h1>Detection Engineering</h1>
+      <LearnCallout href="/detection-engineering" />
       <p className="lede">
         Real telemetry from real incidents, two detection rules per scenario, a
         ground-truth labeled event stream. Watch the naive rule fire on every
