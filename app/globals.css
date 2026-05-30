@@ -408,6 +408,11 @@ dd code {
   background: rgba(153, 153, 153, 0.15);
   color: var(--ink-dim);
 }
+.lab-tile__chip--new {
+  margin-left: 0.4rem;
+  background: rgba(102, 217, 239, 0.15);
+  color: var(--accent);
+}
 .lab-tile__bullets {
   margin: 0 0 1rem;
   padding-left: 1.1rem;
