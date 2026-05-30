@@ -38,6 +38,139 @@ session. Pick the top unblocked task, do it, commit, move it to "Done".
 - **Done when:** Home reflects current lab inventory; "new" pills auto-clear
   via a `since` date in `lib/`.
 
+### T-06 — Per-lab "what you'll learn" callout
+
+- **Files:** `app/_components/learn-callout.tsx` (new), every lab index
+  page (`app/csp/page.tsx`, `app/identity/page.tsx`,
+  `app/ssrf/page.tsx`, etc.).
+- **Do:** Add a consistent `<LearnCallout>` block at the top of each lab
+  index listing the 3–5 concrete takeaways for that lab.
+- **Done when:** Every lab index has the callout; component is the same
+  visual across labs.
+
+### T-07 — Threat-model card component per lab
+
+- **Files:** `app/_components/threat-model.tsx` (new), each lab index.
+- **Do:** Compact STRIDE-style table per lab (Spoofing / Tampering /
+  Repudiation / Info-disclosure / DoS / EoP) listing the lab's covered
+  threats and pointing at the demo scenario for each.
+- **Done when:** Every lab index renders a threat-model card; the card
+  links to the relevant scenario inside the lab.
+
+### T-08 — Deep-link `?scenario=` in CSP analyzer
+
+- **Files:** `app/csp/analyzer/page.tsx`, `app/csp/sandbox/page.tsx`.
+- **Do:** Read `?scenario=` from `useSearchParams`, hydrate the editor
+  with the matching catalog payload. Update the URL on selection so
+  links are shareable.
+- **Done when:** Linking to `/csp/analyzer?scenario=<id>` opens the
+  analyzer pre-loaded with that scenario.
+
+### T-09 — Deep-link `?scenario=` in SSRF analyzer
+
+- **Files:** `app/ssrf/analyzer/page.tsx`.
+- **Do:** Same pattern as T-08 — hydrate fetcher inputs from the URL,
+  update the URL on click.
+- **Done when:** `/ssrf/analyzer?scenario=<id>` opens with that fetcher
+  payload pre-selected.
+
+### T-10 — Deep-link `?scenario=` in Prompt Injection simulator
+
+- **Files:** `app/prompt-injection/simulator/page.tsx`.
+- **Do:** Same pattern as T-08 against AGENT_SCENARIOS.
+- **Done when:** `/prompt-injection/simulator?scenario=<id>` runs that
+  scenario on first paint.
+
+### T-11 — Deep-link `?scenario=` in IAM PrivEsc
+
+- **Files:** `app/iam-privesc/page.tsx`, `lib/iam-privesc.ts`.
+- **Do:** Same pattern — pre-select the technique by id from the URL.
+- **Done when:** Each AWS/Azure/GCP technique has a stable shareable URL.
+
+### T-12 — Deep-link `?scenario=` in Detection Engineering
+
+- **Files:** `app/detection-engineering/page.tsx`.
+- **Do:** Pre-select the labelled scenario (Midnight Blizzard,
+  Storm-0558, Volt Typhoon, Hafnium) from the URL.
+- **Done when:** Each rule has a stable shareable URL surfacing its
+  precision/recall against the labelled set.
+
+### T-13 — Shared LabFrame component (pilot)
+
+- **Files:** `app/_components/lab-frame.tsx` (new), `app/csp/layout.tsx`
+  (pilot consumer).
+- **Do:** Extract repeated header/lede/breadcrumb chrome into a
+  `<LabFrame>` server component. Pilot on the CSP lab only first.
+- **Done when:** CSP lab routes render through `<LabFrame>` with no
+  visual regression.
+
+### T-14 — Apply LabFrame to remaining labs
+
+- **Files:** all `app/<lab>/layout.tsx`.
+- **Do:** Replace the duplicated chrome in `identity`, `ssrf`,
+  `prompt-injection`, `authz`, and `agent-identity` layouts with
+  `<LabFrame>`.
+- **Done when:** Every lab layout uses `<LabFrame>`; no per-lab
+  duplication.
+
+### T-15 — README: replace stale "Planned" section
+
+- **Files:** `README.md`.
+- **Do:** Remove the "Planned" section (Prompt Injection + SSRF have
+  shipped; SSRF is currently misdescribed as planned). Replace with a
+  current lab inventory table.
+- **Done when:** README reflects the shipped state; no dead "planned"
+  bullets.
+
+### T-16 — OpenAPI document for public APIs
+
+- **Files:** `app/api-docs/openapi.json/route.ts` (new GET handler) or
+  `public/openapi.json`.
+- **Do:** Author a single OpenAPI 3.1 document covering `/api/scan`,
+  `/api/ssrf-fetch`, `/api/identity/passkey/register`,
+  `/api/identity/passkey/authenticate`, and `/api/ssrf-test`. Hand-
+  authored — no new deps.
+- **Done when:** `GET /api-docs/openapi.json` (or `/openapi.json`)
+  returns a valid OpenAPI 3.1 doc.
+
+### T-17 — CodeQL workflow on repository source
+
+- **Files:** `.github/workflows/codeql.yml` (new).
+- **Do:** Add `github/codeql-action/init` + `analyze` for `javascript`
+  on push/pull_request and weekly schedule. This is the right way to
+  feed Code Scanning (the existing security-scan workflow scans
+  external URLs — Code Scanning rejects non-`file://` SARIF).
+- **Done when:** CodeQL runs against the repo source and uploads to
+  Code Scanning.
+
+### T-18 — Native sitemap + robots
+
+- **Files:** `app/sitemap.ts` (new), `app/robots.ts` (new).
+- **Do:** Implement Next-native `MetadataRoute.Sitemap` covering every
+  static lab route, and a permissive `robots.txt` excluding `/api`.
+- **Done when:** `/sitemap.xml` and `/robots.txt` are served.
+
+### T-19 — Open Graph + Twitter Card metadata per lab
+
+- **Files:** every `app/<lab>/page.tsx` `metadata` export and root
+  `app/layout.tsx`.
+- **Do:** Add `openGraph` and `twitter` metadata blocks (title,
+  description, type=`website`, url) so lab links unfurl with the right
+  card.
+- **Done when:** Every lab page has OG + Twitter metadata; manual paste
+  into a card validator renders correctly (recorded in commit body).
+
+### T-20 — Cross-tool JWT vector script
+
+- **Files:** `scripts/verify-jwt-vectors.mjs` (new).
+- **Do:** Generate a small set of forged JWTs from `lib/jwt-forge.ts`
+  (alg=none, alg-confusion, kid traversal, tamper-no-resign), serialise
+  them, and document the expected verifier behaviour for each
+  (accept / reject) so the workbench's claims can be cross-checked
+  against a third-party JWT library by hand.
+- **Done when:** `npm run verify-jwt-vectors` prints each vector + the
+  expected outcome under a strict verifier and a permissive one.
+
 ## Blocked
 
 - _(none)_
