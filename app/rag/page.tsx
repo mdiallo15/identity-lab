@@ -2,6 +2,31 @@
 
 import { useMemo, useState } from "react";
 import { LearnCallout } from "@/app/_components/learn-callout";
+import { ThreatModelCard } from "@/app/_components/threat-model";
+import type { ThreatEntry } from "@/lib/labs";
+
+const THREATS: readonly ThreatEntry[] = [
+  {
+    stride: "T",
+    threat: "Poisoned document in KB injects instructions (Greshake 2023).",
+    demo: { label: "Indirect injection", href: "/rag" },
+  },
+  {
+    stride: "S",
+    threat: "Citation forgery \u2014 model invents a source the user trusts.",
+    demo: { label: "Scenarios", href: "/rag" },
+  },
+  {
+    stride: "I",
+    threat: "Markdown-image canary exfils retrieved chunks off-domain.",
+    demo: { label: "Scenarios", href: "/rag" },
+  },
+  {
+    stride: "E",
+    threat: "PoisonedRAG ranking attack promotes attacker chunk to top-k (Zou 2024).",
+    demo: { label: "Scenarios", href: "/rag" },
+  },
+];
 import {
   ATTACKS,
   SECRET_CANARY,
@@ -52,6 +77,7 @@ export default function RagLab() {
     <>
       <h1>RAG Security</h1>
       <LearnCallout href="/rag" />
+      <ThreatModelCard entries={THREATS} />
       <p className="lede">
         Real attacks against retrieval-augmented generation pipelines, replayed
         with a deterministic in-browser bag-of-words vector store. Every

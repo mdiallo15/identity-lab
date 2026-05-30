@@ -1,11 +1,34 @@
 import { LearnCallout } from "@/app/_components/learn-callout";
+import { ThreatModelCard } from "@/app/_components/threat-model";
+import type { ThreatEntry } from "@/lib/labs";
 import { LAB_RULES, type LabKey, type LabRule } from "@/lib/detection-lab-rules";
 import ScenarioRunner from "./scenario-runner";
 
 export const metadata = {
   title: "Detection Engineering — Identity Lab",
 };
-
+const THREATS: readonly ThreatEntry[] = [
+  {
+    stride: "T",
+    threat: "Naive rule tuned by attacker's noise floor (helpdesk PowerShell).",
+    demo: { label: "Phishing macro", href: "/detection-engineering" },
+  },
+  {
+    stride: "R",
+    threat: "Missing data source \u2014 rule cannot fire because field is absent.",
+    demo: { label: "Scenarios", href: "/detection-engineering" },
+  },
+  {
+    stride: "D",
+    threat: "Over-broad rule alerts at 10\u00d7 baseline \u2014 SOC mutes the signal.",
+    demo: { label: "Scenarios", href: "/detection-engineering" },
+  },
+  {
+    stride: "I",
+    threat: "TTP detection misses pre-stage (recon, ingress tool transfer).",
+    demo: { label: "Volt Typhoon", href: "/detection-engineering" },
+  },
+];
 const LAB_LABEL: Record<LabKey, string> = {
   csp: "CSP",
   jwt: "JWT",
@@ -59,6 +82,7 @@ export default function DetectionLab() {
     <>
       <h1>Detection Engineering</h1>
       <LearnCallout href="/detection-engineering" />
+      <ThreatModelCard entries={THREATS} />
       <p className="lede">
         Real telemetry from real incidents, two detection rules per scenario, a
         ground-truth labeled event stream. Watch the naive rule fire on every

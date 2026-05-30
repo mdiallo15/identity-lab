@@ -1,5 +1,30 @@
 import Link from "next/link";
 import { LearnCallout } from "@/app/_components/learn-callout";
+import { ThreatModelCard } from "@/app/_components/threat-model";
+import type { ThreatEntry } from "@/lib/labs";
+
+const THREATS: readonly ThreatEntry[] = [
+  {
+    stride: "S",
+    threat: "Phishable MFA (SMS/push) bypassed by AitM relay.",
+    demo: { label: "phishing-resistant", href: "/identity/phishing-resistant" },
+  },
+  {
+    stride: "T",
+    threat: "JWT `alg=none` accepted (CVE-2015-9235).",
+    demo: { label: "forge", href: "/identity/forge" },
+  },
+  {
+    stride: "T",
+    threat: "RS\u2194HS key confusion (CVE-2016-10555).",
+    demo: { label: "forge", href: "/identity/forge" },
+  },
+  {
+    stride: "E",
+    threat: "Unverified `kid` parameter enables key-injection.",
+    demo: { label: "forge", href: "/identity/forge" },
+  },
+];
 
 export const metadata = {
   title: "Identity Lab — Phishing-resistant authentication, hands-on",
@@ -12,6 +37,7 @@ export default function Home() {
     <>
       <h1>Identity Lab</h1>
       <LearnCallout href="/identity" />
+      <ThreatModelCard entries={THREATS} />
       <p className="lede">
         A hands-on playground for the auth model that's replacing passwords:
         passkeys, phishing-resistant MFA, and the workload-identity primitives

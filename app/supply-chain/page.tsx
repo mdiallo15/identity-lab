@@ -2,6 +2,31 @@
 
 import { useMemo, useState } from "react";
 import { LearnCallout } from "@/app/_components/learn-callout";
+import { ThreatModelCard } from "@/app/_components/threat-model";
+import type { ThreatEntry } from "@/lib/labs";
+
+const THREATS: readonly ThreatEntry[] = [
+  {
+    stride: "T",
+    threat: "Postinstall hook stages payload (event-stream 2018, xz 2024).",
+    demo: { label: "Scenarios", href: "/supply-chain" },
+  },
+  {
+    stride: "S",
+    threat: "Typosquat package impersonates a popular dep.",
+    demo: { label: "Scenarios", href: "/supply-chain" },
+  },
+  {
+    stride: "E",
+    threat: "Account takeover republishes signed package (tj-actions 2025).",
+    demo: { label: "Scenarios", href: "/supply-chain" },
+  },
+  {
+    stride: "R",
+    threat: "No build provenance \u2014 cannot prove which commit produced the artifact.",
+    demo: { label: "Scenarios", href: "/supply-chain" },
+  },
+];
 import {
   INCIDENTS,
   SCENARIOS,
@@ -139,6 +164,7 @@ export default function SupplyChainLab() {
     <>
       <h1>Supply Chain</h1>
       <LearnCallout href="/supply-chain" />
+      <ThreatModelCard entries={THREATS} />
       <p className="lede">
         Real package-registry compromises, replayed against a live provenance
         analyzer. Every scenario reproduces a public incident — event-stream,

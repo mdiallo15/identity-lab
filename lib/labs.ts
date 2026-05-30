@@ -93,3 +93,14 @@ export const LAB_LEARN: Record<string, readonly string[]> = {
     "Spotlighting + URL allowlist + grounding + dedup as the four defense layers.",
   ],
 };
+
+// STRIDE entry for the per-lab threat-model card.
+// `demo` optionally deep-links into the scenario that exercises the
+// threat. Letter is the STRIDE category (S/T/R/I/D/E).
+// Per-lab threat lists are defined inline in each lab page so that
+// client-rendered lab pages don't ship the entire corpus.
+export interface ThreatEntry {
+  stride: "S" | "T" | "R" | "I" | "D" | "E";
+  threat: string;
+  demo?: { label: string; href: string };
+}

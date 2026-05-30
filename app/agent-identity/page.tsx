@@ -1,5 +1,30 @@
 import Link from "next/link";
 import { LearnCallout } from "@/app/_components/learn-callout";
+import { ThreatModelCard } from "@/app/_components/threat-model";
+import type { ThreatEntry } from "@/lib/labs";
+
+const THREATS: readonly ThreatEntry[] = [
+  {
+    stride: "S",
+    threat: "Agent presents user JWT directly \u2014 no `act` claim, no attribution.",
+    demo: { label: "token-exchange", href: "/agent-identity/token-exchange" },
+  },
+  {
+    stride: "R",
+    threat: "Long-lived API key with no `exp` \u2014 cannot revoke or audit.",
+    demo: { label: "inventory", href: "/agent-identity/inventory" },
+  },
+  {
+    stride: "E",
+    threat: "Scope drift: agent inherits user scopes wholesale at STS.",
+    demo: { label: "token-exchange", href: "/agent-identity/token-exchange" },
+  },
+  {
+    stride: "T",
+    threat: "Missing workload attestation \u2014 anyone with the secret is the agent.",
+    demo: { label: "attestation", href: "/agent-identity/attestation" },
+  },
+];
 
 export const metadata = {
   title: "Agent Identity Lab — labs.marwandiallo.com",
@@ -12,6 +37,7 @@ export default function AgentIdentityLab() {
     <>
       <h1>Agent Identity Lab</h1>
       <LearnCallout href="/agent-identity" />
+      <ThreatModelCard entries={THREATS} />
       <p className="lede">
         Most agents in production today authenticate with a long-lived API key
         in a config file. The fix is the same family of primitives that put

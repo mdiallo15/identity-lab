@@ -1,5 +1,30 @@
 import Link from "next/link";
 import { LearnCallout } from "@/app/_components/learn-callout";
+import { ThreatModelCard } from "@/app/_components/threat-model";
+import type { ThreatEntry } from "@/lib/labs";
+
+const THREATS: readonly ThreatEntry[] = [
+  {
+    stride: "I",
+    threat: "App fetches 169.254.169.254 \u2192 leaks instance credentials.",
+    demo: { label: "analyzer (IMDSv1)", href: "/ssrf/analyzer" },
+  },
+  {
+    stride: "T",
+    threat: "Decimal / hex / octal IPv4 bypasses naive allowlist.",
+    demo: { label: "analyzer", href: "/ssrf/analyzer" },
+  },
+  {
+    stride: "T",
+    threat: "DNS rebinding flips A-record between resolve and fetch.",
+    demo: { label: "analyzer", href: "/ssrf/analyzer" },
+  },
+  {
+    stride: "E",
+    threat: "`gopher://` to Redis \u2192 unauth RCE on cache tier.",
+    demo: { label: "analyzer", href: "/ssrf/analyzer" },
+  },
+];
 
 export const metadata = {
   title: "SSRF / Cloud Metadata Lab — Labs",
@@ -12,6 +37,7 @@ export default function SsrfOverview() {
     <>
       <h1>SSRF / Cloud Metadata Lab</h1>
       <LearnCallout href="/ssrf" />
+      <ThreatModelCard entries={THREATS} />
       <p className="lede">
         Server-Side Request Forgery has been a top-10 web vulnerability since
         OWASP added it in 2021. The reason it stays there: every cloud platform

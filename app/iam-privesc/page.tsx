@@ -2,6 +2,31 @@
 
 import { useMemo, useState } from "react";
 import { LearnCallout } from "@/app/_components/learn-callout";
+import { ThreatModelCard } from "@/app/_components/threat-model";
+import type { ThreatEntry } from "@/lib/labs";
+
+const THREATS: readonly ThreatEntry[] = [
+  {
+    stride: "E",
+    threat: "`iam:PassRole` + `lambda:CreateFunction` on `*` = admin (Rhino).",
+    demo: { label: "AWS chain", href: "/iam-privesc" },
+  },
+  {
+    stride: "E",
+    threat: "`Application.ReadWrite.All` mints a Graph admin via service principal.",
+    demo: { label: "Azure chain", href: "/iam-privesc" },
+  },
+  {
+    stride: "E",
+    threat: "`iam.serviceAccounts.actAs` impersonates a privileged SA on GCP.",
+    demo: { label: "GCP chain", href: "/iam-privesc" },
+  },
+  {
+    stride: "T",
+    threat: "`UpdateAssumeRolePolicy` rewrites trust to attacker principal.",
+    demo: { label: "AWS chain", href: "/iam-privesc" },
+  },
+];
 import {
   SCENARIOS,
   TECHNIQUES,
@@ -58,6 +83,7 @@ export default function IamPrivescLab() {
     <>
       <h1>IAM Privilege Escalation</h1>
       <LearnCallout href="/iam-privesc" />
+      <ThreatModelCard entries={THREATS} />
       <p className="lede">
         A live cloud-IAM attack-path enumerator. Each scenario seeds a small
         directory of users, roles, groups, and service principals; the engine

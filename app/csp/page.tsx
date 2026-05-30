@@ -1,11 +1,37 @@
 import Link from "next/link";
 import { LearnCallout } from "@/app/_components/learn-callout";
+import { ThreatModelCard } from "@/app/_components/threat-model";
+import type { ThreatEntry } from "@/lib/labs";
+
+const THREATS: readonly ThreatEntry[] = [
+  {
+    stride: "T",
+    threat: "Inline `<script>` injection via reflected/stored XSS.",
+    demo: { label: "analyzer (unsafe-inline)", href: "/csp/analyzer" },
+  },
+  {
+    stride: "T",
+    threat: "JSONP endpoint on an allowlisted host turns into script-gadget.",
+    demo: { label: "bypasses", href: "/csp/bypasses" },
+  },
+  {
+    stride: "I",
+    threat: "Dangling-markup / image beacon exfiltrates page state.",
+    demo: { label: "bypasses", href: "/csp/bypasses" },
+  },
+  {
+    stride: "E",
+    threat: "Missing `base-uri` lets attacker rewrite relative script src.",
+    demo: { label: "shapes (strict)", href: "/csp/shapes" },
+  },
+];
 
 export default function CspOverview() {
   return (
     <>
       <h1>CSP Playground</h1>
       <LearnCallout href="/csp" />
+      <ThreatModelCard entries={THREATS} />
       <p className="lede">
         Content-Security-Policy is the single most effective XSS mitigation
         we've ever shipped, and it's the one most teams either skip, deploy with{" "}

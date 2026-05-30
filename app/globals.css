@@ -444,6 +444,72 @@ dd code {
 .learn-callout__list li:last-child {
   margin-bottom: 0;
 }
+
+/* STRIDE threat-model card, rendered alongside <LearnCallout>. */
+.threat-model {
+  margin: 0 0 1.6rem;
+  padding: 1rem 1.1rem 0.8rem 1.2rem;
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--high);
+  border-radius: 6px;
+  background: rgba(248, 113, 113, 0.04);
+}
+.threat-model__title {
+  margin: 0 0 0.55rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--high);
+}
+.threat-model__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.threat-model__list li {
+  display: flex;
+  gap: 0.55rem;
+  align-items: baseline;
+  flex-wrap: wrap;
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+.threat-model__tag {
+  display: inline-block;
+  min-width: 1.1rem;
+  padding: 0.02rem 0.32rem;
+  font-family: ui-monospace, monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-align: center;
+  border: 1px solid;
+  border-radius: 3px;
+}
+.threat-model__text {
+  flex: 1 1 auto;
+  color: var(--ink);
+}
+.threat-model__demo {
+  font-size: 0.78rem;
+  color: var(--accent);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.threat-model__demo:hover {
+  text-decoration: underline;
+}
+.threat-model__legend {
+  margin: 0.7rem 0 0;
+  padding-top: 0.55rem;
+  border-top: 1px dashed var(--rule);
+  font-size: 0.7rem;
+  color: var(--ink-dim);
+  letter-spacing: 0.02em;
+}
 .lab-tile__bullets {
   margin: 0 0 1rem;
   padding-left: 1.1rem;

@@ -1,11 +1,37 @@
 import Link from "next/link";
 import { LearnCallout } from "@/app/_components/learn-callout";
+import { ThreatModelCard } from "@/app/_components/threat-model";
+import type { ThreatEntry } from "@/lib/labs";
+
+const THREATS: readonly ThreatEntry[] = [
+  {
+    stride: "I",
+    threat: "BOLA: GET /orders/{id} returns another tenant's order.",
+    demo: { label: "simulator", href: "/authz/simulator" },
+  },
+  {
+    stride: "E",
+    threat: "Mass-assignment promotes role on PATCH /users/me.",
+    demo: { label: "patterns", href: "/authz/patterns" },
+  },
+  {
+    stride: "I",
+    threat: "403-vs-404 leakage enumerates valid IDs.",
+    demo: { label: "patterns", href: "/authz/patterns" },
+  },
+  {
+    stride: "R",
+    threat: "Missing audit on resource access \u2014 cannot prove who saw what.",
+    demo: { label: "patterns", href: "/authz/patterns" },
+  },
+];
 
 export default function AuthzOverview() {
   return (
     <>
       <h1>AuthZ Lab — IDOR / BOLA</h1>
       <LearnCallout href="/authz" />
+      <ThreatModelCard entries={THREATS} />
       <p className="lede">
         Broken Object Level Authorization sits at the top of the OWASP API
         Security Top 10. The bug pattern, in almost every case I have reviewed,

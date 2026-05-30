@@ -1,5 +1,30 @@
 import Link from "next/link";
 import { LearnCallout } from "@/app/_components/learn-callout";
+import { ThreatModelCard } from "@/app/_components/threat-model";
+import type { ThreatEntry } from "@/lib/labs";
+
+const THREATS: readonly ThreatEntry[] = [
+  {
+    stride: "S",
+    threat: "Untrusted document spoofs system-role instructions.",
+    demo: { label: "simulator", href: "/prompt-injection/simulator" },
+  },
+  {
+    stride: "T",
+    threat: "Tool description tampering pivots `send_email` arguments.",
+    demo: { label: "patterns", href: "/prompt-injection/patterns" },
+  },
+  {
+    stride: "I",
+    threat: "Markdown-image canary exfils chat history off-domain.",
+    demo: { label: "simulator", href: "/prompt-injection/simulator" },
+  },
+  {
+    stride: "E",
+    threat: "Confused-deputy: agent runs privileged tool on user's behalf.",
+    demo: { label: "defenses", href: "/prompt-injection/defenses" },
+  },
+];
 
 export const metadata = {
   title: "Prompt Injection Lab — Labs",
@@ -12,6 +37,7 @@ export default function PromptInjectionOverview() {
     <>
       <h1>Prompt Injection Lab</h1>
       <LearnCallout href="/prompt-injection" />
+      <ThreatModelCard entries={THREATS} />
       <p className="lede">
         The XSS of the LLM era. An attacker plants instructions inside data an
         agent ingests — a webpage, a ticket, a resume, a README — and the agent
