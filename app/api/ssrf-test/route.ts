@@ -14,31 +14,13 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { promises as dns } from "node:dns";
-import { parseTarget, analyze } from "@/lib/ssrf";
+import { parseTarget, analyze, classifyResolvedAddress } from "@/lib/ssrf";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const TIMEOUT_MS = 4000;
 const MAX_BODY = 64 * 1024;
-
-// Same blocklist used by parseTarget on the IP check, applied AGAIN
-// after DNS resolves the hostname. This is the step that defeats
-// DNS-rebinding (DNS first returns a public IP to pass validation,
-// then re-resolves to 169.254.169.254 on the second lookup the
-// fetch performs). The defence: resolve once, validate, fetch by IP.
-function isBlockedIp(ipv4: string): {
-  blocked: boolean;
-  reason?: string;
-} {
-  // Reuse parseTarget's own logic by feeding it a synthetic URL.
-  const parsed = parseTarget(`http://${ipv4}/`);
-  if (parsed.isMetadata) return { blocked: true, reason: "cloud metadata" };
-  if (parsed.isLoopback) return { blocked: true, reason: "loopback" };
-  if (parsed.isLinkLocal) return { blocked: true, reason: "link-local" };
-  if (parsed.isPrivate) return { blocked: true, reason: "RFC1918 private" };
-  return { blocked: false };
-}
 
 interface Stage {
   name: string;
@@ -150,28 +132,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ stages, findings });
   }
 
-  // Apply the same blocklist to every resolved address. IPv4 only —
-  // IPv6 RFC1918-equivalent ranges (fc00::/7, fe80::/10) covered partially
-  // by parseTarget; for v6 we just allow if the address starts with a
-  // public global-unicast prefix (very rough). Production: use a full
-  // ipaddr.js-style classifier.
+  // Apply the same blocklist to every resolved address.
   const blockedHits: { ip: string; reason: string }[] = [];
   for (const r of resolved) {
-    if (r.family === 4) {
-      const check = isBlockedIp(r.address);
-      if (check.blocked) {
-        blockedHits.push({ ip: r.address, reason: check.reason ?? "blocked" });
-      }
-    } else if (r.family === 6) {
-      const v6 = r.address.toLowerCase();
-      if (
-        v6 === "::1" ||
-        v6.startsWith("fe80:") ||
-        v6.startsWith("fc") ||
-        v6.startsWith("fd")
-      ) {
-        blockedHits.push({ ip: r.address, reason: "IPv6 private/link-local" });
-      }
+    const check = classifyResolvedAddress(r.address, r.family);
+    if (check.blocked) {
+      blockedHits.push({ ip: r.address, reason: check.reason ?? "blocked" });
     }
   }
 

@@ -20,20 +20,6 @@ session. Pick the top unblocked task, do it, commit, move it to "Done".
 
 ## Ready (ordered, top = next)
 
-### T-24 — Harden `/api/scan` against DNS rebinding
-
-- **Files:** `app/api/scan/route.ts`, optionally shared helpers in
-  `lib/ssrf.ts`.
-- **Do:** The public header scanner still does only string-level
-  pre-flight URL checks on Edge. Port it to the same
-  validate-resolve-recheck flow already used by `/api/ssrf-test`: DNS
-  resolve the hostname, classify every returned IP, reject any private /
-  metadata / loopback address, and fetch under the bounded policy only
-  after that re-check.
-- **Done when:** `/api/scan` no longer documents DNS rebinding as "not
-  yet"; the route performs hostname resolution + post-resolve blocking;
-  build clean.
-
 ### T-25 — Turn phishing-resistant MFA into a live lab
 
 - **Files:** `app/identity/phishing-resistant/page.tsx`, optional new
@@ -186,6 +172,8 @@ session. Pick the top unblocked task, do it, commit, move it to "Done".
 
 ## Done
 
+- **2026-05-31 (commit T-24)** — Harden `/api/scan` against DNS rebinding. Moved the scanner from Edge to Node so it can use `node:dns`, added a shared `classifyResolvedAddress()` helper in `lib/ssrf.ts`, and applied the same post-resolve blocklist to both `/api/scan` and `/api/ssrf-test`. The scanner now manually follows redirects with a `MAX_REDIRECTS` cap and re-validates every redirect target before fetching, instead of letting `fetch()` auto-follow unchecked. Build clean.
+
 - **2026-05-31 (commit T-23)** — Fix CI #42: upgrade Next.js past the audit gate. Bumped `next` from `15.5.15` to `15.5.18`, refreshed `package-lock.json`, and reran the exact failing CI checks locally. `npm audit --omit=dev --audit-level=high` now reports `found 0 vulnerabilities`; `npm run validate-sarif` and `npm run build` both pass cleanly. The recent GitHub failure emails were all the audit step, not application build regressions.
 
 - **2026-05-31 (commit T-08)** — Deep-link `?scenario=` in CSP analyzer & sandbox. `app/csp/analyzer/page.tsx` now slugifies each named SAMPLE and reads `?scenario=<slug>` on mount (paste mode); clicking a sample writes the slug to the URL via `history.replaceState` so the back button stays clean. `app/csp/sandbox/page.tsx` hydrates from `?scenario=<id>` (matching `SCENARIOS[i].id`) on mount and mirrors every `loadScenario` into the URL. Both routes still avoid `useSearchParams` (so no Suspense boundary needed). Build clean; `/csp/analyzer` 6.34 kB, `/csp/sandbox` 8.51 kB (both well under the ceiling).
@@ -214,6 +202,8 @@ session. Pick the top unblocked task, do it, commit, move it to "Done".
   flag the original as Blocked.
 
 ## Session log
+
+- **2026-05-31** — T-24 shipped: `/api/scan` now uses Node DNS re-resolution + redirect revalidation; shared resolved-IP blocklist extracted to `lib/ssrf.ts`.
 
 - **2026-05-31** — T-23 shipped: bumped Next.js to 15.5.18; `CI #42` audit gate now passes locally (`0 vulnerabilities`).
 

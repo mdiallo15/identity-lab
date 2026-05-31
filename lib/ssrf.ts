@@ -303,6 +303,36 @@ export function analyze(raw: string): {
   return { parsed, findings };
 }
 
+export function classifyResolvedAddress(
+  address: string,
+  family: number,
+): {
+  blocked: boolean;
+  reason?: string;
+} {
+  if (family === 4) {
+    const parsed = parseTarget(`http://${address}/`);
+    if (parsed.isMetadata) return { blocked: true, reason: "cloud metadata" };
+    if (parsed.isLoopback) return { blocked: true, reason: "loopback" };
+    if (parsed.isLinkLocal) return { blocked: true, reason: "link-local" };
+    if (parsed.isPrivate) return { blocked: true, reason: "RFC1918 private" };
+    return { blocked: false };
+  }
+
+  if (family === 6) {
+    const v6 = address.toLowerCase();
+    if (v6 === "::1") return { blocked: true, reason: "IPv6 loopback" };
+    if (v6.startsWith("fe80:")) {
+      return { blocked: true, reason: "IPv6 link-local" };
+    }
+    if (v6.startsWith("fc") || v6.startsWith("fd")) {
+      return { blocked: true, reason: "IPv6 private" };
+    }
+  }
+
+  return { blocked: false };
+}
+
 export const sevRank: Record<Severity, number> = {
   info: 0,
   low: 1,

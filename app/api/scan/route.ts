@@ -21,12 +21,13 @@
 
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { promises as dns } from "node:dns";
 import { analyze as analyzeCsp } from "@/lib/csp";
 import { analyzeHeaders, analyzeSri } from "@/lib/headers";
 import { findingsToSarif } from "@/lib/sarif";
-import { parseTarget } from "@/lib/ssrf";
+import { classifyResolvedAddress, parseTarget } from "@/lib/ssrf";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const MAX_BODY_BYTES = 256 * 1024;
@@ -38,6 +39,76 @@ const MAX_REDIRECTS = 3;
 // lab. For real abuse prevention you'd back this with KV/Redis.
 const lastSeen = new Map<string, number>();
 const RATE_WINDOW_MS = 10_000;
+
+async function resolveAndValidateTarget(target: string) {
+  const parsed = parseTarget(target);
+  if (!parsed.hostname) {
+    return { error: "Could not parse URL.", status: 400 as const };
+  }
+  if (!parsed.protocol || !["http", "https"].includes(parsed.protocol)) {
+    return {
+      error: `Unsupported scheme: ${parsed.protocol ?? "(none)"}.`,
+      status: 400 as const,
+    };
+  }
+  if (
+    parsed.isLoopback ||
+    parsed.isLinkLocal ||
+    parsed.isPrivate ||
+    parsed.isMetadata
+  ) {
+    return {
+      error:
+        "Refusing to scan internal/private/metadata addresses. This is the SSRF guard.",
+      blockedReason: parsed.isMetadata
+        ? "cloud metadata"
+        : parsed.isLoopback
+          ? "loopback"
+          : parsed.isLinkLocal
+            ? "link-local"
+            : "RFC1918 private",
+      status: 400 as const,
+    };
+  }
+
+  let resolved: { address: string; family: number }[] = [];
+  try {
+    resolved = await Promise.race([
+      dns.lookup(parsed.hostname, { all: true, family: 0 }),
+      new Promise<never>((_, rej) =>
+        setTimeout(() => rej(new Error("DNS timeout")), 2000),
+      ),
+    ]);
+  } catch (err) {
+    return {
+      error: `DNS lookup failed: ${
+        err instanceof Error ? err.message : "unknown"
+      }`,
+      status: 502 as const,
+    };
+  }
+
+  if (resolved.length === 0) {
+    return { error: "No IP addresses returned for hostname.", status: 502 as const };
+  }
+
+  const blockedHits = resolved
+    .map((r) => ({ r, check: classifyResolvedAddress(r.address, r.family) }))
+    .filter((x) => x.check.blocked)
+    .map((x) => ({ ip: x.r.address, reason: x.check.reason ?? "blocked" }));
+
+  if (blockedHits.length > 0) {
+    return {
+      error:
+        "Refusing to scan a hostname that resolves to internal/private/metadata addresses. This is what stops DNS-rebinding attacks.",
+      blockedReason: blockedHits[0].reason,
+      blockedHits,
+      status: 400 as const,
+    };
+  }
+
+  return { parsed, resolved };
+}
 
 function rateLimit(ip: string): boolean {
   const now = Date.now();
@@ -81,68 +152,58 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Pre-flight URL validation — schemes + private/loopback/metadata blocks.
-  const parsed = parseTarget(target);
-  if (!parsed.hostname) {
-    return NextResponse.json(
-      { error: "Could not parse URL." },
-      { status: 400 },
-    );
-  }
-  if (!parsed.protocol || !["http", "https"].includes(parsed.protocol)) {
-    return NextResponse.json(
-      { error: `Unsupported scheme: ${parsed.protocol ?? "(none)"}.` },
-      { status: 400 },
-    );
-  }
-  if (
-    parsed.isLoopback ||
-    parsed.isLinkLocal ||
-    parsed.isPrivate ||
-    parsed.isMetadata
-  ) {
-    return NextResponse.json(
-      {
-        error:
-          "Refusing to scan internal/private/metadata addresses. This is the SSRF guard.",
-        blockedReason: parsed.isMetadata
-          ? "cloud metadata"
-          : parsed.isLoopback
-            ? "loopback"
-            : parsed.isLinkLocal
-              ? "link-local"
-              : "RFC1918 private",
-      },
-      { status: 400 },
-    );
-  }
-
-  // Fetch with timeout + bounded redirects.
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
-
+  let currentTarget = target;
+  let redirects = 0;
   let response: Response;
-  try {
-    response = await fetch(target, {
-      method: "GET",
-      redirect: "follow",
-      signal: controller.signal,
-      headers: {
-        // Friendly identification — analogous to securityheaders.com's UA.
-        "user-agent":
-          "lab.marwandiallo.com header scanner (https://lab.marwandiallo.com)",
-        accept: "text/html,application/xhtml+xml",
-      },
-    });
-  } catch (err) {
+  while (true) {
+    const validation = await resolveAndValidateTarget(currentTarget);
+    if ("error" in validation) {
+      return NextResponse.json(validation, { status: validation.status });
+    }
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+    try {
+      response = await fetch(currentTarget, {
+        method: "GET",
+        redirect: "manual",
+        signal: controller.signal,
+        headers: {
+          // Friendly identification — analogous to securityheaders.com's UA.
+          "user-agent":
+            "lab.marwandiallo.com header scanner (https://lab.marwandiallo.com)",
+          accept: "text/html,application/xhtml+xml",
+        },
+      });
+    } catch (err) {
+      clearTimeout(timer);
+      const msg = err instanceof Error ? err.message : "fetch failed";
+      return NextResponse.json(
+        { error: `Fetch failed: ${msg}` },
+        { status: 502 },
+      );
+    }
     clearTimeout(timer);
-    const msg = err instanceof Error ? err.message : "fetch failed";
-    return NextResponse.json(
-      { error: `Fetch failed: ${msg}` },
-      { status: 502 },
-    );
+
+    const location = response.headers.get("location");
+    if (
+      location &&
+      response.status >= 300 &&
+      response.status < 400
+    ) {
+      redirects += 1;
+      if (redirects > MAX_REDIRECTS) {
+        return NextResponse.json(
+          { error: `Too many redirects (>${MAX_REDIRECTS}).` },
+          { status: 502 },
+        );
+      }
+      currentTarget = new URL(location, currentTarget).toString();
+      continue;
+    }
+
+    break;
   }
-  clearTimeout(timer);
 
   // Bound the body size — read up to MAX_BODY_BYTES.
   const reader = response.body?.getReader();
