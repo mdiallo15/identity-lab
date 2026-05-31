@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { LabFrame } from "@/app/_components/lab-frame";
 
 export default function PromptInjectionLayout({
   children,
@@ -6,14 +6,16 @@ export default function PromptInjectionLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="lab-shell">
-      <nav className="sub-nav">
-        <Link href="/prompt-injection">Overview</Link>
-        <Link href="/prompt-injection/simulator">Simulator</Link>
-        <Link href="/prompt-injection/patterns">Patterns</Link>
-        <Link href="/prompt-injection/defenses">Defenses</Link>
-      </nav>
+    <LabFrame
+      navLabel="Prompt injection lab sections"
+      links={[
+        { href: "/prompt-injection", label: "Overview" },
+        { href: "/prompt-injection/simulator", label: "Simulator" },
+        { href: "/prompt-injection/patterns", label: "Patterns" },
+        { href: "/prompt-injection/defenses", label: "Defenses" },
+      ]}
+    >
       {children}
-    </div>
+    </LabFrame>
   );
 }

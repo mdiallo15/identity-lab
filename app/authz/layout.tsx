@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { LabFrame } from "@/app/_components/lab-frame";
 
 export const metadata = {
   title: "AuthZ Lab — Labs",
@@ -12,13 +12,15 @@ export default function AuthzLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="lab-shell">
-      <nav className="sub-nav" aria-label="AuthZ lab sections">
-        <Link href="/authz">Overview</Link>
-        <Link href="/authz/simulator">Simulator</Link>
-        <Link href="/authz/patterns">Patterns</Link>
-      </nav>
+    <LabFrame
+      navLabel="AuthZ lab sections"
+      links={[
+        { href: "/authz", label: "Overview" },
+        { href: "/authz/simulator", label: "Simulator" },
+        { href: "/authz/patterns", label: "Patterns" },
+      ]}
+    >
       {children}
-    </div>
+    </LabFrame>
   );
 }

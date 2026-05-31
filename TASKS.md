@@ -20,47 +20,6 @@ session. Pick the top unblocked task, do it, commit, move it to "Done".
 
 ## Ready (ordered, top = next)
 
-### T-25 — Turn phishing-resistant MFA into a live lab
-
-- **Files:** `app/identity/phishing-resistant/page.tsx`, optional new
-  lib module.
-- **Do:** Replace the static explainer with an editable attacker-vs-factor
-  simulator. Model real reverse-proxy phishing, session-cookie theft, and
-  fallback abuse across SMS, TOTP, push, and WebAuthn, with live findings
-  and cited references.
-- **Done when:** The page has editable inputs, a live analyzer, severity-
-  coded findings, and published research links. No read-only showcase.
-
-### T-26 — Turn CSP bypasses into a live payload-vs-policy lab
-
-- **Files:** `app/csp/bypasses/page.tsx`, optional new lib module.
-- **Do:** Replace the prose page with a live lab where the user picks a
-  real bypass class (JSONP, dangling markup, unsafe-inline, nonce-less
-  strict-dynamic, missing reporting), edits the policy/payload, and sees
-  whether the bypass lands plus what rule should have stopped it.
-- **Done when:** The page behaves like the other labs: editable inputs,
-  live analyzer, severity-coded output, citations.
-
-### T-27 — Turn AuthZ patterns into a live query-scoping lab
-
-- **Files:** `app/authz/patterns/page.tsx`, optional lib split.
-- **Do:** Replace the static ruleset page with a live lab that compares
-  naive route-handler ownership checks against scoped data-layer queries
-  across real BOLA / IDOR patterns. Inputs must be editable; findings
-  rerun live.
-- **Done when:** `/authz/patterns` is an interactive lab, not a static
-  checklist.
-
-### T-28 — Turn CSP shapes into a decision lab
-
-- **Files:** `app/csp/shapes/page.tsx`, optional lib split.
-- **Do:** Replace the prose-only shapes page with a live chooser that
-  takes app constraints (SSR/static, third-party JS, inline scripts,
-  reporting needs) and recommends nonce / hash / allowlist shape with
-  live findings and migration notes.
-- **Done when:** The route is interactive and grounded in actual policy
-  constraints, not just static text.
-
 ### T-09 — Deep-link `?scenario=` in SSRF analyzer
 
 - **Files:** `app/ssrf/analyzer/page.tsx`.
@@ -89,33 +48,6 @@ session. Pick the top unblocked task, do it, commit, move it to "Done".
   Storm-0558, Volt Typhoon, Hafnium) from the URL.
 - **Done when:** Each rule has a stable shareable URL surfacing its
   precision/recall against the labelled set.
-
-### T-13 — Shared LabFrame component (pilot)
-
-- **Files:** `app/_components/lab-frame.tsx` (new), `app/csp/layout.tsx`
-  (pilot consumer).
-- **Do:** Extract repeated header/lede/breadcrumb chrome into a
-  `<LabFrame>` server component. Pilot on the CSP lab only first.
-- **Done when:** CSP lab routes render through `<LabFrame>` with no
-  visual regression.
-
-### T-14 — Apply LabFrame to remaining labs
-
-- **Files:** all `app/<lab>/layout.tsx`.
-- **Do:** Replace the duplicated chrome in `identity`, `ssrf`,
-  `prompt-injection`, `authz`, and `agent-identity` layouts with
-  `<LabFrame>`.
-- **Done when:** Every lab layout uses `<LabFrame>`; no per-lab
-  duplication.
-
-### T-15 — README: replace stale "Planned" section
-
-- **Files:** `README.md`.
-- **Do:** Remove the "Planned" section (Prompt Injection + SSRF have
-  shipped; SSRF is currently misdescribed as planned). Replace with a
-  current lab inventory table.
-- **Done when:** README reflects the shipped state; no dead "planned"
-  bullets.
 
 ### T-16 — OpenAPI document for public APIs
 
@@ -172,6 +104,13 @@ session. Pick the top unblocked task, do it, commit, move it to "Done".
 
 ## Done
 
+- **2026-05-31 (commit T-13/T-14)** — Shared `LabFrame` component shipped and applied across the existing lab layouts (`csp`, `identity`, `ssrf`, `prompt-injection`, `authz`). Replaced the repeated `lab-shell` + `sub-nav` shell with a single server component, keeping the same nav structure while removing duplicated layout wiring.
+- **2026-05-31 (commit T-15)** — README inventory refresh. Removed the stale "Planned" section that still claimed Prompt Injection and SSRF were not shipped, replaced it with a current lab inventory table, and updated the architecture route list to match what the app actually serves today.
+- **2026-05-31 (commit T-28)** — `/csp/shapes` is now an interactive decision lab. Users describe whether the app is SSR/static, depends on third-party JS, still has inline scripts, and is in report-only rollout; the route recommends a CSP shape, renders the baseline policy, and reruns findings/migration notes live.
+- **2026-05-31 (commit T-27)** — `/authz/patterns` is now a live query-scoping lab. Users pick an authenticated principal, target order, and query pattern (`by-id`, `fetch-then-403`, owner-scoped query, client admin flag), and the findings rerun live against the request shape and response leak.
+- **2026-05-31 (commit T-26)** — `/csp/bypasses` is now a live payload-vs-policy lab. Five real bypass classes (JSONP, dangling markup via `base-uri`, `unsafe-inline`, nonce-less `strict-dynamic`, missing reporting) ship with editable policy/payload inputs, live verdicts, and source-backed references.
+- **2026-05-31 (commit T-25)** — `/identity/phishing-resistant` is now a live attacker-vs-factor lab. Real attack rails (AitM proxy, helpdesk re-enrollment, session cookie theft, fallback abuse) rerun live against SMS, TOTP, push, and passkeys, with editable recovery/session controls and cited references.
+
 - **2026-05-31 (commit T-24)** — Harden `/api/scan` against DNS rebinding. Moved the scanner from Edge to Node so it can use `node:dns`, added a shared `classifyResolvedAddress()` helper in `lib/ssrf.ts`, and applied the same post-resolve blocklist to both `/api/scan` and `/api/ssrf-test`. The scanner now manually follows redirects with a `MAX_REDIRECTS` cap and re-validates every redirect target before fetching, instead of letting `fetch()` auto-follow unchecked. Build clean.
 
 - **2026-05-31 (commit T-23)** — Fix CI #42: upgrade Next.js past the audit gate. Bumped `next` from `15.5.15` to `15.5.18`, refreshed `package-lock.json`, and reran the exact failing CI checks locally. `npm audit --omit=dev --audit-level=high` now reports `found 0 vulnerabilities`; `npm run validate-sarif` and `npm run build` both pass cleanly. The recent GitHub failure emails were all the audit step, not application build regressions.
@@ -202,6 +141,8 @@ session. Pick the top unblocked task, do it, commit, move it to "Done".
   flag the original as Blocked.
 
 ## Session log
+
+- **2026-05-31** — T-25/T-26/T-27/T-28/T-15/T-13/T-14 shipped: converted the remaining review-flagged static routes into live labs, refreshed the README inventory, and extracted shared lab layout chrome into `LabFrame`.
 
 - **2026-05-31** — T-24 shipped: `/api/scan` now uses Node DNS re-resolution + redirect revalidation; shared resolved-IP blocklist extracted to `lib/ssrf.ts`.
 

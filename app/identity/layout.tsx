@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { LabFrame } from "@/app/_components/lab-frame";
 
 export const metadata = {
   title: "Identity Lab — Phishing-resistant authentication, hands-on",
@@ -12,15 +12,17 @@ export default function IdentityLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="lab-shell">
-      <nav className="sub-nav" aria-label="Identity Lab sections">
-        <Link href="/identity">Overview</Link>
-        <Link href="/identity/passkey">Passkey</Link>
-        <Link href="/identity/jwt">JWT</Link>
-        <Link href="/identity/phishing-resistant">Phishing-resistant</Link>
-        <Link href="/identity/agent-identity">Agent identity</Link>
-      </nav>
+    <LabFrame
+      navLabel="Identity Lab sections"
+      links={[
+        { href: "/identity", label: "Overview" },
+        { href: "/identity/passkey", label: "Passkey" },
+        { href: "/identity/jwt", label: "JWT" },
+        { href: "/identity/phishing-resistant", label: "Phishing-resistant" },
+        { href: "/identity/agent-identity", label: "Agent identity" },
+      ]}
+    >
       {children}
-    </div>
+    </LabFrame>
   );
 }

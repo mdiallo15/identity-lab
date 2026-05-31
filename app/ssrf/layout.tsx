@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { LabFrame } from "@/app/_components/lab-frame";
 
 export default function SsrfLayout({
   children,
@@ -6,14 +6,16 @@ export default function SsrfLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="lab-shell">
-      <nav className="sub-nav">
-        <Link href="/ssrf">Overview</Link>
-        <Link href="/ssrf/analyzer">Analyzer</Link>
-        <Link href="/ssrf/targets">Targets</Link>
-        <Link href="/ssrf/hardening">Hardening</Link>
-      </nav>
+    <LabFrame
+      navLabel="SSRF lab sections"
+      links={[
+        { href: "/ssrf", label: "Overview" },
+        { href: "/ssrf/analyzer", label: "Analyzer" },
+        { href: "/ssrf/targets", label: "Targets" },
+        { href: "/ssrf/hardening", label: "Hardening" },
+      ]}
+    >
       {children}
-    </div>
+    </LabFrame>
   );
 }

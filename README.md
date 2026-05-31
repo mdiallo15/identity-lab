@@ -8,34 +8,18 @@ Hands-on security labs. Live at **[lab.marwandiallo.com](https://lab.marwandiall
 
 ## Labs
 
-### Identity Lab — `/identity`
-
-- **Passkey demo** (`/identity/passkey`) — working WebAuthn registration +
-  sign-in via `@simplewebauthn`. In-memory store. Resets on deploy.
-- **JWT inspector** (`/identity/jwt`) — client-side decoder that flags
-  `alg=none`, alg-confusion, missing `exp`/`iss`/`aud`, PII leakage.
-- **Phishing-resistant MFA** (`/identity/phishing-resistant`) — the four MFA
-  archetypes ranked, deployment patterns, and the failure modes that defeat
-  even well-deployed FIDO2 (helpdesk bypass, soft fallback).
-- **Agent identity** (`/identity/agent-identity`) — workload identity,
-  SPIFFE/SPIRE, attestation, RFC 8693 token exchange, and the broken models
-  most agent platforms ship today.
-
-### CSP Playground — `/csp`
-
-- **Analyzer** (`/csp/analyzer`) — paste a Content-Security-Policy, get 12
-  rules of findings ranked by severity, with fixes. Pure client-side.
-- **Four shapes** (`/csp/shapes`) — fully open / allowlist / nonce /
-  hash, with the actual headers and when to use each.
-- **Bypasses** (`/csp/bypasses`) — JSONP, dangling-markup, "unsafe-inline
-  just for legacy," and the three other patterns I see most often.
-
-### Planned
-
-- **Prompt Injection Lab** — indirect injection, tool-call hijacking,
-  agent-on-behalf-of confusion.
-- **SSRF / Cloud Metadata Lab** — IMDSv2, link-local hardening, egress
-  policy.
+| Lab | Routes | What ships |
+| --- | --- | --- |
+| Identity | `/identity`, `/identity/passkey`, `/identity/jwt`, `/identity/forge`, `/identity/phishing-resistant`, `/identity/agent-identity` | WebAuthn passkey demo, JWT inspector, forging workbench, phishing-resistant MFA attack simulator, and agent-identity labs. |
+| Agent Identity | `/agent-identity`, `/agent-identity/attestation`, `/agent-identity/inventory`, `/agent-identity/token-exchange` | Attestation comparison, inventory drift detector, and RFC 8693 token-exchange playground. |
+| CSP | `/csp`, `/csp/analyzer`, `/csp/sandbox`, `/csp/bypasses`, `/csp/shapes` | CSP/header analyzer, sandbox, live bypass lab, and CSP-shape decision lab. |
+| AuthZ | `/authz`, `/authz/patterns`, `/authz/simulator` | BOLA / IDOR query-scoping lab and naive-vs-hardened endpoint simulator. |
+| SSRF | `/ssrf`, `/ssrf/analyzer`, `/ssrf/targets`, `/ssrf/hardening` | Live SSRF analyzer, target catalog, and hardening guidance. |
+| Prompt Injection | `/prompt-injection`, `/prompt-injection/patterns`, `/prompt-injection/defenses`, `/prompt-injection/simulator` | Five-tool agent-loop simulator, pattern catalog, and defense guidance. |
+| Supply Chain | `/supply-chain` | Provenance analyzer, typosquat checker, and incident replay catalog. |
+| IAM PrivEsc | `/iam-privesc` | Multi-cloud privilege-escalation path enumerator with editable graph. |
+| Detection Engineering | `/detection-engineering` | Ground-truth-labeled detections with live precision/recall/F1. |
+| RAG Security | `/rag` | Deterministic retrieval-augmented-generation attack simulator. |
 
 ## Architecture
 
@@ -44,8 +28,18 @@ Single Next.js app, route-grouped by lab. Routes:
 ```
 /                       hub index
 /identity/*             Identity Lab
+/agent-identity/*       Agent Identity Lab
 /csp/*                  CSP Playground
+/authz/*                Authorization Lab
+/ssrf/*                 SSRF Lab
+/prompt-injection/*     Prompt Injection Lab
+/supply-chain           Supply Chain Lab
+/iam-privesc            IAM PrivEsc Lab
+/detection-engineering  Detection Engineering Lab
+/rag                    RAG Security Lab
 /api/identity/passkey/* WebAuthn API (in-memory store)
+/api/scan               Public CSP/header scanner
+/api/ssrf-test          Validate-then-fetch SSRF demo
 ```
 
 WebAuthn RP ID is `lab.marwandiallo.com`. Passkeys registered here are

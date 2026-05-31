@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { LabFrame } from "@/app/_components/lab-frame";
 
 export const metadata = {
   title: "CSP Playground — Labs",
@@ -8,15 +8,17 @@ export const metadata = {
 
 export default function CspLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="lab-shell">
-      <nav className="sub-nav" aria-label="CSP Playground sections">
-        <Link href="/csp">Overview</Link>
-        <Link href="/csp/analyzer">Analyzer</Link>
-        <Link href="/csp/sandbox">Sandbox</Link>
-        <Link href="/csp/shapes">Four shapes</Link>
-        <Link href="/csp/bypasses">Bypasses</Link>
-      </nav>
+    <LabFrame
+      navLabel="CSP Playground sections"
+      links={[
+        { href: "/csp", label: "Overview" },
+        { href: "/csp/analyzer", label: "Analyzer" },
+        { href: "/csp/sandbox", label: "Sandbox" },
+        { href: "/csp/shapes", label: "Four shapes" },
+        { href: "/csp/bypasses", label: "Bypasses" },
+      ]}
+    >
       {children}
-    </div>
+    </LabFrame>
   );
 }
