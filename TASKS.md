@@ -20,14 +20,7 @@ session. Pick the top unblocked task, do it, commit, move it to "Done".
 
 ## Ready (ordered, top = next)
 
-### T-07 — Threat-model card component per lab
-
-- **Files:** `app/_components/threat-model.tsx` (new), each lab index.
-- **Do:** Compact STRIDE-style table per lab (Spoofing / Tampering /
-  Repudiation / Info-disclosure / DoS / EoP) listing the lab's covered
-  threats and pointing at the demo scenario for each.
-- **Done when:** Every lab index renders a threat-model card; the card
-  links to the relevant scenario inside the lab.
+### T-08 — Deep-link `?scenario=` in CSP analyzer
 
 ### T-08 — Deep-link `?scenario=` in CSP analyzer
 
@@ -149,6 +142,7 @@ session. Pick the top unblocked task, do it, commit, move it to "Done".
 
 ## Done
 
+- **2026-05-31 (commit T-22)** — Bundle split for /supply-chain. Split `app/supply-chain/page.tsx` into a server component (renders header, callouts, lede, then the two read-only sections “Documented typosquat patterns” and “Incident reading list” server-side) plus `app/supply-chain/analyzer.tsx` (client island that owns the scenario picker + editable package.json/registry inputs + live findings + typosquat checker). `TYPOSQUATS` no longer ships to the browser at all (server-rendered). Route 13.5 kB → 10.8 kB; First Load JS 119 kB → 116 kB; under the 12 kB ceiling. Functionality unchanged.
 - **2026-05-30 (commit T-07)** — Per-lab STRIDE threat-model card shipped on all ten labs. New `app/_components/threat-model.tsx` takes an `entries: readonly ThreatEntry[]` prop (data is inlined in each page so client labs don't ship the full corpus). `ThreatEntry` type lives in `lib/labs.ts`. Each card lists 4 STRIDE-classified threats with a colour-coded tag (S/T/R/I/D/E) and a deep-link to the scenario inside the lab that demonstrates the threat. Cards use the existing dark CSS tokens, with a red left border to differentiate from the cyan "what you'll learn" callout. Bundle: detection-engineering still 7.69 kB; iam-privesc 9.75 → 10.2; rag 9.28 → 9.77; supply-chain 12.9 → 13.5 (over ceiling; T-22 follow-up queued).
 - **2026-05-30 (commit T-21)** — Bundle audit + split for /detection-engineering. Moved `LAB_RULES`, `LabKey`, `LabRule` out of `lib/detection.ts` into a new server-only module `lib/detection-lab-rules.ts`. Split `app/detection-engineering/page.tsx` into a server component (renders the lab-rule catalog server-side) plus a thin `<ScenarioRunner />` client island that imports only the live-editor primitives from `lib/detection.ts`. Route size 14.2 kB → 7.68 kB; First Load JS 116 kB → 110 kB; comfortably under the 12 kB ceiling. Lab-rule corpus no longer ships to the browser as JavaScript at all.
 - **2026-05-30 (commit T-06)** — Per-lab "what you'll learn" callout shipped on all ten labs (CSP, Identity, SSRF, Prompt Injection, AuthZ, Agent Identity, IAM PrivEsc, Detection Engineering, Supply Chain, RAG). New `app/_components/learn-callout.tsx` reads from a `LAB_LEARN` map in `lib/labs.ts` so the bullets live with the lab metadata, not in JSX. Four concrete takeaways per lab (no marketing copy). Styled as a left-bordered cyan callout pinned above the lede.
@@ -174,6 +168,7 @@ session. Pick the top unblocked task, do it, commit, move it to "Done".
 
 ## Session log
 
+- **2026-05-31** — T-22 shipped: split /supply-chain into server page + analyzer client island; route 13.5 kB → 10.8 kB.
 - **2026-05-30 (cont.)** — T-07 shipped: STRIDE threat-model card on all 10 labs; queued T-22 (split /supply-chain bundle).
 - **2026-05-30 (cont.)** — T-21 shipped: split /detection-engineering into server page + ScenarioRunner client island; route 14.2 kB → 7.68 kB.
 - **2026-05-30 (cont.)** — T-06 shipped: `<LearnCallout>` on all 10 labs with bullets sourced from `LAB_LEARN` in `lib/labs.ts`.
