@@ -20,6 +20,61 @@ session. Pick the top unblocked task, do it, commit, move it to "Done".
 
 ## Ready (ordered, top = next)
 
+### T-24 — Harden `/api/scan` against DNS rebinding
+
+- **Files:** `app/api/scan/route.ts`, optionally shared helpers in
+  `lib/ssrf.ts`.
+- **Do:** The public header scanner still does only string-level
+  pre-flight URL checks on Edge. Port it to the same
+  validate-resolve-recheck flow already used by `/api/ssrf-test`: DNS
+  resolve the hostname, classify every returned IP, reject any private /
+  metadata / loopback address, and fetch under the bounded policy only
+  after that re-check.
+- **Done when:** `/api/scan` no longer documents DNS rebinding as "not
+  yet"; the route performs hostname resolution + post-resolve blocking;
+  build clean.
+
+### T-25 — Turn phishing-resistant MFA into a live lab
+
+- **Files:** `app/identity/phishing-resistant/page.tsx`, optional new
+  lib module.
+- **Do:** Replace the static explainer with an editable attacker-vs-factor
+  simulator. Model real reverse-proxy phishing, session-cookie theft, and
+  fallback abuse across SMS, TOTP, push, and WebAuthn, with live findings
+  and cited references.
+- **Done when:** The page has editable inputs, a live analyzer, severity-
+  coded findings, and published research links. No read-only showcase.
+
+### T-26 — Turn CSP bypasses into a live payload-vs-policy lab
+
+- **Files:** `app/csp/bypasses/page.tsx`, optional new lib module.
+- **Do:** Replace the prose page with a live lab where the user picks a
+  real bypass class (JSONP, dangling markup, unsafe-inline, nonce-less
+  strict-dynamic, missing reporting), edits the policy/payload, and sees
+  whether the bypass lands plus what rule should have stopped it.
+- **Done when:** The page behaves like the other labs: editable inputs,
+  live analyzer, severity-coded output, citations.
+
+### T-27 — Turn AuthZ patterns into a live query-scoping lab
+
+- **Files:** `app/authz/patterns/page.tsx`, optional lib split.
+- **Do:** Replace the static ruleset page with a live lab that compares
+  naive route-handler ownership checks against scoped data-layer queries
+  across real BOLA / IDOR patterns. Inputs must be editable; findings
+  rerun live.
+- **Done when:** `/authz/patterns` is an interactive lab, not a static
+  checklist.
+
+### T-28 — Turn CSP shapes into a decision lab
+
+- **Files:** `app/csp/shapes/page.tsx`, optional lib split.
+- **Do:** Replace the prose-only shapes page with a live chooser that
+  takes app constraints (SSR/static, third-party JS, inline scripts,
+  reporting needs) and recommends nonce / hash / allowlist shape with
+  live findings and migration notes.
+- **Done when:** The route is interactive and grounded in actual policy
+  constraints, not just static text.
+
 ### T-09 — Deep-link `?scenario=` in SSRF analyzer
 
 - **Files:** `app/ssrf/analyzer/page.tsx`.
@@ -131,6 +186,8 @@ session. Pick the top unblocked task, do it, commit, move it to "Done".
 
 ## Done
 
+- **2026-05-31 (commit T-23)** — Fix CI #42: upgrade Next.js past the audit gate. Bumped `next` from `15.5.15` to `15.5.18`, refreshed `package-lock.json`, and reran the exact failing CI checks locally. `npm audit --omit=dev --audit-level=high` now reports `found 0 vulnerabilities`; `npm run validate-sarif` and `npm run build` both pass cleanly. The recent GitHub failure emails were all the audit step, not application build regressions.
+
 - **2026-05-31 (commit T-08)** — Deep-link `?scenario=` in CSP analyzer & sandbox. `app/csp/analyzer/page.tsx` now slugifies each named SAMPLE and reads `?scenario=<slug>` on mount (paste mode); clicking a sample writes the slug to the URL via `history.replaceState` so the back button stays clean. `app/csp/sandbox/page.tsx` hydrates from `?scenario=<id>` (matching `SCENARIOS[i].id`) on mount and mirrors every `loadScenario` into the URL. Both routes still avoid `useSearchParams` (so no Suspense boundary needed). Build clean; `/csp/analyzer` 6.34 kB, `/csp/sandbox` 8.51 kB (both well under the ceiling).
 - **2026-05-31 (commit T-22)** — Bundle split for /supply-chain. Split `app/supply-chain/page.tsx` into a server component (renders header, callouts, lede, then the two read-only sections “Documented typosquat patterns” and “Incident reading list” server-side) plus `app/supply-chain/analyzer.tsx` (client island that owns the scenario picker + editable package.json/registry inputs + live findings + typosquat checker). `TYPOSQUATS` no longer ships to the browser at all (server-rendered). Route 13.5 kB → 10.8 kB; First Load JS 119 kB → 116 kB; under the 12 kB ceiling. Functionality unchanged.
 - **2026-05-30 (commit T-07)** — Per-lab STRIDE threat-model card shipped on all ten labs. New `app/_components/threat-model.tsx` takes an `entries: readonly ThreatEntry[]` prop (data is inlined in each page so client labs don't ship the full corpus). `ThreatEntry` type lives in `lib/labs.ts`. Each card lists 4 STRIDE-classified threats with a colour-coded tag (S/T/R/I/D/E) and a deep-link to the scenario inside the lab that demonstrates the threat. Cards use the existing dark CSS tokens, with a red left border to differentiate from the cyan "what you'll learn" callout. Bundle: detection-engineering still 7.69 kB; iam-privesc 9.75 → 10.2; rag 9.28 → 9.77; supply-chain 12.9 → 13.5 (over ceiling; T-22 follow-up queued).
@@ -157,6 +214,8 @@ session. Pick the top unblocked task, do it, commit, move it to "Done".
   flag the original as Blocked.
 
 ## Session log
+
+- **2026-05-31** — T-23 shipped: bumped Next.js to 15.5.18; `CI #42` audit gate now passes locally (`0 vulnerabilities`).
 
 - **2026-05-31** — T-08 shipped: `?scenario=` deep links on `/csp/analyzer` and `/csp/sandbox`, shareable URLs without Suspense boundary.
 - **2026-05-31** — T-22 shipped: split /supply-chain into server page + analyzer client island; route 13.5 kB → 10.8 kB.
