@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { analyze, type Finding } from "@/lib/csp";
 import { findingsToSarif } from "@/lib/sarif";
 import { standardsFor } from "@/lib/standards";
@@ -8,13 +8,24 @@ import { standardsFor } from "@/lib/standards";
 const SAMPLES: Record<string, string> = {
   "Strict (nonce + strict-dynamic)":
     "default-src 'self'; script-src 'nonce-RANDOM' 'strict-dynamic'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'; report-to csp-endpoint",
-  "Common — too loose":
+  "Common \u2014 too loose":
     "default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline'",
   "Allowlist with CDN":
     "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://*.cloudfront.net; img-src 'self' data: https:",
   "Wildcard everything (don't ship)":
     "default-src *; script-src * 'unsafe-inline' 'unsafe-eval'",
 };
+
+// Stable URL slug per sample for shareable ?scenario= links.
+function slugify(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
+const SAMPLE_BY_SLUG: Record<string, string> = Object.fromEntries(
+  Object.keys(SAMPLES).map((n) => [slugify(n), n]),
+);
 
 type ScanResult = {
   target: string;
@@ -34,7 +45,28 @@ export default function Analyzer() {
   const [scanning, setScanning] = useState(false);
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
   const [scanError, setScanError] = useState<string | null>(null);
+  // On first paint, hydrate from ?scenario=<slug> if present. This is a
+  // pure replaceState read so the page does not need a Suspense boundary
+  // (Next.js useSearchParams would require one).
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const slug = new URLSearchParams(window.location.search).get("scenario");
+    if (slug && SAMPLE_BY_SLUG[slug]) {
+      setMode("paste");
+      setInput(SAMPLES[SAMPLE_BY_SLUG[slug]]);
+    }
+  }, []);
 
+  // Selecting a sample updates the URL so it's shareable. We use
+  // history.replaceState so the back button keeps working normally.
+  function selectSample(name: string) {
+    setInput(SAMPLES[name]);
+    if (typeof window !== "undefined") {
+      const u = new URL(window.location.href);
+      u.searchParams.set("scenario", slugify(name));
+      window.history.replaceState({}, "", u.toString());
+    }
+  }
   const pasteFindings: Finding[] = analyze(input);
   const findings =
     mode === "scan" ? (scanResult?.findings ?? []) : pasteFindings;
@@ -136,7 +168,7 @@ export default function Analyzer() {
             {Object.keys(SAMPLES).map((name) => (
               <button
                 key={name}
-                onClick={() => setInput(SAMPLES[name])}
+                onClick={() => selectSample(name)}
                 style={{
                   background: "transparent",
                   color: "var(--ink-dim)",

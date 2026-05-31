@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   SCENARIOS,
   HARDENED_STARTER,
@@ -163,21 +163,39 @@ export default function Sandbox() {
     }
   }
 
-  function loadScenario(s: Scenario) {
+  function loadScenario(s: Scenario, opts: { scroll?: boolean } = {}) {
     setActiveScenarioId(s.id);
     setCsp(s.csp);
     setPayload(s.payload);
     setConsoleLog([]);
     setIframeKey((k) => k + 1);
-    // Scroll the live iframe into view so the user sees the result
-    // immediately rather than scrolling down to find it.
-    requestAnimationFrame(() => {
-      sandboxRef.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
+    // Mirror the selection in the URL so it can be shared.
+    if (typeof window !== "undefined") {
+      const u = new URL(window.location.href);
+      u.searchParams.set("scenario", s.id);
+      window.history.replaceState({}, "", u.toString());
+    }
+    if (opts.scroll !== false) {
+      // Scroll the live iframe into view so the user sees the result
+      // immediately rather than scrolling down to find it.
+      requestAnimationFrame(() => {
+        sandboxRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
       });
-    });
+    }
   }
+
+  // On first paint, hydrate from ?scenario=<id> if present.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const id = new URLSearchParams(window.location.search).get("scenario");
+    if (!id) return;
+    const s = SCENARIOS.find((x) => x.id === id);
+    if (s) loadScenario(s, { scroll: false });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function rerun() {
     setConsoleLog([]);

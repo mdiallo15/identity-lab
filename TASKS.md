@@ -20,17 +20,6 @@ session. Pick the top unblocked task, do it, commit, move it to "Done".
 
 ## Ready (ordered, top = next)
 
-### T-08 — Deep-link `?scenario=` in CSP analyzer
-
-### T-08 — Deep-link `?scenario=` in CSP analyzer
-
-- **Files:** `app/csp/analyzer/page.tsx`, `app/csp/sandbox/page.tsx`.
-- **Do:** Read `?scenario=` from `useSearchParams`, hydrate the editor
-  with the matching catalog payload. Update the URL on selection so
-  links are shareable.
-- **Done when:** Linking to `/csp/analyzer?scenario=<id>` opens the
-  analyzer pre-loaded with that scenario.
-
 ### T-09 — Deep-link `?scenario=` in SSRF analyzer
 
 - **Files:** `app/ssrf/analyzer/page.tsx`.
@@ -142,6 +131,7 @@ session. Pick the top unblocked task, do it, commit, move it to "Done".
 
 ## Done
 
+- **2026-05-31 (commit T-08)** — Deep-link `?scenario=` in CSP analyzer & sandbox. `app/csp/analyzer/page.tsx` now slugifies each named SAMPLE and reads `?scenario=<slug>` on mount (paste mode); clicking a sample writes the slug to the URL via `history.replaceState` so the back button stays clean. `app/csp/sandbox/page.tsx` hydrates from `?scenario=<id>` (matching `SCENARIOS[i].id`) on mount and mirrors every `loadScenario` into the URL. Both routes still avoid `useSearchParams` (so no Suspense boundary needed). Build clean; `/csp/analyzer` 6.34 kB, `/csp/sandbox` 8.51 kB (both well under the ceiling).
 - **2026-05-31 (commit T-22)** — Bundle split for /supply-chain. Split `app/supply-chain/page.tsx` into a server component (renders header, callouts, lede, then the two read-only sections “Documented typosquat patterns” and “Incident reading list” server-side) plus `app/supply-chain/analyzer.tsx` (client island that owns the scenario picker + editable package.json/registry inputs + live findings + typosquat checker). `TYPOSQUATS` no longer ships to the browser at all (server-rendered). Route 13.5 kB → 10.8 kB; First Load JS 119 kB → 116 kB; under the 12 kB ceiling. Functionality unchanged.
 - **2026-05-30 (commit T-07)** — Per-lab STRIDE threat-model card shipped on all ten labs. New `app/_components/threat-model.tsx` takes an `entries: readonly ThreatEntry[]` prop (data is inlined in each page so client labs don't ship the full corpus). `ThreatEntry` type lives in `lib/labs.ts`. Each card lists 4 STRIDE-classified threats with a colour-coded tag (S/T/R/I/D/E) and a deep-link to the scenario inside the lab that demonstrates the threat. Cards use the existing dark CSS tokens, with a red left border to differentiate from the cyan "what you'll learn" callout. Bundle: detection-engineering still 7.69 kB; iam-privesc 9.75 → 10.2; rag 9.28 → 9.77; supply-chain 12.9 → 13.5 (over ceiling; T-22 follow-up queued).
 - **2026-05-30 (commit T-21)** — Bundle audit + split for /detection-engineering. Moved `LAB_RULES`, `LabKey`, `LabRule` out of `lib/detection.ts` into a new server-only module `lib/detection-lab-rules.ts`. Split `app/detection-engineering/page.tsx` into a server component (renders the lab-rule catalog server-side) plus a thin `<ScenarioRunner />` client island that imports only the live-editor primitives from `lib/detection.ts`. Route size 14.2 kB → 7.68 kB; First Load JS 116 kB → 110 kB; comfortably under the 12 kB ceiling. Lab-rule corpus no longer ships to the browser as JavaScript at all.
@@ -168,6 +158,7 @@ session. Pick the top unblocked task, do it, commit, move it to "Done".
 
 ## Session log
 
+- **2026-05-31** — T-08 shipped: `?scenario=` deep links on `/csp/analyzer` and `/csp/sandbox`, shareable URLs without Suspense boundary.
 - **2026-05-31** — T-22 shipped: split /supply-chain into server page + analyzer client island; route 13.5 kB → 10.8 kB.
 - **2026-05-30 (cont.)** — T-07 shipped: STRIDE threat-model card on all 10 labs; queued T-22 (split /supply-chain bundle).
 - **2026-05-30 (cont.)** — T-21 shipped: split /detection-engineering into server page + ScenarioRunner client island; route 14.2 kB → 7.68 kB.
