@@ -24,20 +24,14 @@ Autonomy mode:
 
 Current backlog snapshot (June 2026):
 
-- `T-09` — `?scenario=` deep-link in `/ssrf/analyzer`
-- `T-10` — `?scenario=` deep-link in `/prompt-injection/simulator`
-- `T-11` — `?scenario=` deep-link in `/iam-privesc`
-- `T-12` — `?scenario=` deep-link in `/detection-engineering`
-- `T-16` — OpenAPI 3.1 document for public APIs
-- `T-17` — CodeQL workflow on repo source
-- `T-18` — native `sitemap.xml` and `robots.txt`
-- `T-19` — per-lab Open Graph and Twitter metadata
-- `T-20` — JWT vector verification script
+- The Ready queue may be empty. Always re-read `TASKS.md` before starting instead of trusting this paragraph.
+- If `TASKS.md` shows `Ready` is empty, stop and report that the autonomous backlog is exhausted.
+- If new tasks have been added since this prompt was last edited, follow `TASKS.md` rather than this snapshot.
 
 Execution preference:
 
-- Prefer finishing the scenario deep-link sweep first (`T-09` → `T-12`) because the pattern already exists and the work is low-risk.
-- Then do repo/platform work in this order unless `TASKS.md` changes: `T-17`, `T-18`, `T-19`, `T-16`, `T-20`.
+- Prefer the top Ready item in `TASKS.md`.
+- If multiple low-risk infrastructure/documentation items are adjacent, batching them is fine as long as they share the same validation surface.
 
 Quality bar: every lab must replicate a real attack with real CVE / incident references. No fake context. Inputs must be editable; the analyzer must re-run live on every keystroke. Cite published research (Rhino Security, SpecterOps, PortSwigger, Microsoft TI, CISA, OWASP, NIST).
 

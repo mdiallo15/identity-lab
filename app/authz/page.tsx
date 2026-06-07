@@ -1,3 +1,22 @@
+export const metadata = {
+  title: "AuthZ Lab — Marwan Diallo",
+  description:
+    "Interactive Broken Object Level Authorization lab with a live simulator and query-scoping patterns.",
+  openGraph: {
+    title: "AuthZ Lab — Marwan Diallo",
+    description:
+      "Interactive BOLA / IDOR simulator plus query-scoping detection patterns.",
+    type: "website",
+    url: "https://lab.marwandiallo.com/authz",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "AuthZ Lab — Marwan Diallo",
+    description:
+      "Interactive BOLA / IDOR simulator plus query-scoping detection patterns.",
+  },
+};
+
 import Link from "next/link";
 import { LearnCallout } from "@/app/_components/learn-callout";
 import { ThreatModelCard } from "@/app/_components/threat-model";

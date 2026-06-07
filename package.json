@@ -23,7 +23,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "validate-sarif": "node scripts/validate-sarif.mjs"
+    "validate-sarif": "node scripts/validate-sarif.mjs",
+    "verify-jwt-vectors": "node scripts/verify-jwt-vectors.mjs"
   },
   "dependencies": {
     "@simplewebauthn/browser": "^11.0.0",

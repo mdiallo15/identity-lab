@@ -5,6 +5,19 @@ export const metadata = {
   title: "marwandiallo.com / labs",
   description:
     "Hands-on security labs by Marwan Diallo. Phishing-resistant identity, content security policy, and other topics that don't survive PowerPoint.",
+  openGraph: {
+    title: "Labs — Marwan Diallo",
+    description:
+      "Hands-on security labs covering identity, CSP, SSRF, prompt injection, supply chain, RAG, IAM, and detection engineering.",
+    type: "website",
+    url: "https://lab.marwandiallo.com",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Labs — Marwan Diallo",
+    description:
+      "Hands-on security labs covering identity, CSP, SSRF, prompt injection, supply chain, RAG, IAM, and detection engineering.",
+  },
 };
 
 export default function RootLayout({

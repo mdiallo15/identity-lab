@@ -6,6 +6,21 @@ import SupplyChainAnalyzer from "./analyzer";
 
 export const metadata = {
   title: "Supply Chain — Identity Lab",
+  description:
+    "Live supply-chain provenance analyzer with typosquat detection and replayed real registry compromise scenarios.",
+  openGraph: {
+    title: "Supply Chain Lab — Marwan Diallo",
+    description:
+      "Real package-registry compromise scenarios, provenance findings, and typosquat detection in one hands-on lab.",
+    type: "website",
+    url: "https://lab.marwandiallo.com/supply-chain",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Supply Chain Lab — Marwan Diallo",
+    description:
+      "Real package-registry compromise scenarios, provenance findings, and typosquat detection in one hands-on lab.",
+  },
 };
 
 const THREATS: readonly ThreatEntry[] = [

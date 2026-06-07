@@ -1,3 +1,22 @@
+export const metadata = {
+  title: "CSP Playground — Marwan Diallo",
+  description:
+    "Hands-on Content-Security-Policy lab: analyzer, sandbox, bypasses, and a live policy-shape decision tool.",
+  openGraph: {
+    title: "CSP Playground — Marwan Diallo",
+    description:
+      "Analyzer, sandbox, bypass lab, and CSP-shape chooser for real XSS defense work.",
+    type: "website",
+    url: "https://lab.marwandiallo.com/csp",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "CSP Playground — Marwan Diallo",
+    description:
+      "Analyzer, sandbox, bypass lab, and CSP-shape chooser for real XSS defense work.",
+  },
+};
+
 import Link from "next/link";
 import { LearnCallout } from "@/app/_components/learn-callout";
 import { ThreatModelCard } from "@/app/_components/threat-model";

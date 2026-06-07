@@ -6,6 +6,21 @@ import ScenarioRunner from "./scenario-runner";
 
 export const metadata = {
   title: "Detection Engineering — Identity Lab",
+  description:
+    "Ground-truth-labeled detection lab with naive vs tuned rules, live precision/recall, and per-lab Sigma-equivalent starters.",
+  openGraph: {
+    title: "Detection Engineering Lab — Marwan Diallo",
+    description:
+      "Ground-truth-labeled detections, live precision/recall, and editable naive-vs-tuned rules.",
+    type: "website",
+    url: "https://lab.marwandiallo.com/detection-engineering",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Detection Engineering Lab — Marwan Diallo",
+    description:
+      "Ground-truth-labeled detections, live precision/recall, and editable naive-vs-tuned rules.",
+  },
 };
 const THREATS: readonly ThreatEntry[] = [
   {

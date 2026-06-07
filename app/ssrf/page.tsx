@@ -30,6 +30,19 @@ export const metadata = {
   title: "SSRF / Cloud Metadata Lab — Labs",
   description:
     "Why 169.254.169.254 is the most-attacked IP on the internet. Validate URLs against the SSRF analyzer, see the canonical target endpoints, and learn the four hardening layers that actually contain blast radius.",
+  openGraph: {
+    title: "SSRF / Cloud Metadata Lab — Marwan Diallo",
+    description:
+      "Decode encoded hosts, replay metadata-service targets, and compare naive vs hardened SSRF defenses live.",
+    type: "website",
+    url: "https://lab.marwandiallo.com/ssrf",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "SSRF / Cloud Metadata Lab — Marwan Diallo",
+    description:
+      "Decode encoded hosts, replay metadata-service targets, and compare naive vs hardened SSRF defenses live.",
+  },
 };
 
 export default function SsrfOverview() {

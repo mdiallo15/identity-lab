@@ -30,6 +30,19 @@ export const metadata = {
   title: "Agent Identity Lab — labs.marwandiallo.com",
   description:
     "Hands-on workload identity for AI agents: RFC 8693 token exchange, attested workload primitives, and a live drift detector on a fixture agent inventory.",
+  openGraph: {
+    title: "Agent Identity Lab — Marwan Diallo",
+    description:
+      "RFC 8693 token exchange, workload attestation, and live agent-identity drift detection.",
+    type: "website",
+    url: "https://lab.marwandiallo.com/agent-identity",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Agent Identity Lab — Marwan Diallo",
+    description:
+      "RFC 8693 token exchange, workload attestation, and live agent-identity drift detection.",
+  },
 };
 
 export default function AgentIdentityLab() {

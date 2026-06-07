@@ -30,6 +30,19 @@ export const metadata = {
   title: "Identity Lab — Phishing-resistant authentication, hands-on",
   description:
     "Interactive playground for passwordless auth, WebAuthn passkeys, JWT analysis, and agent / workload identity. Built by Marwan Diallo.",
+  openGraph: {
+    title: "Identity Lab — Marwan Diallo",
+    description:
+      "Passkeys, JWT verification failures, phishing-resistant MFA, and workload identity in one hands-on lab.",
+    type: "website",
+    url: "https://lab.marwandiallo.com/identity",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Identity Lab — Marwan Diallo",
+    description:
+      "Passkeys, JWT verification failures, phishing-resistant MFA, and workload identity in one hands-on lab.",
+  },
 };
 
 export default function Home() {

@@ -20,32 +20,15 @@ session. Pick the top unblocked task, do it, commit, move it to "Done".
 
 ## Ready (ordered, top = next)
 
-### T-19 — Open Graph + Twitter Card metadata per lab
-
-- **Files:** every `app/<lab>/page.tsx` `metadata` export and root
-  `app/layout.tsx`.
-- **Do:** Add `openGraph` and `twitter` metadata blocks (title,
-  description, type=`website`, url) so lab links unfurl with the right
-  card.
-- **Done when:** Every lab page has OG + Twitter metadata; manual paste
-  into a card validator renders correctly (recorded in commit body).
-
-### T-20 — Cross-tool JWT vector script
-
-- **Files:** `scripts/verify-jwt-vectors.mjs` (new).
-- **Do:** Generate a small set of forged JWTs from `lib/jwt-forge.ts`
-  (alg=none, alg-confusion, kid traversal, tamper-no-resign), serialise
-  them, and document the expected verifier behaviour for each
-  (accept / reject) so the workbench's claims can be cross-checked
-  against a third-party JWT library by hand.
-- **Done when:** `npm run verify-jwt-vectors` prints each vector + the
-  expected outcome under a strict verifier and a permissive one.
+- _(none)_
 
 ## Blocked
 
 - _(none)_
 
 ## Done
+
+- **2026-06-07 (commit T-19/T-20)** — Final polish/tooling batch shipped. Added Open Graph and Twitter card metadata across the root layout and all top-level lab pages, including server wrappers for the two client-heavy top-level labs (`/iam-privesc` and `/rag`). Added `scripts/verify-jwt-vectors.mjs` plus `npm run verify-jwt-vectors` to print the forged JWT vectors and their expected strict/permissive outcomes. Build clean; JWT vector script runs successfully.
 
 - **2026-06-07 (commit T-16/T-17/T-18)** — Platform-docs batch shipped. Added a hand-authored OpenAPI 3.1 document at `/openapi.json` covering `/api/scan`, `/api/ssrf-fetch`, `/api/ssrf-test`, and both WebAuthn endpoints; added a repository-source CodeQL workflow under `.github/workflows/codeql.yml`; and shipped native `app/sitemap.ts` plus `app/robots.ts`. Build clean; `/sitemap.xml` and `/robots.txt` now emit as static metadata routes.
 
@@ -88,6 +71,8 @@ session. Pick the top unblocked task, do it, commit, move it to "Done".
   flag the original as Blocked.
 
 ## Session log
+
+- **2026-06-07** — T-19/T-20 shipped: added per-lab OG/Twitter metadata, wrapped `/iam-privesc` and `/rag` behind server metadata pages, and added the JWT vector verification script.
 
 - **2026-06-07** — T-16/T-17/T-18 shipped: published `/openapi.json`, added repo-source CodeQL, and shipped native `sitemap.xml` plus `robots.txt`.
 

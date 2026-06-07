@@ -30,6 +30,19 @@ export const metadata = {
   title: "Prompt Injection Lab — Labs",
   description:
     "Indirect prompt injection, tool-call hijacking, exfiltration via markdown images. Side-by-side simulator of a naive vs hardened agent on the same untrusted document.",
+  openGraph: {
+    title: "Prompt Injection Lab — Marwan Diallo",
+    description:
+      "A live naive-vs-hardened agent simulator for indirect prompt injection, tool hijacking, and exfiltration patterns.",
+    type: "website",
+    url: "https://lab.marwandiallo.com/prompt-injection",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Prompt Injection Lab — Marwan Diallo",
+    description:
+      "A live naive-vs-hardened agent simulator for indirect prompt injection, tool hijacking, and exfiltration patterns.",
+  },
 };
 
 export default function PromptInjectionOverview() {
