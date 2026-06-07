@@ -20,34 +20,6 @@ session. Pick the top unblocked task, do it, commit, move it to "Done".
 
 ## Ready (ordered, top = next)
 
-### T-16 — OpenAPI document for public APIs
-
-- **Files:** `app/api-docs/openapi.json/route.ts` (new GET handler) or
-  `public/openapi.json`.
-- **Do:** Author a single OpenAPI 3.1 document covering `/api/scan`,
-  `/api/ssrf-fetch`, `/api/identity/passkey/register`,
-  `/api/identity/passkey/authenticate`, and `/api/ssrf-test`. Hand-
-  authored — no new deps.
-- **Done when:** `GET /api-docs/openapi.json` (or `/openapi.json`)
-  returns a valid OpenAPI 3.1 doc.
-
-### T-17 — CodeQL workflow on repository source
-
-- **Files:** `.github/workflows/codeql.yml` (new).
-- **Do:** Add `github/codeql-action/init` + `analyze` for `javascript`
-  on push/pull_request and weekly schedule. This is the right way to
-  feed Code Scanning (the existing security-scan workflow scans
-  external URLs — Code Scanning rejects non-`file://` SARIF).
-- **Done when:** CodeQL runs against the repo source and uploads to
-  Code Scanning.
-
-### T-18 — Native sitemap + robots
-
-- **Files:** `app/sitemap.ts` (new), `app/robots.ts` (new).
-- **Do:** Implement Next-native `MetadataRoute.Sitemap` covering every
-  static lab route, and a permissive `robots.txt` excluding `/api`.
-- **Done when:** `/sitemap.xml` and `/robots.txt` are served.
-
 ### T-19 — Open Graph + Twitter Card metadata per lab
 
 - **Files:** every `app/<lab>/page.tsx` `metadata` export and root
@@ -74,6 +46,8 @@ session. Pick the top unblocked task, do it, commit, move it to "Done".
 - _(none)_
 
 ## Done
+
+- **2026-06-07 (commit T-16/T-17/T-18)** — Platform-docs batch shipped. Added a hand-authored OpenAPI 3.1 document at `/openapi.json` covering `/api/scan`, `/api/ssrf-fetch`, `/api/ssrf-test`, and both WebAuthn endpoints; added a repository-source CodeQL workflow under `.github/workflows/codeql.yml`; and shipped native `app/sitemap.ts` plus `app/robots.ts`. Build clean; `/sitemap.xml` and `/robots.txt` now emit as static metadata routes.
 
 - **2026-06-07 (commit T-09/T-10/T-11/T-12)** — Scenario deep-link sweep finished across the remaining interactive labs. `/ssrf/analyzer`, `/prompt-injection/simulator`, `/iam-privesc`, and `/detection-engineering` now all hydrate from `?scenario=<id>` on first paint and mirror scenario selection back into the URL via `history.replaceState`. SSRF also preloads the analyzer URL input from the selected scenario so the fetcher sandbox and URL analyzer stay aligned. Build clean; route sizes remain in-range.
 
@@ -114,6 +88,8 @@ session. Pick the top unblocked task, do it, commit, move it to "Done".
   flag the original as Blocked.
 
 ## Session log
+
+- **2026-06-07** — T-16/T-17/T-18 shipped: published `/openapi.json`, added repo-source CodeQL, and shipped native `sitemap.xml` plus `robots.txt`.
 
 - **2026-06-07** — T-09/T-10/T-11/T-12 shipped: completed the `?scenario=` deep-link sweep across SSRF, Prompt Injection, IAM PrivEsc, and Detection Engineering; updated `PROMPT.md` for autonomous continuous backlog execution.
 

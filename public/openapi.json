@@ -1,0 +1,483 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "identity-lab public API",
+    "version": "1.0.0",
+    "description": "Hand-authored OpenAPI document for the public lab APIs exposed by identity-lab. These endpoints are demos and lab fixtures, not production identity services."
+  },
+  "servers": [
+    {
+      "url": "https://lab.marwandiallo.com",
+      "description": "production"
+    },
+    {
+      "url": "http://localhost:3000",
+      "description": "local development"
+    }
+  ],
+  "paths": {
+    "/api/scan": {
+      "post": {
+        "summary": "Scan a public URL for CSP, security-header, and SRI findings",
+        "description": "Fetches a public URL, applies SSRF guards and DNS re-resolution, then returns either JSON findings or a SARIF document.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScanRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful scan result or SARIF payload",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    { "$ref": "#/components/schemas/ScanResponse" },
+                    { "$ref": "#/components/schemas/SarifReport" }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error or SSRF guard rejection",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          },
+          "502": {
+            "description": "DNS or fetch failure",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ssrf-fetch": {
+      "get": {
+        "summary": "List deterministic SSRF scenarios",
+        "responses": {
+          "200": {
+            "description": "Catalog of scenario ids",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "scenarios": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/SsrfScenarioSummary" }
+                    }
+                  },
+                  "required": ["scenarios"]
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Replay a deterministic SSRF fetcher trace",
+        "description": "Returns the same naive vs hardened trace the SSRF lab renders. No real outbound network request is emitted.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/SsrfFetchRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Scenario metadata plus deterministic fetcher result",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SsrfFetchResponse" }
+              }
+            }
+          },
+          "400": {
+            "description": "Unknown scenario id or invalid JSON",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ssrf-test": {
+      "post": {
+        "summary": "Run the validate-then-fetch SSRF safety demo",
+        "description": "Walks a URL through parse, pre-flight rule analysis, DNS resolution, post-resolve IP checks, and a bounded fetch.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UrlOnlyRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Stages plus SSRF findings",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SsrfTestResponse" }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/identity/passkey/register": {
+      "post": {
+        "summary": "Passkey registration options or verification",
+        "description": "Single endpoint with two steps: `options` returns WebAuthn registration options, `verify` validates the attestation response and stores the credential in the in-memory lab store.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/PasskeyRegisterRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Registration options or verification success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    { "$ref": "#/components/schemas/PasskeyOptionsResponse" },
+                    { "$ref": "#/components/schemas/OkResponse" }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid body, missing challenge, or failed verification",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/identity/passkey/authenticate": {
+      "post": {
+        "summary": "Passkey authentication options or verification",
+        "description": "Single endpoint with two steps: `options` returns WebAuthn authentication options, `verify` validates the assertion and advances the stored signature counter.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/PasskeyAuthenticateRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Authentication options or verification success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    { "$ref": "#/components/schemas/PasskeyOptionsResponse" },
+                    { "$ref": "#/components/schemas/OkResponse" }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid body, no credentials, unknown credential, no challenge, or failed verification",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": { "type": "string" },
+          "detail": { "type": "string" },
+          "blockedReason": { "type": "string" },
+          "validIds": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        },
+        "required": ["error"]
+      },
+      "OkResponse": {
+        "type": "object",
+        "properties": {
+          "ok": { "const": true }
+        },
+        "required": ["ok"]
+      },
+      "UrlOnlyRequest": {
+        "type": "object",
+        "properties": {
+          "url": { "type": "string", "format": "uri" }
+        },
+        "required": ["url"]
+      },
+      "Finding": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "severity": {
+            "type": "string",
+            "enum": ["info", "low", "medium", "high", "critical"]
+          },
+          "title": { "type": "string" },
+          "detail": { "type": "string" },
+          "fix": { "type": "string" },
+          "excerpt": { "type": "string" }
+        },
+        "required": ["id", "severity", "title", "detail"]
+      },
+      "ScanRequest": {
+        "type": "object",
+        "properties": {
+          "url": { "type": "string", "format": "uri" },
+          "format": {
+            "type": "string",
+            "enum": ["json", "sarif"],
+            "default": "json"
+          }
+        },
+        "required": ["url"]
+      },
+      "ScanResponse": {
+        "type": "object",
+        "properties": {
+          "target": { "type": "string", "format": "uri" },
+          "status": { "type": "integer" },
+          "headers": {
+            "type": "object",
+            "additionalProperties": { "type": "string" }
+          },
+          "csp": {
+            "type": ["string", "null"]
+          },
+          "findings": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Finding" }
+          },
+          "counts": {
+            "type": "object",
+            "properties": {
+              "high": { "type": "integer" },
+              "medium": { "type": "integer" },
+              "low": { "type": "integer" },
+              "info": { "type": "integer" }
+            },
+            "required": ["high", "medium", "low", "info"]
+          }
+        },
+        "required": ["target", "status", "headers", "csp", "findings", "counts"]
+      },
+      "SarifReport": {
+        "type": "object",
+        "description": "SARIF 2.1.0 output emitted by findingsToSarif(). The schema is intentionally broad here because the repo already has a dedicated SARIF structural validator.",
+        "properties": {
+          "$schema": { "type": "string" },
+          "version": { "type": "string" },
+          "runs": {
+            "type": "array",
+            "items": { "type": "object" }
+          }
+        },
+        "required": ["version", "runs"]
+      },
+      "SsrfScenarioSummary": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "category": { "type": "string" },
+          "title": { "type": "string" }
+        },
+        "required": ["id", "category", "title"]
+      },
+      "SsrfFetchRequest": {
+        "type": "object",
+        "properties": {
+          "scenarioId": { "type": "string" },
+          "mode": {
+            "type": "string",
+            "enum": ["naive", "hardened"],
+            "default": "hardened"
+          }
+        },
+        "required": ["scenarioId"]
+      },
+      "SsrfFetchResponse": {
+        "type": "object",
+        "properties": {
+          "scenario": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "title": { "type": "string" },
+              "category": { "type": "string" },
+              "blurb": { "type": "string" },
+              "reference": {
+                "type": "object",
+                "properties": {
+                  "label": { "type": "string" },
+                  "url": { "type": "string", "format": "uri" }
+                },
+                "required": ["label", "url"]
+              },
+              "request": {
+                "type": "object",
+                "properties": {
+                  "url": { "type": "string" },
+                  "method": { "type": "string" },
+                  "headers": {
+                    "type": "object",
+                    "additionalProperties": { "type": "string" }
+                  },
+                  "body": { "type": "string" }
+                },
+                "required": ["url"]
+              }
+            },
+            "required": ["id", "title", "category", "blurb", "reference", "request"]
+          },
+          "result": {
+            "type": "object",
+            "properties": {
+              "mode": { "type": "string" },
+              "scenarioId": { "type": "string" },
+              "blocked": { "type": "boolean" },
+              "leak": { "type": "string" },
+              "steps": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "kind": { "type": "string" },
+                    "label": { "type": "string" },
+                    "status": { "type": "string" },
+                    "detail": { "type": "string" }
+                  },
+                  "required": ["kind", "label", "status", "detail"]
+                }
+              }
+            },
+            "required": ["mode", "scenarioId", "blocked", "steps"]
+          }
+        },
+        "required": ["scenario", "result"]
+      },
+      "SsrfTestResponse": {
+        "type": "object",
+        "properties": {
+          "stages": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": { "type": "string" },
+                "status": { "type": "string", "enum": ["pass", "fail", "skipped"] },
+                "detail": { "type": "string" },
+                "data": {}
+              },
+              "required": ["name", "status", "detail"]
+            }
+          },
+          "findings": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Finding" }
+          }
+        },
+        "required": ["stages", "findings"]
+      },
+      "PasskeyRegisterRequest": {
+        "type": "object",
+        "properties": {
+          "step": {
+            "type": "string",
+            "enum": ["options", "verify"]
+          },
+          "username": { "type": "string", "minLength": 1, "maxLength": 64 },
+          "attestation": {
+            "type": "object",
+            "description": "Browser-generated registration response from @simplewebauthn/browser"
+          }
+        },
+        "required": ["step", "username"]
+      },
+      "PasskeyAuthenticateRequest": {
+        "type": "object",
+        "properties": {
+          "step": {
+            "type": "string",
+            "enum": ["options", "verify"]
+          },
+          "username": { "type": "string", "minLength": 1, "maxLength": 64 },
+          "assertion": {
+            "type": "object",
+            "description": "Browser-generated authentication response from @simplewebauthn/browser"
+          }
+        },
+        "required": ["step", "username"]
+      },
+      "PasskeyOptionsResponse": {
+        "type": "object",
+        "description": "WebAuthn options payload emitted by @simplewebauthn/server. Shape varies slightly between registration and authentication options, so this schema stays intentionally broad.",
+        "properties": {
+          "challenge": { "type": "string" },
+          "rp": { "type": "object" },
+          "user": { "type": "object" },
+          "allowCredentials": { "type": "array", "items": { "type": "object" } },
+          "excludeCredentials": { "type": "array", "items": { "type": "object" } },
+          "pubKeyCredParams": { "type": "array", "items": { "type": "object" } },
+          "timeout": { "type": "integer" }
+        },
+        "required": ["challenge"]
+      }
+    }
+  }
+}
