@@ -5,6 +5,33 @@
 
 ---
 
+## Autonomous operating contract (hardened 2026-06-07)
+
+This contract governs the session; the project-specific steps below are detail.
+
+- **Source of truth = `TASKS.md`.** Any snapshot in *this* file (e.g. the
+  "Current backlog snapshot" paragraph) is only a convenience copy. At session
+  start, reconcile it against `TASKS.md` + `git log --oneline -15`; if it points
+  at already-shipped work, refresh the stale wording FIRST (that's a valid first
+  deliverable). Never trust a snapshot blindly — it goes stale between runs.
+- **Loop:** pick top unblocked item → implement matching existing patterns →
+  validate (typecheck + lint touched files + `npm run build`; don't commit red)
+  → commit → push to `main` (build clean → Vercel auto-deploys) → mark Done in
+  `TASKS.md` **with the commit SHA** (never without) + append the session-log
+  line → next item. Keep a visible todo list.
+- **Work until done:** when Ready empties, replenish from `PLAN.md`, the tracker's
+  blocker/known-issues notes, production signals (build/deploy failures), and
+  lint/type debt — add new atomic tasks and continue.
+- **Stop only** when the sole remaining work is human-gated (a taste/branding
+  decision, real content, a credential you can't access) or no useful low-risk
+  task remains. Post a short status of what only the human can do.
+- **Never** invent busywork, re-churn already-correct code just to commit, mark a
+  task Done without its SHA, or leave a snapshot pointing at shipped work. Don't
+  fabricate CVE/incident context; don't do destructive/irreversible ops without
+  surfacing first.
+
+---
+
 You are picking up work on identity-lab, a hands-on security-labs site that ships at marwandiallo.com/labs. Source of truth for state is on disk:
 
 1. Read `PLAN.md` first, then `TASKS.md`.
