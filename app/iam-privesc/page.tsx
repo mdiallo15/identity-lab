@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { LearnCallout } from "@/app/_components/learn-callout";
 import { ThreatModelCard } from "@/app/_components/threat-model";
 import type { ThreatEntry } from "@/lib/labs";
@@ -56,7 +56,27 @@ export default function IamPrivescLab() {
     setActiveId(s.id);
     setPrincipalsJson(JSON.stringify(s.principals, null, 2));
     setParseError(null);
+    if (typeof window !== "undefined") {
+      const nextUrl = new URL(window.location.href);
+      nextUrl.searchParams.set("scenario", s.id);
+      window.history.replaceState({}, "", nextUrl.toString());
+    }
   }
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const deepLinkedScenario = new URLSearchParams(window.location.search).get(
+      "scenario",
+    );
+    if (!deepLinkedScenario) return;
+    const matchedScenario = SCENARIOS.find(
+      (scenario) => scenario.id === deepLinkedScenario,
+    );
+    if (!matchedScenario) return;
+    setActiveId(matchedScenario.id);
+    setPrincipalsJson(JSON.stringify(matchedScenario.principals, null, 2));
+    setParseError(null);
+  }, []);
 
   const { principals, paths, edges } = useMemo(() => {
     let parsed: Principal[];

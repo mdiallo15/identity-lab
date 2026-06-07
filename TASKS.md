@@ -20,35 +20,6 @@ session. Pick the top unblocked task, do it, commit, move it to "Done".
 
 ## Ready (ordered, top = next)
 
-### T-09 — Deep-link `?scenario=` in SSRF analyzer
-
-- **Files:** `app/ssrf/analyzer/page.tsx`.
-- **Do:** Same pattern as T-08 — hydrate fetcher inputs from the URL,
-  update the URL on click.
-- **Done when:** `/ssrf/analyzer?scenario=<id>` opens with that fetcher
-  payload pre-selected.
-
-### T-10 — Deep-link `?scenario=` in Prompt Injection simulator
-
-- **Files:** `app/prompt-injection/simulator/page.tsx`.
-- **Do:** Same pattern as T-08 against AGENT_SCENARIOS.
-- **Done when:** `/prompt-injection/simulator?scenario=<id>` runs that
-  scenario on first paint.
-
-### T-11 — Deep-link `?scenario=` in IAM PrivEsc
-
-- **Files:** `app/iam-privesc/page.tsx`, `lib/iam-privesc.ts`.
-- **Do:** Same pattern — pre-select the technique by id from the URL.
-- **Done when:** Each AWS/Azure/GCP technique has a stable shareable URL.
-
-### T-12 — Deep-link `?scenario=` in Detection Engineering
-
-- **Files:** `app/detection-engineering/page.tsx`.
-- **Do:** Pre-select the labelled scenario (Midnight Blizzard,
-  Storm-0558, Volt Typhoon, Hafnium) from the URL.
-- **Done when:** Each rule has a stable shareable URL surfacing its
-  precision/recall against the labelled set.
-
 ### T-16 — OpenAPI document for public APIs
 
 - **Files:** `app/api-docs/openapi.json/route.ts` (new GET handler) or
@@ -104,6 +75,8 @@ session. Pick the top unblocked task, do it, commit, move it to "Done".
 
 ## Done
 
+- **2026-06-07 (commit T-09/T-10/T-11/T-12)** — Scenario deep-link sweep finished across the remaining interactive labs. `/ssrf/analyzer`, `/prompt-injection/simulator`, `/iam-privesc`, and `/detection-engineering` now all hydrate from `?scenario=<id>` on first paint and mirror scenario selection back into the URL via `history.replaceState`. SSRF also preloads the analyzer URL input from the selected scenario so the fetcher sandbox and URL analyzer stay aligned. Build clean; route sizes remain in-range.
+
 - **2026-05-31 (commit T-13/T-14)** — Shared `LabFrame` component shipped and applied across the existing lab layouts (`csp`, `identity`, `ssrf`, `prompt-injection`, `authz`). Replaced the repeated `lab-shell` + `sub-nav` shell with a single server component, keeping the same nav structure while removing duplicated layout wiring.
 - **2026-05-31 (commit T-15)** — README inventory refresh. Removed the stale "Planned" section that still claimed Prompt Injection and SSRF were not shipped, replaced it with a current lab inventory table, and updated the architecture route list to match what the app actually serves today.
 - **2026-05-31 (commit T-28)** — `/csp/shapes` is now an interactive decision lab. Users describe whether the app is SSR/static, depends on third-party JS, still has inline scripts, and is in report-only rollout; the route recommends a CSP shape, renders the baseline policy, and reruns findings/migration notes live.
@@ -141,6 +114,8 @@ session. Pick the top unblocked task, do it, commit, move it to "Done".
   flag the original as Blocked.
 
 ## Session log
+
+- **2026-06-07** — T-09/T-10/T-11/T-12 shipped: completed the `?scenario=` deep-link sweep across SSRF, Prompt Injection, IAM PrivEsc, and Detection Engineering; updated `PROMPT.md` for autonomous continuous backlog execution.
 
 - **2026-05-31** — T-25/T-26/T-27/T-28/T-15/T-13/T-14 shipped: converted the remaining review-flagged static routes into live labs, refreshed the README inventory, and extracted shared lab layout chrome into `LabFrame`.
 

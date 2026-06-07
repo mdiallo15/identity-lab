@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   SCENARIOS,
   runRule,
@@ -27,7 +27,27 @@ export default function ScenarioRunner() {
     setActiveId(s.id);
     setNaiveJson(JSON.stringify(s.naiveRule.match, null, 2));
     setTunedJson(JSON.stringify(s.tunedRule.match, null, 2));
+    if (typeof window !== "undefined") {
+      const nextUrl = new URL(window.location.href);
+      nextUrl.searchParams.set("scenario", s.id);
+      window.history.replaceState({}, "", nextUrl.toString());
+    }
   }
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const deepLinkedScenario = new URLSearchParams(window.location.search).get(
+      "scenario",
+    );
+    if (!deepLinkedScenario) return;
+    const matchedScenario = SCENARIOS.find(
+      (scenario) => scenario.id === deepLinkedScenario,
+    );
+    if (!matchedScenario) return;
+    setActiveId(matchedScenario.id);
+    setNaiveJson(JSON.stringify(matchedScenario.naiveRule.match, null, 2));
+    setTunedJson(JSON.stringify(matchedScenario.tunedRule.match, null, 2));
+  }, []);
 
   const naiveResult = useMemo(() => {
     let m: Match;

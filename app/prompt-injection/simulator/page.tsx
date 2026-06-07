@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   AGENT_SCENARIOS,
   DEFAULT_HARDENED_POLICY,
@@ -15,6 +15,28 @@ import {
 export default function Simulator() {
   const [selectedId, setSelectedId] = useState<string>(AGENT_SCENARIOS[0].id);
   const [policy, setPolicy] = useState<HardenedPolicy>(DEFAULT_HARDENED_POLICY);
+
+  function selectScenario(nextScenarioId: string) {
+    setSelectedId(nextScenarioId);
+    if (typeof window !== "undefined") {
+      const nextUrl = new URL(window.location.href);
+      nextUrl.searchParams.set("scenario", nextScenarioId);
+      window.history.replaceState({}, "", nextUrl.toString());
+    }
+  }
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const deepLinkedScenario = new URLSearchParams(window.location.search).get(
+      "scenario",
+    );
+    if (!deepLinkedScenario) return;
+    const matchedScenario = AGENT_SCENARIOS.find(
+      (scenario) => scenario.id === deepLinkedScenario,
+    );
+    if (!matchedScenario) return;
+    setSelectedId(matchedScenario.id);
+  }, []);
 
   const scenario: AgentScenario = useMemo(
     () =>
@@ -106,7 +128,7 @@ export default function Simulator() {
           <button
             key={s.id}
             type="button"
-            onClick={() => setSelectedId(s.id)}
+            onClick={() => selectScenario(s.id)}
             style={{
               textAlign: "left",
               padding: "0.55rem 0.7rem",

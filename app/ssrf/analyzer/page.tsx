@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   analyze,
   sevRank,
@@ -31,6 +31,33 @@ export default function SsrfAnalyzer() {
   const [scenarioId, setScenarioId] = useState<SsrfScenarioId>(
     SSRF_CATALOG[0].id,
   );
+
+  function selectScenario(nextScenarioId: SsrfScenarioId) {
+    const nextScenario =
+      SSRF_CATALOG.find((scenario) => scenario.id === nextScenarioId) ??
+      SSRF_CATALOG[0];
+    setScenarioId(nextScenario.id);
+    setUrl(nextScenario.request.url);
+    if (typeof window !== "undefined") {
+      const nextUrl = new URL(window.location.href);
+      nextUrl.searchParams.set("scenario", nextScenario.id);
+      window.history.replaceState({}, "", nextUrl.toString());
+    }
+  }
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const deepLinkedScenario = new URLSearchParams(window.location.search).get(
+      "scenario",
+    ) as SsrfScenarioId | null;
+    if (!deepLinkedScenario) return;
+    const matchedScenario = SSRF_CATALOG.find(
+      (scenario) => scenario.id === deepLinkedScenario,
+    );
+    if (!matchedScenario) return;
+    setScenarioId(matchedScenario.id);
+    setUrl(matchedScenario.request.url);
+  }, []);
 
   const scenario = useMemo(
     () => SSRF_CATALOG.find((s) => s.id === scenarioId) ?? SSRF_CATALOG[0],
@@ -326,7 +353,7 @@ export default function SsrfAnalyzer() {
           <button
             key={s.id}
             type="button"
-            onClick={() => setScenarioId(s.id)}
+            onClick={() => selectScenario(s.id)}
             style={{
               textAlign: "left",
               padding: "0.55rem 0.7rem",
